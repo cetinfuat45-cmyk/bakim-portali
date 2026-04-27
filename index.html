@@ -283,15 +283,19 @@
                     counts.total++;
                     const info = getTypeInfo(tur);
                     const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
+                    const isNew = (machine === "" || machine.startsWith('#'));
 
-                    if (datePart === today) {
+                    // BUGÜNÜN ARIZALARI + P-Z BOŞSA -> KART (GRID)
+                    if (datePart === today && isNew) {
                         if (tur.includes("MEKANİK")) counts.mek++;
                         else if (tur.includes("ELEKTRİK")) counts.elek++;
                         else if (tur.includes("İSG")) counts.isg++;
                         else if (tur.includes("PLANLI")) counts.plan++;
 
                         todayTasks.push({ info, name, tech, timePart, desc, acan, datePart });
-                    } else {
+                    } 
+                    // ESKİ ARIZALAR VEYA P-Z DOLU OLANLAR -> TABLO (LİSTE)
+                    else {
                         const rowHtml = `
                             <div class="list-row">
                                 <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
