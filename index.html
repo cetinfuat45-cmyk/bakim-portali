@@ -4,27 +4,298 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bakım HUB | Kesintisiz İzleme</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body class="bg-[#0f172a] text-slate-100">
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --neon-red: 0 0 15px rgba(239, 68, 68, 0.3);
+            --neon-blue: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
 
-    <nav class="border-b border-slate-800 bg-[#1e293b]/90 backdrop-blur sticky top-0 z-50 p-4">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2 text-red-500">
-                <span class="material-icons animate-pulse">warning</span>
-                <span class="font-bold text-xl tracking-tight text-white uppercase italic">Aktif<span class="text-blue-500 font-black">ARIZALAR</span></span>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.05) 0%, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styling */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: -1px;
+            font-size: 1.5rem;
+        }
+
+        .logo .warning-icon {
+            color: var(--accent-red);
+            animation: pulse 2s infinite;
+        }
+
+        .logo span span {
+            color: var(--accent-blue);
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            max-width: 1200px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem 4rem;
+        }
+
+        .data-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-left: 6px solid var(--border-color, var(--accent-blue));
+            padding: 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .task-card:hover {
+            transform: translateX(5px);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .task-info h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.5px;
+        }
+
+        .task-bolum {
+            font-size: 0.7rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .task-desc {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            margin-top: 0.6rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+
+        .meta-item .material-icons {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .task-type-badge {
+            padding: 0.6rem 1.2rem;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border: 1.5px solid currentColor;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .loading-view {
+            text-align: center;
+            padding: 5rem;
+            color: var(--text-dim);
+            font-weight: 800;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .task-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            .task-type-badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <span class="material-icons warning-icon">warning</span>
+                <span>Bakım<span>HUB</span></span>
             </div>
-            <div class="bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase">
-                <span class="h-2 w-2 rounded-full bg-green-500"></span> HUB CANLI
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                HUB CANLI İZLEME
             </div>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto p-4 py-8">
-        <div id="data-list" class="grid gap-4 text-center py-20 text-slate-500 font-mono text-xs tracking-widest">
-            SİSTEM TARANIYOR...
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Toplam Arıza</span>
+            <span class="stat-value" id="count-total">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label" style="color: var(--accent-red)">Mekanik</span>
+            <span class="stat-value" id="count-mekanik" style="color: var(--accent-red)">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label" style="color: var(--accent-blue)">Elektrik</span>
+            <span class="stat-value" id="count-elektrik" style="color: var(--accent-blue)">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Diğer Bağlantılı</span>
+            <span class="stat-value" id="count-other">0</span>
+        </div>
+    </div>
+
+    <main>
+        <div id="data-list" class="data-list">
+            <div class="loading-view">Sistem Taranıyor...</div>
         </div>
     </main>
 
@@ -32,53 +303,103 @@
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
 
         function fetchData() {
-            Papa.parse(CSV_URL, {
+            // Anti-cache string
+            const url = CSV_URL + '&t=' + new Date().getTime();
+            Papa.parse(url, {
                 download: true,
-                header: false, // SÜTUN İSİMLERİNE BAKMA, SIRALAMAYA BAK
+                header: false,
                 skipEmptyLines: true,
                 complete: function(results) {
                     processRows(results.data);
+                },
+                error: function(err) {
+                    console.error("CSV Fetch Error:", err);
+                    document.getElementById('data-list').innerHTML = `<div class="loading-view" style="color: var(--accent-red)">Bağlantı Hatası</div>`;
                 }
             });
         }
 
         function processRows(rows) {
             const list = document.getElementById('data-list');
-            list.innerHTML = "";
-            
-            // İlk satır başlıktır, onu atla
             const dataRows = rows.slice(1);
             
-            // FİLTRE: P sütununda (15. index) veri olan ve R sütununda (17. index) veri olmayanlar
-            // Not: JS'de sayma 0'dan başlar. P=15, R=17
             const activeTasks = dataRows.filter(row => {
-                const makineAdi = row[15]; // P Sütunu
-                const bakimiYapan = row[17]; // R Sütunu (Bakımı Yapan-1)
-                
+                const makineAdi = row[15]; 
+                const bakimiYapan = row[17]; 
                 return makineAdi && makineAdi.trim() !== "" && (!bakimiYapan || bakimiYapan.trim() === "");
             });
 
+            // Stats update
+            let counts = { mekanik: 0, elektrik: 0, other: 0 };
+            activeTasks.forEach(task => {
+                const tur = (task[8] || "").toLowerCase();
+                if (tur.includes("mekanik")) counts.mekanik++;
+                else if (tur.includes("elektrik")) counts.elektrik++;
+                else counts.other++;
+            });
+
+            // Update stats with mini animation
+            updateValue('count-total', activeTasks.length);
+            updateValue('count-mekanik', counts.mekanik);
+            updateValue('count-elektrik', counts.elektrik);
+            updateValue('count-other', counts.other);
+
             if (activeTasks.length === 0) {
-                list.innerHTML = `<div class="py-20 opacity-30 uppercase font-black tracking-widest italic">Açık Arıza Kaydı Yok</div>`;
+                list.innerHTML = `<div class="loading-view" style="opacity: 0.5; animation: none;">Açık Arıza Kaydı Bulunmuyor</div>`;
                 return;
             }
 
+            let html = "";
             activeTasks.reverse().forEach(row => {
-                const tarih = row[0];   // A Sütunu
-                const acan = row[2];    // C Sütunu
-                const bolum = row[4];   // E Sütunu
-                const tur = row[8];     // I Sütunu (Arıza Türü)
-                const aciklama = row[10]; // K Sütunu
-                const makine = row[15];  // P Sütunu
+                const tarih = row[0];
+                const acan = row[2];
+                const bolum = row[4];
+                const tur = row[8] || "DİĞER";
+                const aciklama = row[10];
+                const makine = row[15];
                 
                 const isUrgent = tur.toLowerCase().includes("elektrik") || tur.toLowerCase().includes("mekanik");
+                const accentColor = tur.toLowerCase().includes("mekanik") ? "#ef4444" : 
+                                  tur.toLowerCase().includes("elektrik") ? "#3b82f6" : "#94a3b8";
 
-                list.innerHTML += `
-                    <div class="bg-[#1e293b] p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-2xl border-l-4 ${isUrgent ? 'border-l-red-500' : 'border-l-blue-500'}">
-                        <div class="flex-1 pr-4">
-                            <div class="flex items-center gap-2 mb-1">
-                                <h3 class="font-black text-lg text-white">${makine}</h3>
-                                <span class="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-black border border-slate-700 uppercase">${bolum}</span>
+                html += `
+                    <div class="task-card" style="--border-color: ${accentColor}">
+                        <div class="task-info">
+                            <div style="display: flex; align-items: center; gap: 0.8rem">
+                                <h3>${makine}</h3>
+                                <span class="task-bolum">${bolum}</span>
                             </div>
-                            <p class="text-[11px] text-slate-400 font-medium">${aciklama}</p>
-                            <div class="flex items-center gap-3 mt-4 text-[9px] text-slate-500 font-bold
+                            <p class="task-desc">${aciklama}</p>
+                            <div class="task-meta">
+                                <div class="meta-item">
+                                    <span class="material-icons">person_outline</span> ${acan}
+                                </div>
+                                <div class="meta-item">
+                                    <span class="material-icons">access_time</span> ${tarih}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-type-badge" style="color: ${accentColor}">
+                            <span class="material-icons" style="font-size: 1rem">${isUrgent ? 'bolt' : 'info'}</span>
+                            ${tur}
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function updateValue(id, value) {
+            const el = document.getElementById(id);
+            if (el.innerText != value) {
+                el.style.transform = "scale(1.2)";
+                el.innerText = value;
+                setTimeout(() => el.style.transform = "scale(1)", 200);
+            }
+        }
+
+        window.onload = fetchData;
+        setInterval(fetchData, 20000);
+    </script>
+</body>
+</html>
