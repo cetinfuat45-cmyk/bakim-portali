@@ -233,34 +233,37 @@
             --c: #94a3b8;
         }
 
-        /* New Record Alert Window */
+        /* New Record Alert Window - Enlarged */
         #alert-overlay {
             position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%);
-            width: 450px; padding: 30px;
+            width: 650px; padding: 40px;
             background: #020617;
             z-index: 9999; display: none; align-items: center; justify-content: center;
             flex-direction: column; text-align: center;
-            border: 4px solid var(--isg); border-radius: 12px;
-            box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+            border: 5px solid var(--isg); border-radius: 15px;
+            box-shadow: 0 0 80px rgba(239, 68, 68, 0.6);
             animation: pulse-alert 1s infinite;
         }
         @keyframes pulse-alert {
             0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.02); }
+            50% { transform: translate(-50%, -50%) scale(1.03); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
-        #alert-overlay h1 { font-size: 32px; color: #fff; margin-bottom: 10px; font-weight: 800; }
-        #alert-overlay .timer { font-size: 16px; color: var(--text-dim); margin-bottom: 25px; }
-        #alert-overlay .close-btn { 
-            background: var(--isg); color: #fff; padding: 10px 30px; border-radius: 8px; 
-            font-weight: 800; font-size: 14px; cursor: pointer; border: none;
-        }
+        #alert-overlay h1 { font-size: 36px; color: #fff; margin-bottom: 20px; font-weight: 800; border-bottom: 2px solid var(--isg); padding-bottom: 10px; width: 100%; }
+        #alert-details { width: 100%; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--isg); }
+        #alert-details .d-label { font-size: 14px; color: var(--text-dim); margin-bottom: 5px; font-weight: 800; text-transform: uppercase; }
+        #alert-details .d-val { font-size: 24px; color: #fff; font-weight: 800; margin-bottom: 15px; }
+        #alert-details .d-desc { font-size: 18px; color: #4ade80; font-weight: 700; line-height: 1.4; }
+        
+        #alert-overlay .timer { font-size: 16px; color: #94a3b8; margin-bottom: 25px; }
 
         /* Mobile / Android Responsive Fixes */
         @media screen and (max-width: 768px) {
-            #alert-overlay h1 { font-size: 40px; }
-            #alert-overlay .timer { font-size: 20px; }
+            #alert-overlay { width: 90%; padding: 20px; }
+            #alert-overlay h1 { font-size: 24px; }
+            #alert-details .d-val { font-size: 18px; }
+            #alert-details .d-desc { font-size: 14px; }
             .top-bar {
                 height: auto;
                 flex-wrap: wrap;
@@ -296,8 +299,17 @@
 <body>
 
     <div id="alert-overlay">
-        <span class="material-icons" style="font-size: 64px; color: var(--isg); margin-bottom: 15px;">warning</span>
+        <span class="material-icons" style="font-size: 48px; color: var(--isg); margin-bottom: 10px;">warning</span>
         <h1>YENİ ARIZA KAYDI!</h1>
+        <div id="alert-details">
+            <div class="d-label">Makine / Bölüm</div>
+            <div class="d-val" id="alert-machine">-</div>
+            <div class="d-label">Arıza Açıklaması</div>
+            <div class="d-desc" id="alert-desc">-</div>
+            <div style="margin-top:15px; font-size:14px; color:#fff">
+                <span style="color:var(--text-dim)">BİLDİREN:</span> <span id="alert-person">-</span>
+            </div>
+        </div>
         <div class="timer">Bu uyarı <span id="alert-timer">30</span> saniye içinde kapanacaktır.</div>
         <button class="close-btn" onclick="closeAlert()">KAPAT</button>
     </div>
@@ -358,11 +370,15 @@
         let lastTotalCount = -1;
         let alertInterval;
 
-        function showAlert() {
+        function showAlert(machine, desc, person) {
             const overlay = document.getElementById('alert-overlay');
             const timerSpan = document.getElementById('alert-timer');
-            let timeLeft = 30;
+            
+            document.getElementById('alert-machine').innerText = machine;
+            document.getElementById('alert-desc').innerText = desc;
+            document.getElementById('alert-person').innerText = person;
 
+            let timeLeft = 30;
             overlay.style.display = 'flex';
             timerSpan.innerText = timeLeft;
 
@@ -389,6 +405,8 @@
             let todayTasks = [];
             let gridHtml = "";
             let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
+            
+            let latestTask = null;
 
             dataRows.forEach(row => {
                 const rawDate = row[0] || "";
@@ -397,12 +415,14 @@
 
                 if (finished === "" && rawDate !== "" && desc !== "-") {
                     counts.total++;
+                    latestTask = row; // Döngü bittiğinde en sonuncuyu tutar
                 }
             });
 
             // Yeni kayıt tespiti
-            if (lastTotalCount !== -1 && counts.total > lastTotalCount) {
-                showAlert();
+            if (lastTotalCount !== -1 && counts.total > lastTotalCount && latestTask) {
+                const machine = (latestTask[15] || "").trim() || latestTask[4] || "-";
+                showAlert(machine, latestTask[10], latestTask[2]);
             }
             lastTotalCount = counts.total;
 
