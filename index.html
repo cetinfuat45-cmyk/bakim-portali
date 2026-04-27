@@ -36,35 +36,47 @@
             font-size: 11px;
         }
 
+        /* Top Bar - Enhanced */
         .top-bar {
-            height: 24px;
+            height: 34px;
             background: var(--header-black);
             display: flex;
             align-items: center;
-            padding: 0 10px;
-            gap: 12px;
+            padding: 0 15px;
+            gap: 20px;
             border-bottom: 1px solid #1e293b;
         }
 
         .stat-btn {
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-size: 8px;
+            gap: 6px;
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
         }
 
         .stat-btn span:last-child {
             background: #1e293b;
-            padding: 0 4px;
-            border-radius: 3px;
+            padding: 1px 8px;
+            border-radius: 4px;
             color: #fff;
-            font-size: 9px;
+            font-size: 14px;
         }
 
         .stat-btn .material-icons {
-            font-size: 10px;
+            font-size: 16px;
+        }
+
+        .fs-toggle {
+            margin-left: auto;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .fs-toggle:hover {
+            color: #fff;
         }
 
         .section-header {
@@ -227,15 +239,15 @@
 
     <div class="top-bar">
         <div class="stat-btn">TOPLAM <span id="s-total">0</span></div>
-        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span
-                id="s-mek">0</span></div>
-        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span
-                id="s-elek">0</span></div>
-        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span
-                id="s-isg">0</span></div>
+        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span id="s-mek">0</span></div>
+        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span id="s-elek">0</span></div>
+        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span id="s-isg">0</span></div>
         <div class="stat-btn"><span class="material-icons">history</span> TEKRAR <span id="s-tek">0</span></div>
-        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span
-                id="s-plan">0</span></div>
+        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
+        
+        <div class="fs-toggle" id="fs-btn">
+            <span class="material-icons">fullscreen</span>
+        </div>
     </div>
 
     <div class="section-header" style="color:var(--is)">BUGÜNÜN ARIZALARI</div>
@@ -363,6 +375,18 @@
                 complete: function (res) { processData(res.data); }
             });
         }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.getElementById('fs-btn').onclick = toggleFullScreen;
 
         window.onload = fetchData;
         setInterval(fetchData, 10000);
