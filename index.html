@@ -387,12 +387,13 @@
                     processRows(results.data);
                 },
                 error: function(err) {
-                    console.error("CSV Fetch Error:", err);
+                    console.error("CSV Fetch Error Details:", err);
                     document.getElementById('data-list').innerHTML = `
                         <div class="connection-error">
                             <span class="material-icons error-icon">wifi_off</span>
                             <h2>BAĞLANTI KESİLDİ</h2>
-                            <p>Google E-Tablo yayınına erişilemiyor. Lütfen "Web'de Yayınla" ayarlarını ve internet bağlantınızı kontrol edin.</p>
+                            <p>Verilere ulaşılamıyor. Dosyayı GitHub üzerinden açtığınızdan veya E-Tablonun "Web'de Yayınla" ayarının açık olduğundan emin olun.</p>
+                            <button onclick="location.reload()" style="margin-top:20px; padding:10px 25px; background:var(--accent-red); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">TEKRAR DENE</button>
                         </div>
                     `;
                 }
