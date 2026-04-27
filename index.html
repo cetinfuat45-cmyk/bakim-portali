@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakım HUB | Stabil Versiyon</title>
+    <title>HUB.CORE | Kesintisiz İzleme</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans">
+<body class="bg-slate-900 text-slate-100 selection:bg-blue-500">
 
-    <nav class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-50 p-4 shadow-xl">
+    <nav class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-50 p-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <span class="material-icons text-blue-500">terminal</span>
-                <span class="font-bold text-xl tracking-tight">BAKIM<span class="text-blue-500 font-black tracking-widest ml-1">HUB.PRO</span></span>
+                <span class="material-icons text-blue-500">dashboard</span>
+                <span class="font-bold text-xl tracking-tighter uppercase">BAKIM<span class="text-blue-500 font-black italic">HUB</span></span>
             </div>
-            <div id="status-box" class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-                <span id="status-dot" class="h-2 w-2 rounded-full bg-green-500"></span>
-                <span id="status-text" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest font-mono">SENKRONİZE</span>
+            <div id="connection-status" class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 transition-all">
+                <span id="dot" class="h-2 w-2 rounded-full bg-green-500"></span>
+                <span id="text" class="text-[9px] font-black uppercase tracking-widest text-slate-400 font-mono">BAĞLI</span>
             </div>
         </div>
     </nav>
@@ -26,83 +26,103 @@
     <main class="max-w-5xl mx-auto p-4 py-8">
         <div id="data-list" class="grid gap-4">
             <div class="text-center py-20">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                <p class="text-slate-500 text-sm font-mono uppercase tracking-tighter">Veri Akışı Başlatılıyor...</p>
+                <div class="inline-block animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Sistem Senkronize Ediliyor...</p>
             </div>
         </div>
     </main>
 
     <script>
-        const CSV_LINK = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
+        
+        let lastKnownGoodData = null; // Hafıza birimi
 
-        let lastData = []; // Veri gitmesini önlemek için yedekleme
-
-        function loadData() {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
+        function fetchData() {
+            const dot = document.getElementById('dot');
+            const text = document.getElementById('text');
             
-            statusDot.classList.replace('bg-green-500', 'bg-yellow-500');
-            statusText.innerText = "GÜNCELLENİYOR";
+            // Güncelleme başladığında uyarı ver
+            dot.className = "h-2 w-2 rounded-full bg-yellow-500 animate-pulse";
+            text.innerText = "GÜNCELLENİYOR";
 
-            Papa.parse(CSV_LINK, {
+            Papa.parse(CSV_URL, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    if (results.data && results.data.length > 0) {
-                        lastData = results.data; // Veri geldiyse yedeği güncelle
-                        renderCards(results.data);
-                        statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
-                        statusText.innerText = "SENKRONİZE";
+                    // Eğer veri gerçekten dolu geldiyse işle
+                    if (results.data && results.data.length > 0 && results.data[0]["MAKİNE ADI"]) {
+                        lastKnownGoodData = results.data;
+                        updateUI(results.data);
+                        
+                        dot.className = "h-2 w-2 rounded-full bg-green-500";
+                        text.innerText = "BAĞLI";
                     } else {
-                        handleError();
+                        // Veri boş geldiyse eskiyi koru
+                        keepLastData("Boş Veri Hatası");
                     }
                 },
                 error: function() {
-                    handleError();
+                    keepLastData("Bağlantı Hatası");
                 }
             });
         }
 
-        function handleError() {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
-            statusDot.classList.replace('bg-green-500', 'bg-red-500');
-            statusDot.classList.replace('bg-yellow-500', 'bg-red-500');
-            statusText.innerText = "BAĞLANTI HATASI";
+        function keepLastData(errorType) {
+            const dot = document.getElementById('dot');
+            const text = document.getElementById('text');
+            dot.className = "h-2 w-2 rounded-full bg-red-500";
+            text.innerText = errorType;
             
-            // Veri gittiyse ama yedekte varsa, yedeği göster
-            if (lastData.length > 0) renderCards(lastData);
+            if (lastKnownGoodData) {
+                updateUI(lastKnownGoodData);
+            }
         }
 
-        function renderCards(data) {
-            const list = document.getElementById('data-list');
-            list.innerHTML = "";
+        function updateUI(data) {
+            const container = document.getElementById('data-list');
+            container.innerHTML = "";
             
-            // Verileri tersten sırala (En yeni üstte)
-            [...data].reverse().forEach(item => {
+            // Ters sıralama (en yeni üstte)
+            const sortedData = [...data].reverse();
+
+            sortedData.forEach(item => {
                 const makine = item["MAKİNE ADI"];
-                const bolum = item["BÖLÜM"];
-                const arizaTuru = item["ARIZA TÜRÜ"];
-                const aciklama = item["ARIZA AÇIKLAMA"] || "";
-                const yapan = item["BAKIMI YAPAN-1"] || "-";
+                const bolum = item["BÖLÜM"] || "Genel";
+                const durum = item["ARIZA TÜRÜ"] || "Belirsiz";
+                const aciklama = item["ARIZA AÇIKLAMA"] || "Detay yok";
+                const personel = item["BAKIMI YAPAN-1"] || "-";
 
-                if(!makine || makine.trim() === "") return;
+                if (!makine || makine.trim() === "") return;
 
-                const isCritical = arizaTuru?.toLowerCase().includes("elektrik") || arizaTuru?.toLowerCase().includes("mekanik");
+                const isCritical = durum.toLowerCase().includes("arıza") || durum.toLowerCase().includes("elektrik") || durum.toLowerCase().includes("mekanik");
 
-                list.innerHTML += `
-                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-2xl transition-all border-l-4 ${isCritical ? 'border-l-red-500' : 'border-l-blue-500'}">
+                container.innerHTML += `
+                    <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/50 flex justify-between items-center shadow-lg border-l-4 ${isCritical ? 'border-l-red-500' : 'border-l-blue-500'}">
                         <div class="flex-1 pr-4">
-                            <div class="flex items-center gap-2 mb-1">
-                                <h3 class="font-black text-lg text-white tracking-tight">${makine}</h3>
-                                <span class="text-[9px] bg-slate-700/50 px-2 py-0.5 rounded text-slate-400 font-bold border border-slate-600">${bolum}</span>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="font-black text-lg text-white leading-none">${makine}</h3>
+                                <span class="text-[9px] bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded font-black tracking-tighter uppercase">${bolum}</span>
                             </div>
-                            <p class="text-[11px] text-slate-400 font-medium leading-relaxed">${aciklama}</p>
-                            <div class="flex items-center gap-1 mt-3 text-slate-500">
+                            <p class="text-[11px] text-slate-400 font-medium mb-3">${aciklama}</p>
+                            <div class="flex items-center gap-1.5 opacity-60">
                                 <span class="material-icons text-[12px]">person</span>
-                                <span class="text-[10px] font-bold uppercase tracking-tighter">${yapan}</span>
+                                <span class="text-[10px] font-bold uppercase tracking-widest">${personel}</span>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-inner ${isCritical ? 'bg-red-500/10 text-red-500 border border-red
+                        <div class="text-right flex flex-col items-end gap-2">
+                            <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${isCritical ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}">
+                                ${durum}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Başlatma ve Döngü
+        window.onload = fetchData;
+        setInterval(fetchData, 15000); // 15 saniyede bir kontrol et
+    </script>
+</body>
+</html>
