@@ -200,6 +200,7 @@
             display: flex;
             gap: 2rem;
             margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
 
         .meta-item {
@@ -227,6 +228,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            min-width: 160px;
+            justify-content: center;
         }
 
         /* Animations */
@@ -272,24 +275,7 @@
             color: var(--accent-green);
         }
 
-        .systems-healthy p {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        @keyframes shieldPulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Error State Styling */
+        /* Connection Error Styling */
         .connection-error {
             text-align: center;
             padding: 6rem 2rem;
@@ -314,11 +300,15 @@
             color: var(--accent-red);
         }
 
-        .connection-error p {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            max-width: 400px;
-            line-height: 1.6;
+        @keyframes shieldPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
@@ -377,7 +367,6 @@
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
 
         function fetchData() {
-            // Anti-cache string
             const url = CSV_URL + '&t=' + new Date().getTime();
             Papa.parse(url, {
                 download: true,
@@ -387,12 +376,12 @@
                     processRows(results.data);
                 },
                 error: function(err) {
-                    console.error("CSV Fetch Error Details:", err);
+                    console.error("CSV Fetch Error:", err);
                     document.getElementById('data-list').innerHTML = `
                         <div class="connection-error">
                             <span class="material-icons error-icon">wifi_off</span>
                             <h2>BAĞLANTI KESİLDİ</h2>
-                            <p>Verilere ulaşılamıyor. Dosyayı GitHub üzerinden açtığınızdan veya E-Tablonun "Web'de Yayınla" ayarının açık olduğundan emin olun.</p>
+                            <p>E-Tablo yayınına ulaşılamıyor. Lütfen "Web'de Yayınla" ve "CSV" ayarlarınızı kontrol edin.</p>
                             <button onclick="location.reload()" style="margin-top:20px; padding:10px 25px; background:var(--accent-red); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">TEKRAR DENE</button>
                         </div>
                     `;
@@ -404,13 +393,13 @@
             const list = document.getElementById('data-list');
             const dataRows = rows.slice(1);
             
+            // FILTRE: P sütunu (index 15) boş olanlar "Açık" kabul edilir
             const activeTasks = dataRows.filter(row => {
-                const makineAdi = row[15]; 
-                const bakimiYapan = row[17]; 
-                return makineAdi && makineAdi.trim() !== "" && (!bakimiYapan || bakimiYapan.trim() === "");
+                const makineP = row[15]; 
+                return (!makineP || makineP.trim() === "");
             });
 
-            // Stats update
+            // İstatistikleri hesapla
             let counts = { mekanik: 0, elektrik: 0, other: 0 };
             activeTasks.forEach(task => {
                 const tur = (task[8] || "").toLowerCase();
@@ -419,11 +408,12 @@
                 else counts.other++;
             });
 
-            // Update stats with mini animation
             updateValue('count-total', activeTasks.length);
             updateValue('count-mekanik', counts.mekanik);
             updateValue('count-elektrik', counts.elektrik);
             updateValue('count-other', counts.other);
+            
+            list.innerHTML = '';
 
             if (activeTasks.length === 0) {
                 list.innerHTML = `
@@ -437,29 +427,33 @@
             }
 
             let html = "";
-            activeTasks.reverse().forEach(row => {
-                const tarih = row[0];
-                const acan = row[2];
-                const bolum = row[4];
-                const tur = row[8] || "DİĞER";
-                const aciklama = row[10];
-                const makine = row[15];
+            activeTasks.slice().reverse().forEach(row => {
+                const tarih = row[0] || "-";
+                const acan = row[2] || "-";
+                const bolum = row[4] || "-";
+                const vardiya = row[6] || "-";
+                const tur = (row[8] || "DİĞER").toUpperCase();
+                const aciklama = row[10] || "-";
+                const gorevli = row[14] || "Bekliyor";
                 
-                const isUrgent = tur.toLowerCase().includes("elektrik") || tur.toLowerCase().includes("mekanik");
-                const accentColor = tur.toLowerCase().includes("mekanik") ? "#ef4444" : 
-                                  tur.toLowerCase().includes("elektrik") ? "#3b82f6" : "#94a3b8";
+                const isUrgent = tur.toLowerCase().includes("mekanik") || tur.toLowerCase().includes("elektrik");
+                const accentColor = tur.toLowerCase().includes("mekanik") ? "var(--accent-red)" : 
+                                  tur.toLowerCase().includes("elektrik") ? "var(--accent-blue)" : "var(--accent-green)";
 
                 html += `
                     <div class="task-card" style="--border-color: ${accentColor}">
                         <div class="task-info">
                             <div style="display: flex; align-items: center; gap: 0.8rem">
-                                <h3>${makine}</h3>
-                                <span class="task-bolum">${bolum}</span>
+                                <h3>${bolum}</h3>
+                                <span class="task-bolum">${vardiya}</span>
                             </div>
                             <p class="task-desc">${aciklama}</p>
                             <div class="task-meta">
                                 <div class="meta-item">
                                     <span class="material-icons">person_outline</span> ${acan}
+                                </div>
+                                <div class="meta-item">
+                                    <span class="material-icons">engineering</span> ${gorevli}
                                 </div>
                                 <div class="meta-item">
                                     <span class="material-icons">access_time</span> ${tarih}
