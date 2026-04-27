@@ -3,33 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUB.CORE Bakım Portalı</title>
+    <title>Bakım HUB | Fabrika Takip</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="bg-slate-900 text-slate-100">
 
-    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 p-4 shadow-2xl">
+    <nav class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 p-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <span class="material-icons text-blue-500">settings_remote</span>
-                <span class="font-bold text-xl tracking-tighter text-white">BAKIM<span class="text-blue-500">HUB</span></span>
+                <span class="material-icons text-blue-500">construction</span>
+                <span class="font-bold text-xl tracking-tight uppercase">Bakım<span class="text-blue-500 font-black">HUB</span></span>
             </div>
-            <span id="sync-status" class="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-1 rounded border border-blue-500/20 font-bold uppercase tracking-widest">SİSTEM CANLI</span>
+            <div class="flex items-center gap-2">
+                <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sistem Aktif</span>
+            </div>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto p-4 py-8">
         <div id="data-list" class="grid gap-4">
-            <div class="text-center py-20">
-                <p class="text-slate-500 animate-bounce">Veriler senkronize ediliyor...</p>
+            <div class="text-center py-20 text-slate-500 italic animate-pulse">
+                Fabrika verileri senkronize ediliyor...
             </div>
         </div>
     </main>
 
     <script>
-        const CSV_LINK = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
+        // Sizin ekran görüntünüzdeki linki tam olarak buraya koydum
+        const CSV_LINK = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
 
         function loadData() {
             Papa.parse(CSV_LINK, {
@@ -46,25 +50,33 @@
             const list = document.getElementById('data-list');
             list.innerHTML = "";
             
-            data.forEach(item => {
-                // Sütun başlıklarını tablonuzdaki isimlerle eşleştirdik
-                const makineAdi = item["MAKİNE ADI"];
-                const durumu = item["DURUMU"];
-                const arizaNedeni = item["ARIZA NEDENİ"] || "Detay yok";
+            // Verileri tersten sırala (En yeni kayıt en üstte görünsün)
+            data.reverse().forEach(item => {
+                // Sizin tablonuzdaki başlıklar
+                const makine = item["MAKİNE ADI"];
+                const bolum = item["BÖLÜM"];
+                const arizaTuru = item["ARIZA TÜRÜ"];
+                const aciklama = item["ARIZA AÇIKLAMA"] || "Detay yok";
+                const yapan = item["BAKIMI YAPAN-1"] || "Atanmadı";
 
-                if(!makineAdi) return;
+                if(!makine) return;
 
-                const isError = durumu?.toLowerCase().includes("arıza") || durumu?.toLowerCase().includes("duruş");
+                // Arıza türüne göre renk belirle
+                const isCritical = arizaTuru?.toLowerCase().includes("elektrik") || arizaTuru?.toLowerCase().includes("mekanik");
 
                 list.innerHTML += `
-                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-lg transition-all active:scale-95">
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-lg border-l-4 ${isCritical ? 'border-l-red-500' : 'border-l-blue-500'}">
                         <div class="flex-1">
-                            <h3 class="font-bold text-lg text-white">${makineAdi}</h3>
-                            <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider font-semibold italic">${arizaNedeni}</p>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h3 class="font-bold text-lg text-white">${makine}</h3>
+                                <span class="text-[9px] bg-slate-700 px-2 py-0.5 rounded text-slate-400 font-bold">${bolum}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 font-medium">${aciklama}</p>
+                            <p class="text-[9px] text-slate-500 mt-2 italic font-semibold">Bakımcı: ${yapan}</p>
                         </div>
-                        <div class="ml-4">
-                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${isError ? 'bg-red-500/20 text-red-500 border border-red-500/40' : 'bg-green-500/20 text-green-500 border border-green-500/40'}">
-                                ${durumu || 'BELİRSİZ'}
+                        <div class="ml-4 text-right">
+                            <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${isCritical ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-blue-500/20 text-blue-500 border border-blue-500/30'}">
+                                ${arizaTuru}
                             </span>
                         </div>
                     </div>
@@ -73,7 +85,7 @@
         }
 
         window.onload = loadData;
-        setInterval(loadData, 20000); // 20 saniyede bir otomatik tazeler
+        setInterval(loadData, 15000); // 15 saniyede bir otomatik tazeler
     </script>
 </body>
 </html>
