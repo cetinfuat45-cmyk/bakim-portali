@@ -14,9 +14,9 @@
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <span class="material-icons text-blue-500">analytics</span>
-                <span class="font-bold text-xl">BAKIM<span class="text-blue-500 text-xs">HUB</span></span>
+                <span class="font-bold text-xl">BAKIM<span class="text-blue-500 text-xs text-bold">HUB</span></span>
             </div>
-            <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded">CANLI SİSTEM</span>
+            <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded font-bold uppercase">Canlı Sistem</span>
         </div>
     </nav>
 
@@ -27,8 +27,7 @@
     </main>
 
     <script>
-        // ÖNEMLİ: Kendi Google Sheets CSV linkini tırnak içine koy
-        const CSV_LINK = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?output=csv'; 
+        const CSV_LINK = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?output=csv';
 
         function loadData() {
             Papa.parse(CSV_LINK, {
@@ -47,13 +46,13 @@
                 if(!item.Makine) return;
                 const isError = item.Durum?.toLowerCase().includes("arıza");
                 list.innerHTML += `
-                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center">
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-lg">
                         <div>
-                            <h3 class="font-bold text-lg">${item.Makine}</h3>
-                            <p class="text-sm text-slate-400">${item.Bölüm || 'Genel Bakım'}</p>
+                            <h3 class="font-bold text-lg text-white">${item.Makine}</h3>
+                            <p class="text-xs text-slate-400 uppercase tracking-widest">${item.Bölüm || 'Genel Saha'}</p>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-[10px] font-bold ${isError ? 'bg-red-500/20 text-red-500 border border-red-500' : 'bg-green-500/20 text-green-500 border border-green-500'}">
-                            ${item.Durum || 'Belirsiz'}
+                        <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${isError ? 'bg-red-500/20 text-red-500 border border-red-500/50' : 'bg-green-500/20 text-green-500 border border-green-500/50'}">
+                            ${item.Durum || 'BİLİNMİYOR'}
                         </span>
                     </div>
                 `;
