@@ -324,7 +324,7 @@
         
         <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
             <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
-                YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">10</span>S
+                YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">20</span>S
             </div>
             <div class="stat-btn" style="gap: 2px; color: var(--text-dim);">
                 ÖLÇEK: 
@@ -557,12 +557,12 @@
         const savedScale = localStorage.getItem('hub-scale');
         applyScale(savedScale || '0.75');
 
-        let refreshCounter = 10;
+        let refreshCounter = 20;
         function updateRefreshTimer() {
             refreshCounter--;
             if (refreshCounter <= 0) {
                 fetchData();
-                refreshCounter = 10;
+                refreshCounter = 20;
             }
             document.getElementById('refresh-timer').innerText = refreshCounter;
         }
