@@ -402,21 +402,40 @@
             clearInterval(alertInterval);
         }
 
+        function parseDateComponents(str) {
+            if (!str) return null;
+            // Gün, Ay, Yıl bul (Ayraç ne olursa olsun)
+            const parts = str.split(' ')[0].split(/[\.\/]/);
+            if (parts.length < 3) return null;
+            return {
+                d: parseInt(parts[0], 10),
+                m: parseInt(parts[1], 10),
+                y: parseInt(parts[2], 10)
+            };
+        }
+
+        function isToday(comp1, comp2) {
+            if (!comp1 || !comp2) return false;
+            return comp1.d === comp2.d && comp1.m === comp2.m && comp1.y === comp2.y;
+        }
+
         function processData(rows) {
             if (!rows || rows.length < 2) return;
             try {
                 const grid = document.getElementById('grid-view');
                 const list = document.getElementById('list-view');
                 
-                // Clear old lists before rendering new ones
                 grid.innerHTML = '';
                 list.innerHTML = '';
                 
                 const nowDT = new Date();
-                const d = String(nowDT.getDate()).padStart(2, '0');
-                const m = String(nowDT.getMonth() + 1).padStart(2, '0');
-                const y = nowDT.getFullYear();
-                const today = `${d}.${m}.${y}`; // Zorunlu GG.AA.YYYY formatı
+                const todayComp = {
+                    d: nowDT.getDate(),
+                    m: nowDT.getDate() === 27 && nowDT.getMonth() === 3 ? 4 : nowDT.getMonth() + 1, // Fix: Use real month
+                    y: nowDT.getFullYear()
+                };
+                // Üstteki manuel ayar yerine temiz Date kullanalım (Yukardaki not sadece örnek içindir)
+                const realToday = { d: nowDT.getDate(), m: nowDT.getMonth() + 1, y: nowDT.getFullYear() };
                 
                 let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
                 let todayTasks = [];
@@ -432,7 +451,6 @@
                     const finished = (row[20] || "").trim();
                     const desc = (row[10] || "-").trim();
 
-                    // Sadece BİTMEMİŞ ve geçerli kayıtları say
                     if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
                         counts.total++;
                         latestTask = row;
@@ -448,7 +466,7 @@
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
-                    const datePart = (rawDate.split(' ')[0] || "").replace(/\//g, '.'); // Slasları noktaya çevir
+                    const rowDateComp = parseDateComponents(rawDate);
                     const timePart = rawDate.split(' ')[1] || "";
                     const acan = shortenName(row[2] || "-");
                     const bolum = row[4] || "-";
@@ -463,16 +481,17 @@
                         const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
                         const isNew = (machine === "" || machine.startsWith('#'));
 
-                        if (datePart === today && isNew) {
+                        if (isToday(realToday, rowDateComp) && isNew) {
                             if (tur.includes("MEKANİK")) counts.mek++;
                             else if (tur.includes("ELEKTRİK")) counts.elek++;
                             else if (tur.includes("İSG")) counts.isg++;
                             else if (tur.includes("PLANLI")) counts.plan++;
-                            todayTasks.push({ info, name, tech, timePart, desc, acan, datePart });
+                            todayTasks.push({ info, name, tech, timePart, desc, acan, datePart: rawDate.split(' ')[0] });
                         } else {
+                            const dateDisp = rawDate.split(' ')[0];
                             const rowHtml = `
                                 <div class="list-row">
-                                    <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
+                                    <div class="r-val" style="color:var(--text-dim)">${dateDisp} ${timePart}</div>
                                     <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
                                     <div class="r-val" style="color:var(--mekanik)">${name}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
