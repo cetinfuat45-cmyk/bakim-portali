@@ -9,218 +9,207 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --bg-header: #020617;
+            --bg-dark: #020617;
+            --bg-grid: #0f172a;
+            --header-black: #000000;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --mekanik: #38bdf8;
-            --elektrik: #fbbf24;
+            --elektrik: #facc15;
             --planli: #fb923c;
             --is: #22d3ee;
             --isg: #ef4444;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); font-size: 14px; overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; cursor: default; }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-size: 11px; }
 
-        /* Top Counter Header */
-        .top-status-bar {
-            background: var(--bg-header);
-            padding: 5px 15px;
+        /* Top Bar - Ultra Thin */
+        .top-bar {
+            height: 24px;
+            background: var(--header-black);
             display: flex;
-            gap: 15px;
             align-items: center;
+            padding: 0 10px;
+            gap: 12px;
             border-bottom: 1px solid #1e293b;
-            font-size: 10px;
+        }
+        .stat-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 8px;
             font-weight: 800;
             text-transform: uppercase;
         }
-        .status-item { display: flex; align-items: center; gap: 4px; }
-        .status-item span:last-child { background: #1e293b; padding: 1px 6px; border-radius: 4px; color: #fff; }
-
-        /* Navigation Header */
-        nav {
-            background: rgba(15, 23, 42, 0.9);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .logo { font-weight: 800; font-size: 18px; letter-spacing: -1px; }
-        .logo span { color: var(--mekanik); }
-
-        /* Grid Section (New Failures) */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 8px;
-            padding: 10px;
-            background: #020617;
-        }
-        .grid-card {
+        .stat-btn span:last-child {
             background: #1e293b;
-            border-top: 3px solid var(--c);
+            padding: 0 4px;
+            border-radius: 3px;
+            color: #fff;
+            font-size: 9px;
+        }
+        .stat-btn .material-icons { font-size: 10px; }
+
+        /* Section Title Header */
+        .section-header {
+            padding: 5px 10px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--isg);
+            border-bottom: 1px solid #ef4444;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Grid - Cards View */
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 6px;
             padding: 8px;
+            background: var(--bg-dark);
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 3px solid var(--c);
+            padding: 6px;
             border-radius: 4px;
-            height: 120px;
+            height: 110px;
             display: flex;
             flex-direction: column;
         }
-        .grid-card .type { font-size: 9px; font-weight: 800; color: var(--c); display: flex; justify-content: space-between; }
-        .grid-card .name { font-size: 13px; font-weight: 700; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .grid-card .desc { font-size: 10px; color: #cbd5e1; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .grid-card .meta { margin-top: auto; font-size: 8px; color: #64748b; display: flex; justify-content: space-between; align-items: center; }
+        .card .c-title { font-size: 8px; font-weight: 800; color: var(--c); display: flex; justify-content: space-between; align-items: center; }
+        .card .c-name { font-size: 12px; font-weight: 800; margin: 3px 0; color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .card .c-sub { font-size: 7px; color: var(--text-dim); margin-bottom: 3px; background: rgba(0,0,0,0.2); padding: 1px 4px; border-radius: 3px; display: inline-block; width: fit-content; }
+        .card .c-desc { font-size: 9.5px; color: #cbd5e1; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+        .card .c-foot { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 3px; display: flex; justify-content: space-between; font-size: 7px; color: #64748b; }
 
-        /* List Section (Work in Progress) */
-        .list-container {
-            margin-top: 5px;
-            padding: 0 10px;
+        /* List - Table View */
+        .list-view {
+            padding: 5px 10px;
         }
-        .list-header-sep {
-            border-top: 2px solid #ef4444;
-            margin: 10px 0;
-            position: relative;
-        }
-        .table-row {
+        .list-row {
             display: grid;
-            grid-template-columns: 100px 120px 120px 120px 1fr 120px;
-            gap: 10px;
-            padding: 4px 8px;
-            border-bottom: 1px solid #1e293b;
-            font-size: 11px;
+            grid-template-columns: 80px 100px 120px 110px 1fr 100px;
+            gap: 8px;
+            padding: 2px 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
             align-items: center;
         }
-        .table-row:hover { background: rgba(255,255,255,0.05); }
-        .row-type { font-weight: 800; font-size: 9px; padding: 2px 5px; border-radius: 3px; background: rgba(255,255,255,0.05); color: var(--c); text-align: center; }
+        .list-row:hover { background: rgba(255,255,255,0.03); }
+        .r-type { font-weight: 800; font-size: 8px; text-align: center; color: var(--c); background: rgba(255,255,255,0.03); border-radius: 2px; padding: 1px 0; }
+        .r-val { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #94a3b8; font-size: 10px; }
 
         .c-mekanik { --c: var(--mekanik); }
         .c-elektrik { --c: var(--elektrik); }
         .c-planli { --c: var(--planli); }
         .c-is { --c: var(--is); }
         .c-isg { --c: var(--isg); }
-        .c-other { --c: var(--text-dim); }
+        .c-other { --c: #94a3b8; }
 
     </style>
 </head>
 <body>
 
-    <div class="top-status-bar" id="top-stats">
-        <div class="status-item">TOPLAM <span id="s-total">0</span></div>
-        <div class="status-item" style="color: var(--mekanik)">MEK <span id="s-mek">0</span></div>
-        <div class="status-item" style="color: var(--elektrik)">ELEK <span id="s-elek">0</span></div>
-        <div class="status-item" style="color: var(--isg)">İSG <span id="s-isg">0</span></div>
-        <div class="status-item">TEKRAR <span id="s-tek">0</span></div>
-        <div class="status-item" style="color: var(--planli)">P.BAKIM <span id="s-plan">0</span></div>
-        <div class="status-item">DİĞER <span id="s-other">0</span></div>
+    <div class="top-bar">
+        <div class="stat-btn">TOPLAM <span id="s-total">0</span></div>
+        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span id="s-mek">0</span></div>
+        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span id="s-elek">0</span></div>
+        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span id="s-isg">0</span></div>
+        <div class="stat-btn"><span class="material-icons">history</span> TEKRAR <span id="s-tek">0</span></div>
+        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
     </div>
 
-    <div class="grid-container" id="grid-view">
-        <!-- New arızas will be here -->
-    </div>
+    <div class="section-header" style="color:var(--is)">BUGÜNÜN ARIZALARI</div>
+    <div class="grid-view" id="grid-view"></div>
 
-    <div class="list-container">
-        <div class="list-header-sep"></div>
-        <div id="list-view">
-            <!-- Active tasks will be here -->
-        </div>
-    </div>
+    <div class="section-header">ESKİ BEKLEYEN KAYITLAR</div>
+    <div class="list-view" id="list-view"></div>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
 
-        function updateStats(data) {
-            let s = { total: 0, mek: 0, elek: 0, isg: 0, tek: 0, plan: 0, other: 0 };
-            data.forEach(row => {
-                const tur = (row[8] || "").toLowerCase();
-                const bit = (row[20] || "").trim();
-                if (bit === "") {
-                    s.total++;
-                    if (tur.includes("mekanik")) s.mek++;
-                    else if (tur.includes("elektrik")) s.elek++;
-                    else if (tur.includes("isg") || tur.includes("güvenlik")) s.isg++;
-                    else if (tur.includes("planlı")) s.plan++;
-                    else s.other++;
-                }
-            });
-            document.getElementById('s-total').innerText = s.total;
-            document.getElementById('s-mek').innerText = s.mek;
-            document.getElementById('s-elek').innerText = s.elek;
-            document.getElementById('s-isg').innerText = s.isg;
-            document.getElementById('s-plan').innerText = s.plan;
-            document.getElementById('s-other').innerText = s.other;
-        }
-
         function getTypeInfo(tur) {
             tur = tur.toUpperCase();
-            if (tur.includes("MEKANİK")) return { c: "c-mekanik", label: "MEKANİK ARIZA" };
-            if (tur.includes("ELEKTRİK")) return { c: "c-elektrik", label: "ELEKTRİK ARIZA" };
-            if (tur.includes("PLANLI")) return { c: "c-planli", label: "PLANLI BAKIM KODU" };
-            if (tur.includes("YAPILAN")) return { c: "c-is", label: "YAPILAN İŞ HAKKINDA" };
-            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) return { c: "c-isg", label: "İSG GÜVENLİĞİ" };
-            return { c: "c-other", label: tur };
+            if (tur.includes("MEKANİK")) return { c: "c-mekanik", label: "MEKANİK ARIZA", icon: "settings" };
+            if (tur.includes("ELEKTRİK")) return { c: "c-elektrik", label: "ELEKTRİK ARIZA", icon: "bolt" };
+            if (tur.includes("PLANLI")) return { c: "c-planli", label: "PLANLI BAKIM KODU", icon: "event_note" };
+            if (tur.includes("YAPILAN")) return { c: "c-is", label: "YAPILAN İŞ HAKKINDA", icon: "task_alt" };
+            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) return { c: "c-isg", label: "İSG GÜVENLİĞİ", icon: "gpp_maybe" };
+            return { c: "c-other", label: tur, icon: "info" };
         }
 
         function processData(rows) {
             const dataRows = rows.slice(1);
-            updateStats(dataRows);
-
             const grid = document.getElementById('grid-view');
             const list = document.getElementById('list-view');
-            
-            // Bugünün tarihini al (G.A.Y formatında: 27.04.2026)
             const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
             
+            let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0, other: 0 };
             let gridHtml = "";
             let listHtml = "";
 
             dataRows.forEach(row => {
-                const tarihFull = row[0] || "";
-                const tarihSadece = tarihFull.split(' ')[0] || "";
+                const rawDate = row[0] || "";
+                const datePart = rawDate.split(' ')[0] || "";
+                const timePart = rawDate.split(' ')[1] || "";
                 const acan = row[2] || "-";
                 const bolum = row[4] || "-";
-                const turRaw = (row[8] || "DİĞER");
-                const aciklama = row[10] || "-";
-                const gorevli = row[14] || "-";
-                const makineP = (row[15] || "").trim();
-                const bit = (row[20] || "").trim();
+                const tur = (row[8] || "DİĞER").toUpperCase();
+                const desc = row[10] || "-";
+                const tech = row[14] || "-";
+                const machine = (row[15] || "").trim();
+                const finished = (row[20] || "").trim();
 
-                if (bit === "" && tarihFull !== "" && aciklama !== "-") {
-                    const info = getTypeInfo(turRaw);
-                    const displayName = (makineP === "" || makineP.startsWith('#')) ? bolum : makineP;
+                if (finished === "" && rawDate !== "" && desc !== "-") {
+                    counts.total++;
+                    if (tur.includes("MEKANİK")) counts.mek++;
+                    else if (tur.includes("ELEKTRİK")) counts.elek++;
+                    else if (tur.includes("İSG") || tur.includes("GÜVENLİ")) counts.isg++;
+                    else if (tur.includes("PLANLI")) counts.plan++;
 
-                    // BUGÜNÜN ARALARI -> KART (GRID)
-                    if (tarihSadece === today) {
+                    const info = getTypeInfo(tur);
+                    const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
+
+                    if (datePart === today) {
                         gridHtml += `
-                            <div class="grid-card ${info.c}">
-                                <div class="type">${info.label} <span class="material-icons" style="font-size:10px">bolt</span></div>
-                                <div class="name">${displayName}</div>
-                                <div class="desc">${aciklama}</div>
-                                <div class="meta">
+                            <div class="card ${info.c}">
+                                <div class="c-title">${info.label} <span class="material-icons">${info.icon}</span></div>
+                                <div class="c-name">${name}</div>
+                                <div class="c-sub">${tech} / ${timePart}</div>
+                                <div class="c-desc">${desc}</div>
+                                <div class="c-foot">
                                     <span>${acan}</span>
-                                    <span>${tarihFull.split(' ')[1] || ''}</span>
+                                    <span>${datePart}</span>
                                 </div>
                             </div>
                         `;
-                    } 
-                    // ESKİ ARIZALAR -> TABLO (LİSTE)
-                    else {
+                    } else {
                         listHtml += `
-                            <div class="table-row">
-                                <div style="color:#64748b">${tarihSadece} <span style="color:#94a3b8">${tarihFull.split(' ')[1] || ''}</span></div>
-                                <div style="font-weight:700">${acan}</div>
-                                <div style="color:var(--mekanik)">${displayName}</div>
-                                <div class="row-type ${info.c}">${info.label}</div>
-                                <div style="color:#cbd5e1">${aciklama}</div>
-                                <div style="text-align:right; font-weight:800; color:var(--mekanik)">${gorevli}</div>
+                            <div class="list-row">
+                                <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
+                                <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
+                                <div class="r-val" style="color:var(--mekanik)">${name}</div>
+                                <div class="r-type ${info.c}">${info.label}</div>
+                                <div class="r-val" style="color:#fff">${desc}</div>
+                                <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800">${tech}</div>
                             </div>
                         `;
                     }
                 }
             });
 
-            grid.innerHTML = gridHtml || '<div style="padding:20px; color:#64748b">Bugün henüz bir arıza girilmedi.</div>';
-            list.innerHTML = listHtml || '<div style="padding:20px; color:#64748b">Eski bekleyen iş bulunmuyor.</div>';
+            document.getElementById('s-total').innerText = counts.total;
+            document.getElementById('s-mek').innerText = counts.mek;
+            document.getElementById('s-elek').innerText = counts.elek;
+            document.getElementById('s-isg').innerText = counts.isg;
+            document.getElementById('s-plan').innerText = counts.plan;
+
+            grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün henüz bir kayıt girilmedi.</div>';
+            list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Geçmişe dönük bekleyen kayıt bulunmuyor.</div>';
         }
 
         function fetchData() {
