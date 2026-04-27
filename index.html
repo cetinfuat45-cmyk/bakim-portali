@@ -323,6 +323,7 @@
         <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
         
         <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800; min-width:80px;">SON: --:--:--</div>
             <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
                 YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">20</span>S
             </div>
@@ -522,17 +523,28 @@
         function fetchData() {
             if (isFetching) return;
             isFetching = true;
+            
+            // Aggressive Cache Busting
             const url = CSV_URL + '&t=' + new Date().getTime();
-            Papa.parse(url, {
-                download: true, header: false, skipEmptyLines: true,
-                complete: function (res) { 
-                    processData(res.data); 
+            
+            fetch(url, { cache: 'no-store', headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' } })
+                .then(response => response.text())
+                .then(csvData => {
+                    Papa.parse(csvData, {
+                        header: false,
+                        skipEmptyLines: true,
+                        complete: function (res) {
+                            processData(res.data);
+                            const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            document.getElementById('last-sync').innerText = "SON: " + now;
+                            isFetching = false;
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error("Fetch Hatası:", err);
                     isFetching = false;
-                },
-                error: function() {
-                    isFetching = false;
-                }
-            });
+                });
         }
 
         function toggleFullScreen() {
