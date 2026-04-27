@@ -289,6 +289,38 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Error State Styling */
+        .connection-error {
+            text-align: center;
+            padding: 6rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .error-icon {
+            font-size: 5rem !important;
+            color: var(--accent-red);
+            text-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+            animation: pulse 1s infinite;
+        }
+
+        .connection-error h2 {
+            font-weight: 800;
+            letter-spacing: 4px;
+            font-size: 1.2rem;
+            color: var(--accent-red);
+        }
+
+        .connection-error p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
         @media (max-width: 768px) {
             .task-card {
                 flex-direction: column;
@@ -342,7 +374,7 @@
     </main>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
 
         function fetchData() {
             // Anti-cache string
@@ -356,7 +388,13 @@
                 },
                 error: function(err) {
                     console.error("CSV Fetch Error:", err);
-                    document.getElementById('data-list').innerHTML = `<div class="loading-view" style="color: var(--accent-red)">Bağlantı Hatası</div>`;
+                    document.getElementById('data-list').innerHTML = `
+                        <div class="connection-error">
+                            <span class="material-icons error-icon">wifi_off</span>
+                            <h2>BAĞLANTI KESİLDİ</h2>
+                            <p>Google E-Tablo yayınına erişilemiyor. Lütfen "Web'de Yayınla" ayarlarını ve internet bağlantınızı kontrol edin.</p>
+                        </div>
+                    `;
                 }
             });
         }
