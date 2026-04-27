@@ -3,89 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakım HUB | Fabrika Takip</title>
+    <title>Bakım HUB | Stabil Versiyon</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100">
+<body class="bg-slate-900 text-slate-100 font-sans">
 
-    <nav class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 p-4">
+    <nav class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-50 p-4 shadow-xl">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <span class="material-icons text-blue-500">construction</span>
-                <span class="font-bold text-xl tracking-tight uppercase">Bakım<span class="text-blue-500 font-black">HUB</span></span>
+                <span class="material-icons text-blue-500">terminal</span>
+                <span class="font-bold text-xl tracking-tight">BAKIM<span class="text-blue-500 font-black tracking-widest ml-1">HUB.PRO</span></span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sistem Aktif</span>
+            <div id="status-box" class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                <span id="status-dot" class="h-2 w-2 rounded-full bg-green-500"></span>
+                <span id="status-text" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest font-mono">SENKRONİZE</span>
             </div>
         </div>
     </nav>
 
     <main class="max-w-5xl mx-auto p-4 py-8">
         <div id="data-list" class="grid gap-4">
-            <div class="text-center py-20 text-slate-500 italic animate-pulse">
-                Fabrika verileri senkronize ediliyor...
+            <div class="text-center py-20">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                <p class="text-slate-500 text-sm font-mono uppercase tracking-tighter">Veri Akışı Başlatılıyor...</p>
             </div>
         </div>
     </main>
 
     <script>
-        // Sizin ekran görüntünüzdeki linki tam olarak buraya koydum
         const CSV_LINK = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKaL5NHpj0QDrJmpt7XbRuCnQejkxf89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
 
+        let lastData = []; // Veri gitmesini önlemek için yedekleme
+
         function loadData() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            statusDot.classList.replace('bg-green-500', 'bg-yellow-500');
+            statusText.innerText = "GÜNCELLENİYOR";
+
             Papa.parse(CSV_LINK, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    renderCards(results.data);
+                    if (results.data && results.data.length > 0) {
+                        lastData = results.data; // Veri geldiyse yedeği güncelle
+                        renderCards(results.data);
+                        statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
+                        statusText.innerText = "SENKRONİZE";
+                    } else {
+                        handleError();
+                    }
+                },
+                error: function() {
+                    handleError();
                 }
             });
+        }
+
+        function handleError() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            statusDot.classList.replace('bg-green-500', 'bg-red-500');
+            statusDot.classList.replace('bg-yellow-500', 'bg-red-500');
+            statusText.innerText = "BAĞLANTI HATASI";
+            
+            // Veri gittiyse ama yedekte varsa, yedeği göster
+            if (lastData.length > 0) renderCards(lastData);
         }
 
         function renderCards(data) {
             const list = document.getElementById('data-list');
             list.innerHTML = "";
             
-            // Verileri tersten sırala (En yeni kayıt en üstte görünsün)
-            data.reverse().forEach(item => {
-                // Sizin tablonuzdaki başlıklar
+            // Verileri tersten sırala (En yeni üstte)
+            [...data].reverse().forEach(item => {
                 const makine = item["MAKİNE ADI"];
                 const bolum = item["BÖLÜM"];
                 const arizaTuru = item["ARIZA TÜRÜ"];
-                const aciklama = item["ARIZA AÇIKLAMA"] || "Detay yok";
-                const yapan = item["BAKIMI YAPAN-1"] || "Atanmadı";
+                const aciklama = item["ARIZA AÇIKLAMA"] || "";
+                const yapan = item["BAKIMI YAPAN-1"] || "-";
 
-                if(!makine) return;
+                if(!makine || makine.trim() === "") return;
 
-                // Arıza türüne göre renk belirle
                 const isCritical = arizaTuru?.toLowerCase().includes("elektrik") || arizaTuru?.toLowerCase().includes("mekanik");
 
                 list.innerHTML += `
-                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-lg border-l-4 ${isCritical ? 'border-l-red-500' : 'border-l-blue-500'}">
-                        <div class="flex-1">
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 flex justify-between items-center shadow-2xl transition-all border-l-4 ${isCritical ? 'border-l-red-500' : 'border-l-blue-500'}">
+                        <div class="flex-1 pr-4">
                             <div class="flex items-center gap-2 mb-1">
-                                <h3 class="font-bold text-lg text-white">${makine}</h3>
-                                <span class="text-[9px] bg-slate-700 px-2 py-0.5 rounded text-slate-400 font-bold">${bolum}</span>
+                                <h3 class="font-black text-lg text-white tracking-tight">${makine}</h3>
+                                <span class="text-[9px] bg-slate-700/50 px-2 py-0.5 rounded text-slate-400 font-bold border border-slate-600">${bolum}</span>
                             </div>
-                            <p class="text-[11px] text-slate-300 font-medium">${aciklama}</p>
-                            <p class="text-[9px] text-slate-500 mt-2 italic font-semibold">Bakımcı: ${yapan}</p>
+                            <p class="text-[11px] text-slate-400 font-medium leading-relaxed">${aciklama}</p>
+                            <div class="flex items-center gap-1 mt-3 text-slate-500">
+                                <span class="material-icons text-[12px]">person</span>
+                                <span class="text-[10px] font-bold uppercase tracking-tighter">${yapan}</span>
+                            </div>
                         </div>
-                        <div class="ml-4 text-right">
-                            <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${isCritical ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-blue-500/20 text-blue-500 border border-blue-500/30'}">
-                                ${arizaTuru}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        window.onload = loadData;
-        setInterval(loadData, 15000); // 15 saniyede bir otomatik tazeler
-    </script>
-</body>
-</html>
+                        <div class="text-right">
+                            <span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-inner ${isCritical ? 'bg-red-500/10 text-red-500 border border-red
