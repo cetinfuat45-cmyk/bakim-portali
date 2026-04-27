@@ -247,6 +247,48 @@
             animation: pulse 2s infinite;
         }
 
+        /* Healthy State Styling */
+        .systems-healthy {
+            text-align: center;
+            padding: 6rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .healthy-shield {
+            font-size: 5rem !important;
+            color: var(--accent-green);
+            text-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+            animation: shieldPulse 3s infinite ease-in-out;
+        }
+
+        .systems-healthy h2 {
+            font-weight: 800;
+            letter-spacing: 4px;
+            font-size: 1.2rem;
+            color: var(--accent-green);
+        }
+
+        .systems-healthy p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        @keyframes shieldPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 768px) {
             .task-card {
                 flex-direction: column;
@@ -345,7 +387,13 @@
             updateValue('count-other', counts.other);
 
             if (activeTasks.length === 0) {
-                list.innerHTML = `<div class="loading-view" style="opacity: 0.5; animation: none;">Açık Arıza Kaydı Bulunmuyor</div>`;
+                list.innerHTML = `
+                    <div class="systems-healthy">
+                        <span class="material-icons healthy-shield">verified_user</span>
+                        <h2>TÜM SİSTEMLER NOMİNAL</h2>
+                        <p>Şu an için bekleyen açık arıza kaydı bulunmuyor.</p>
+                    </div>
+                `;
                 return;
             }
 
