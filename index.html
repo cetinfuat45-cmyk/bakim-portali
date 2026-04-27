@@ -429,12 +429,6 @@
                 list.innerHTML = '';
                 
                 const nowDT = new Date();
-                const todayComp = {
-                    d: nowDT.getDate(),
-                    m: nowDT.getDate() === 27 && nowDT.getMonth() === 3 ? 4 : nowDT.getMonth() + 1, // Fix: Use real month
-                    y: nowDT.getFullYear()
-                };
-                // Üstteki manuel ayar yerine temiz Date kullanalım (Yukardaki not sadece örnek içindir)
                 const realToday = { d: nowDT.getDate(), m: nowDT.getMonth() + 1, y: nowDT.getFullYear() };
                 
                 let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
@@ -442,16 +436,22 @@
                 let gridHtml = "";
                 let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
                 
+                const seenKeys = new Set(); // Mükerrer kayıdı engellemek için
                 let latestTask = null;
                 const dataRows = rows.slice(1);
 
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
+                    const desc = (row[10] || "").trim();
                     const finished = (row[20] || "").trim();
-                    const desc = (row[10] || "-").trim();
-
+                    
+                    // Benzersiz anahtar: Tarih + Açıklama
+                    const key = rawDate + desc;
+                    if (seenKeys.has(key)) return; 
+                    
                     if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
+                        seenKeys.add(key);
                         counts.total++;
                         latestTask = row;
                     }
@@ -463,6 +463,8 @@
                 }
                 lastTotalCount = counts.total;
 
+                // Sıfırlanmış seenKeys ile tekrar dön (ya da ilk döngüde hallet)
+                const finalSeen = new Set();
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
@@ -472,11 +474,17 @@
                     const bolum = row[4] || "-";
                     const tur = (row[8] || "DİĞER").toUpperCase();
                     const desc = (row[10] || "-").trim();
-                    const tech = row[14] || "-";
+                    let tech = (row[14] || "").trim();
+                    if (tech === "" || tech === "-") tech = "PERSONEL ATANMADI";
+
                     const machine = (row[15] || "").trim();
                     const finished = (row[20] || "").trim();
 
+                    const key = rawDate + desc;
+                    if (finalSeen.has(key)) return;
+
                     if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
+                        finalSeen.add(key);
                         const info = getTypeInfo(tur);
                         const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
                         const isNew = (machine === "" || machine.startsWith('#'));
@@ -496,7 +504,7 @@
                                     <div class="r-val" style="color:var(--mekanik)">${name}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
                                     <div class="r-val" style="color:#4ade80; font-weight:600">${desc}</div>
-                                    <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800">${tech}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800; font-size:11px;">${tech}</div>
                                 </div>`;
                             if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
                             else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
