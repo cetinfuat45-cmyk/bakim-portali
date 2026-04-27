@@ -24,7 +24,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; cursor: default; }
         body { background-color: var(--bg-dark); color: var(--text-main); font-size: 11px; }
 
-        /* Top Bar - Ultra Thin */
         .top-bar {
             height: 24px;
             background: var(--header-black);
@@ -51,7 +50,6 @@
         }
         .stat-btn .material-icons { font-size: 10px; }
 
-        /* Section Title Header */
         .section-header {
             padding: 5px 10px;
             font-size: 9px;
@@ -63,7 +61,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Grid - Cards View */
         .grid-view {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -87,10 +84,7 @@
         .card .c-desc { font-size: 9.5px; color: #cbd5e1; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
         .card .c-foot { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 3px; display: flex; justify-content: space-between; font-size: 7px; color: #64748b; }
 
-        /* List - Table View */
-        .list-view {
-            padding: 5px 10px;
-        }
+        .list-view { padding: 5px 10px; }
         .list-row {
             display: grid;
             grid-template-columns: 80px 100px 120px 110px 1fr 100px;
@@ -103,13 +97,14 @@
         .r-type { font-weight: 800; font-size: 8px; text-align: center; color: var(--c); background: rgba(255,255,255,0.03); border-radius: 2px; padding: 1px 0; }
         .r-val { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #94a3b8; font-size: 10px; }
 
+        .group-sep { border-bottom: 2px solid var(--c); padding: 3px 10px; font-size: 9px; font-weight: 800; color: var(--c); margin-top: 10px; text-transform: uppercase; }
+
         .c-mekanik { --c: var(--mekanik); }
         .c-elektrik { --c: var(--elektrik); }
         .c-planli { --c: var(--planli); }
         .c-is { --c: var(--is); }
         .c-isg { --c: var(--isg); }
         .c-other { --c: #94a3b8; }
-
     </style>
 </head>
 <body>
@@ -124,10 +119,10 @@
     </div>
 
     <div class="section-header" style="color:var(--is)">BUGÜNÜN ARIZALARI</div>
-    <div class="grid-view" id="grid-view"></div>
+    <div id="grid-view" class="grid-view"></div>
 
     <div class="section-header">ESKİ BEKLEYEN KAYITLAR</div>
-    <div class="list-view" id="list-view"></div>
+    <div id="list-view" class="list-view"></div>
 
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
@@ -148,9 +143,9 @@
             const list = document.getElementById('list-view');
             const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
             
-            let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0, other: 0 };
+            let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
             let gridHtml = "";
-            let listHtml = "";
+            let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
 
             dataRows.forEach(row => {
                 const rawDate = row[0] || "";
@@ -166,15 +161,15 @@
 
                 if (finished === "" && rawDate !== "" && desc !== "-") {
                     counts.total++;
-                    if (tur.includes("MEKANİK")) counts.mek++;
-                    else if (tur.includes("ELEKTRİK")) counts.elek++;
-                    else if (tur.includes("İSG") || tur.includes("GÜVENLİ")) counts.isg++;
-                    else if (tur.includes("PLANLI")) counts.plan++;
-
                     const info = getTypeInfo(tur);
                     const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
 
                     if (datePart === today) {
+                        if (tur.includes("MEKANİK")) counts.mek++;
+                        else if (tur.includes("ELEKTRİK")) counts.elek++;
+                        else if (tur.includes("İSG")) counts.isg++;
+                        else if (tur.includes("PLANLI")) counts.plan++;
+
                         gridHtml += `
                             <div class="card ${info.c}">
                                 <div class="c-title">${info.label} <span class="material-icons">${info.icon}</span></div>
@@ -185,10 +180,9 @@
                                     <span>${acan}</span>
                                     <span>${datePart}</span>
                                 </div>
-                            </div>
-                        `;
+                            </div>`;
                     } else {
-                        listHtml += `
+                        const rowHtml = `
                             <div class="list-row">
                                 <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
                                 <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
@@ -196,8 +190,14 @@
                                 <div class="r-type ${info.c}">${info.label}</div>
                                 <div class="r-val" style="color:#fff">${desc}</div>
                                 <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800">${tech}</div>
-                            </div>
-                        `;
+                            </div>`;
+                        
+                        if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
+                        else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
+                        else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
+                        else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
+                        else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
+                        else groups.other.push(rowHtml);
                     }
                 }
             });
@@ -209,15 +209,27 @@
             document.getElementById('s-plan').innerText = counts.plan;
 
             grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün henüz bir kayıt girilmedi.</div>';
-            list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Geçmişe dönük bekleyen kayıt bulunmuyor.</div>';
+            
+            let listHtml = "";
+            const renderGroup = (title, items, colorVar) => {
+                if (items.length === 0) return "";
+                return `<div class="group-sep" style="--c: var(${colorVar})">${title}</div>${items.join('')}`;
+            };
+
+            listHtml += renderGroup("İSG GÜVENLİĞİ", groups.isg, "--isg");
+            listHtml += renderGroup("MEKANİK ARIZA", groups.mekanik, "--mekanik");
+            listHtml += renderGroup("ELEKTRİK ARIZA", groups.elektrik, "--elektrik");
+            listHtml += renderGroup("PLANLI BAKIM KODU", groups.planli, "--planli");
+            listHtml += renderGroup("YAPILAN İŞ HAKKINDA", groups.is, "--is");
+            listHtml += renderGroup("DİĞER KAYITLAR", groups.other, "--text-dim");
+
+            list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Eski bekleyen kayıt bulunmuyor.</div>';
         }
 
         function fetchData() {
             const url = CSV_URL + '&t=' + new Date().getTime();
             Papa.parse(url, {
-                download: true,
-                header: false,
-                skipEmptyLines: true,
+                download: true, header: false, skipEmptyLines: true,
                 complete: function(res) { processData(res.data); }
             });
         }
