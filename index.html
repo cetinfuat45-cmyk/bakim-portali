@@ -372,16 +372,16 @@
 
         let lastTotalCount = -1;
         let alertInterval;
+        let isFetching = false;
 
         function showAlert(machine, desc, person) {
             const overlay = document.getElementById('alert-overlay');
-            if (overlay.style.display === 'flex') return; // Zaten açıksa tekrar tetikleme
+            if (overlay.style.display === 'flex') return;
 
             const timerSpan = document.getElementById('alert-timer');
-            
-            document.getElementById('alert-machine').innerText = machine;
-            document.getElementById('alert-desc').innerText = desc;
-            document.getElementById('alert-person').innerText = person;
+            document.getElementById('alert-machine').innerText = machine || "-";
+            document.getElementById('alert-desc').innerText = desc || "-";
+            document.getElementById('alert-person').innerText = person || "-";
 
             let timeLeft = 30;
             overlay.style.display = 'flex';
@@ -390,140 +390,148 @@
             clearInterval(alertInterval);
             alertInterval = setInterval(() => {
                 timeLeft--;
-                timerSpan.innerText = timeLeft;
+                if (timerSpan) timerSpan.innerText = timeLeft;
                 if (timeLeft <= 0) closeAlert();
             }, 1000);
         }
 
         function closeAlert() {
-            document.getElementById('alert-overlay').style.display = 'none';
+            const overlay = document.getElementById('alert-overlay');
+            if (overlay) overlay.style.display = 'none';
             clearInterval(alertInterval);
         }
 
         function processData(rows) {
-            const dataRows = rows.slice(1);
-            const grid = document.getElementById('grid-view');
-            const list = document.getElementById('list-view');
-            const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            
-            let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
-            let todayTasks = [];
-            let gridHtml = "";
-            let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
-            
-            let latestTask = null;
+            if (!rows || rows.length < 2) return;
+            try {
+                const dataRows = rows.slice(1);
+                const grid = document.getElementById('grid-view');
+                const list = document.getElementById('list-view');
+                const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
+                let todayTasks = [];
+                let gridHtml = "";
+                let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
+                
+                let latestTask = null;
 
-            dataRows.forEach(row => {
-                const rawDate = row[0] || "";
-                const finished = (row[20] || "").trim();
-                const desc = (row[10] || "-");
+                dataRows.forEach(row => {
+                    if (!row || row.length < 10) return;
+                    const rawDate = row[0] || "";
+                    const finished = (row[20] || "").trim();
+                    const desc = (row[10] || "-");
 
-                if (finished === "" && rawDate !== "" && desc !== "-") {
-                    counts.total++;
-                    latestTask = row; // Döngü bittiğinde en sonuncuyu tutar
-                }
-            });
-
-            // Yeni kayıt tespiti
-            if (lastTotalCount !== -1 && counts.total > lastTotalCount && latestTask) {
-                const machine = (latestTask[15] || "").trim() || latestTask[4] || "-";
-                showAlert(machine, latestTask[10], latestTask[2]);
-            }
-            lastTotalCount = counts.total;
-
-            dataRows.forEach(row => {
-                const rawDate = row[0] || "";
-                const datePart = rawDate.split(' ')[0] || "";
-                const timePart = rawDate.split(' ')[1] || "";
-                const acan = shortenName(row[2] || "-");
-                const bolum = row[4] || "-";
-                const tur = (row[8] || "DİĞER").toUpperCase();
-                const desc = row[10] || "-";
-                const tech = row[14] || "-";
-                const machine = (row[15] || "").trim();
-                const finished = (row[20] || "").trim();
-
-                if (finished === "" && rawDate !== "" && desc !== "-") {
-                    const info = getTypeInfo(tur);
-                    const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
-                    const isNew = (machine === "" || machine.startsWith('#'));
-
-                    // BUGÜNÜN ARIZALARI + P-Z BOŞSA -> KART (GRID)
-                    if (datePart === today && isNew) {
-                        if (tur.includes("MEKANİK")) counts.mek++;
-                        else if (tur.includes("ELEKTRİK")) counts.elek++;
-                        else if (tur.includes("İSG")) counts.isg++;
-                        else if (tur.includes("PLANLI")) counts.plan++;
-
-                        todayTasks.push({ info, name, tech, timePart, desc, acan, datePart });
-                    } 
-                    // ESKİ ARIZALAR VEYA P-Z DOLU OLANLAR -> TABLO (LİSTE)
-                    else {
-                        const rowHtml = `
-                            <div class="list-row">
-                                <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
-                                <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
-                                <div class="r-val" style="color:var(--mekanik)">${name}</div>
-                                <div class="r-type ${info.c}">${info.label}</div>
-                                <div class="r-val" style="color:#4ade80; font-weight:600">${desc}</div>
-                                <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800">${tech}</div>
-                            </div>`;
-
-                        if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
-                        else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
-                        else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
-                        else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
-                        else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
-                        else groups.other.push(rowHtml);
+                    if (finished === "" && rawDate !== "" && desc !== "-") {
+                        counts.total++;
+                        latestTask = row;
                     }
+                });
+
+                if (lastTotalCount !== -1 && counts.total > lastTotalCount && latestTask) {
+                    const machine = (latestTask[15] || "").trim() || latestTask[4] || "-";
+                    showAlert(machine, latestTask[10], latestTask[2]);
                 }
-            });
+                lastTotalCount = counts.total;
 
-            // Bugünün görevlerini EN YENİ EN BAŞTA olacak şekilde ters çevirip bas
-            todayTasks.reverse().forEach(t => {
-                gridHtml += `
-                    <div class="card ${t.info.c}">
-                        <div class="c-title">
-                            <span>${t.info.label}</span>
-                            <span style="margin-left:auto; font-size:10px; color:#fff">${t.name}</span>
-                        </div>
-                        <div class="c-sub">${t.tech}</div>
-                        <div class="c-desc">${t.desc}</div>
-                        <div class="c-foot">
-                            <span>Açan: <b style="color:#fff">${t.acan}</b> | ${t.timePart} - ${t.datePart}</span>
-                        </div>
-                    </div>`;
-            });
+                dataRows.forEach(row => {
+                    if (!row || row.length < 10) return;
+                    const rawDate = row[0] || "";
+                    const datePart = rawDate.split(' ')[0] || "";
+                    const timePart = rawDate.split(' ')[1] || "";
+                    const acan = shortenName(row[2] || "-");
+                    const bolum = row[4] || "-";
+                    const tur = (row[8] || "DİĞER").toUpperCase();
+                    const desc = row[10] || "-";
+                    const tech = row[14] || "-";
+                    const machine = (row[15] || "").trim();
+                    const finished = (row[20] || "").trim();
 
-            document.getElementById('s-total').innerText = counts.total;
-            document.getElementById('s-mek').innerText = counts.mek;
-            document.getElementById('s-elek').innerText = counts.elek;
-            document.getElementById('s-isg').innerText = counts.isg;
-            document.getElementById('s-plan').innerText = counts.plan;
+                    if (finished === "" && rawDate !== "" && desc !== "-") {
+                        const info = getTypeInfo(tur);
+                        const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
+                        const isNew = (machine === "" || machine.startsWith('#'));
 
-            grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün henüz bir kayıt girilmedi.</div>';
+                        if (datePart === today && isNew) {
+                            if (tur.includes("MEKANİK")) counts.mek++;
+                            else if (tur.includes("ELEKTRİK")) counts.elek++;
+                            else if (tur.includes("İSG")) counts.isg++;
+                            else if (tur.includes("PLANLI")) counts.plan++;
+                            todayTasks.push({ info, name, tech, timePart, desc, acan, datePart });
+                        } else {
+                            const rowHtml = `
+                                <div class="list-row">
+                                    <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
+                                    <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
+                                    <div class="r-val" style="color:var(--mekanik)">${name}</div>
+                                    <div class="r-type ${info.c}">${info.label}</div>
+                                    <div class="r-val" style="color:#4ade80; font-weight:600">${desc}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800">${tech}</div>
+                                </div>`;
+                            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
+                            else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
+                            else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
+                            else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
+                            else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
+                            else groups.other.push(rowHtml);
+                        }
+                    }
+                });
 
-            let listHtml = "";
-            const renderGroup = (title, items, colorVar) => {
-                if (items.length === 0) return "";
-                return `<div class="group-sep" style="--c: var(${colorVar})">${title}</div>${items.join('')}`;
-            };
+                document.getElementById('s-total').innerText = counts.total;
+                document.getElementById('s-mek').innerText = counts.mek;
+                document.getElementById('s-elek').innerText = counts.elek;
+                document.getElementById('s-isg').innerText = counts.isg;
+                document.getElementById('s-plan').innerText = counts.plan;
 
-            listHtml += renderGroup("İSG GÜVENLİĞİ", groups.isg, "--isg");
-            listHtml += renderGroup("MEKANİK ARIZA", groups.mekanik, "--mekanik");
-            listHtml += renderGroup("ELEKTRİK ARIZA", groups.elektrik, "--elektrik");
-            listHtml += renderGroup("PLANLI BAKIM KODU", groups.planli, "--planli");
-            listHtml += renderGroup("YAPILAN İŞ HAKKINDA", groups.is, "--is");
-            listHtml += renderGroup("DİĞER KAYITLAR", groups.other, "--text-dim");
+                todayTasks.reverse().forEach(t => {
+                    gridHtml += `
+                        <div class="card ${t.info.c}">
+                            <div class="c-title">
+                                <span>${t.info.label}</span>
+                                <span style="margin-left:auto; font-size:10px; color:#fff">${t.name}</span>
+                            </div>
+                            <div class="c-sub">${t.tech}</div>
+                            <div class="c-desc">${t.desc}</div>
+                            <div class="c-foot">
+                                <span>Açan: <b style="color:#fff">${t.acan}</b> | ${t.timePart} - ${t.datePart}</span>
+                            </div>
+                        </div>`;
+                });
+                grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün bekleyen açık arıza kaydı bulunmuyor.</div>';
 
-            list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Eski bekleyen kayıt bulunmuyor.</div>';
+                const renderGroup = (label, rows, colorVar) => {
+                    if (rows.length === 0) return "";
+                    return `<div class="group-sep" style="border-left:4px solid var(${colorVar})">${label} (${rows.length})</div>` + rows.join('');
+                };
+
+                let listHtml = "";
+                listHtml += renderGroup("İSG & GÜVENLİK", groups.isg, "--isg");
+                listHtml += renderGroup("MEKANİK ARIZA", groups.mekanik, "--mekanik");
+                listHtml += renderGroup("ELEKTRİK ARIZA", groups.elektrik, "--elektrik");
+                listHtml += renderGroup("PLANLI BAKIM KODU", groups.planli, "--planli");
+                listHtml += renderGroup("YAPILAN İŞ HAKKINDA", groups.is, "--is");
+                listHtml += renderGroup("DİĞER KAYITLAR", groups.other, "--text-dim");
+
+                list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Eski bekleyen kayıt bulunmuyor.</div>';
+            } catch (e) {
+                console.error("Veri işleme hatası:", e);
+            }
         }
 
         function fetchData() {
+            if (isFetching) return;
+            isFetching = true;
             const url = CSV_URL + '&t=' + new Date().getTime();
             Papa.parse(url, {
                 download: true, header: false, skipEmptyLines: true,
-                complete: function (res) { processData(res.data); }
+                complete: function (res) { 
+                    processData(res.data); 
+                    isFetching = false;
+                },
+                error: function() {
+                    isFetching = false;
+                }
             });
         }
 
