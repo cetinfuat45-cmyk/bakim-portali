@@ -232,6 +232,39 @@
         .c-other {
             --c: #94a3b8;
         }
+
+        /* Mobile / Android Responsive Fixes */
+        @media screen and (max-width: 768px) {
+            .top-bar {
+                height: auto;
+                flex-wrap: wrap;
+                padding: 5px;
+                gap: 8px;
+            }
+            .stat-btn { font-size: 9px; }
+            .stat-btn span:last-child { font-size: 11px; padding: 1px 5px; }
+            
+            .grid-view {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .card {
+                height: auto;
+                min-height: 140px;
+            }
+            .card .c-name { font-size: 14px; }
+            .card .c-desc { -webkit-line-clamp: 4; font-size: 11px; }
+
+            .list-view {
+                overflow-x: auto;
+                padding: 5px 0;
+            }
+            .list-row {
+                min-width: 700px; /* Forces scroll on mobile instead of crushing */
+                padding: 5px 10px;
+            }
+            .group-sep { font-size: 10px; }
+        }
     </style>
 </head>
 
