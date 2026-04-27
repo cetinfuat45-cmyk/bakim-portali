@@ -405,10 +405,18 @@
         function processData(rows) {
             if (!rows || rows.length < 2) return;
             try {
-                const dataRows = rows.slice(1);
                 const grid = document.getElementById('grid-view');
                 const list = document.getElementById('list-view');
-                const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                // Clear old lists before rendering new ones
+                grid.innerHTML = '';
+                list.innerHTML = '';
+                
+                const nowDT = new Date();
+                const d = String(nowDT.getDate()).padStart(2, '0');
+                const m = String(nowDT.getMonth() + 1).padStart(2, '0');
+                const y = nowDT.getFullYear();
+                const today = `${d}.${m}.${y}`; // Zorunlu GG.AA.YYYY formatı
                 
                 let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
                 let todayTasks = [];
@@ -416,14 +424,16 @@
                 let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
                 
                 let latestTask = null;
+                const dataRows = rows.slice(1);
 
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
                     const finished = (row[20] || "").trim();
-                    const desc = (row[10] || "-");
+                    const desc = (row[10] || "-").trim();
 
-                    if (finished === "" && rawDate !== "" && desc !== "-") {
+                    // Sadece BİTMEMİŞ ve geçerli kayıtları say
+                    if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
                         counts.total++;
                         latestTask = row;
                     }
@@ -438,17 +448,17 @@
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
-                    const datePart = rawDate.split(' ')[0] || "";
+                    const datePart = (rawDate.split(' ')[0] || "").replace(/\//g, '.'); // Slasları noktaya çevir
                     const timePart = rawDate.split(' ')[1] || "";
                     const acan = shortenName(row[2] || "-");
                     const bolum = row[4] || "-";
                     const tur = (row[8] || "DİĞER").toUpperCase();
-                    const desc = row[10] || "-";
+                    const desc = (row[10] || "-").trim();
                     const tech = row[14] || "-";
                     const machine = (row[15] || "").trim();
                     const finished = (row[20] || "").trim();
 
-                    if (finished === "" && rawDate !== "" && desc !== "-") {
+                    if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
                         const info = getTypeInfo(tur);
                         const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
                         const isNew = (machine === "" || machine.startsWith('#'));
