@@ -372,6 +372,8 @@
 
         function showAlert(machine, desc, person) {
             const overlay = document.getElementById('alert-overlay');
+            if (overlay.style.display === 'flex') return; // Zaten açıksa tekrar tetikleme
+
             const timerSpan = document.getElementById('alert-timer');
             
             document.getElementById('alert-machine').innerText = machine;
