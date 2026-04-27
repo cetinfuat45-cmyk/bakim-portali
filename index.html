@@ -233,8 +233,34 @@
             --c: #94a3b8;
         }
 
+        /* New Record Alert Window */
+        #alert-overlay {
+            position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            width: 450px; padding: 30px;
+            background: #020617;
+            z-index: 9999; display: none; align-items: center; justify-content: center;
+            flex-direction: column; text-align: center;
+            border: 4px solid var(--isg); border-radius: 12px;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+            animation: pulse-alert 1s infinite;
+        }
+        @keyframes pulse-alert {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.02); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        #alert-overlay h1 { font-size: 32px; color: #fff; margin-bottom: 10px; font-weight: 800; }
+        #alert-overlay .timer { font-size: 16px; color: var(--text-dim); margin-bottom: 25px; }
+        #alert-overlay .close-btn { 
+            background: var(--isg); color: #fff; padding: 10px 30px; border-radius: 8px; 
+            font-weight: 800; font-size: 14px; cursor: pointer; border: none;
+        }
+
         /* Mobile / Android Responsive Fixes */
         @media screen and (max-width: 768px) {
+            #alert-overlay h1 { font-size: 40px; }
+            #alert-overlay .timer { font-size: 20px; }
             .top-bar {
                 height: auto;
                 flex-wrap: wrap;
@@ -267,8 +293,14 @@
         }
     </style>
 </head>
-
 <body>
+
+    <div id="alert-overlay">
+        <span class="material-icons" style="font-size: 64px; color: var(--isg); margin-bottom: 15px;">warning</span>
+        <h1>YENİ ARIZA KAYDI!</h1>
+        <div class="timer">Bu uyarı <span id="alert-timer">30</span> saniye içinde kapanacaktır.</div>
+        <button class="close-btn" onclick="closeAlert()">KAPAT</button>
+    </div>
 
     <div class="top-bar">
         <div class="stat-btn">TOPLAM <span id="s-total">0</span></div>
@@ -323,16 +355,56 @@
             return p[0] + "." + p[p.length - 1][0] + ".";
         }
 
+        let lastTotalCount = -1;
+        let alertInterval;
+
+        function showAlert() {
+            const overlay = document.getElementById('alert-overlay');
+            const timerSpan = document.getElementById('alert-timer');
+            let timeLeft = 30;
+
+            overlay.style.display = 'flex';
+            timerSpan.innerText = timeLeft;
+
+            clearInterval(alertInterval);
+            alertInterval = setInterval(() => {
+                timeLeft--;
+                timerSpan.innerText = timeLeft;
+                if (timeLeft <= 0) closeAlert();
+            }, 1000);
+        }
+
+        function closeAlert() {
+            document.getElementById('alert-overlay').style.display = 'none';
+            clearInterval(alertInterval);
+        }
+
         function processData(rows) {
             const dataRows = rows.slice(1);
             const grid = document.getElementById('grid-view');
             const list = document.getElementById('list-view');
             const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
+            
             let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
             let todayTasks = [];
             let gridHtml = "";
             let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
+
+            dataRows.forEach(row => {
+                const rawDate = row[0] || "";
+                const finished = (row[20] || "").trim();
+                const desc = (row[10] || "-");
+
+                if (finished === "" && rawDate !== "" && desc !== "-") {
+                    counts.total++;
+                }
+            });
+
+            // Yeni kayıt tespiti
+            if (lastTotalCount !== -1 && counts.total > lastTotalCount) {
+                showAlert();
+            }
+            lastTotalCount = counts.total;
 
             dataRows.forEach(row => {
                 const rawDate = row[0] || "";
@@ -347,7 +419,6 @@
                 const finished = (row[20] || "").trim();
 
                 if (finished === "" && rawDate !== "" && desc !== "-") {
-                    counts.total++;
                     const info = getTypeInfo(tur);
                     const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
                     const isNew = (machine === "" || machine.startsWith('#'));
