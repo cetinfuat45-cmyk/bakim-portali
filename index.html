@@ -148,89 +148,98 @@
 
         .data-list {
             display: grid;
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            padding: 0.5rem;
         }
 
         .task-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-left: 6px solid var(--border-color, var(--accent-blue));
-            padding: 1.5rem;
-            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--type-color, #94a3b8);
+            padding: 0.8rem;
+            border-radius: 8px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            flex-direction: column;
+            gap: 0.4rem;
+            transition: transform 0.2s ease;
+            min-height: 140px;
         }
 
         .task-card:hover {
-            transform: translateX(5px);
-            background: rgba(30, 41, 59, 0.8);
+            transform: translateY(-3px);
+            background: rgba(30, 41, 59, 0.9);
         }
 
-        .task-info h3 {
-            font-size: 1.4rem;
+        .task-title {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--type-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-main-name {
+            font-size: 0.9rem;
             font-weight: 700;
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.5px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .task-bolum {
-            font-size: 0.7rem;
-            background: rgba(255, 255, 255, 0.1);
+        .task-sub-info {
+            font-size: 0.65rem;
             color: var(--text-dim);
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .task-desc {
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            margin-top: 0.6rem;
-            line-height: 1.6;
-            max-width: 600px;
-        }
-
-        .task-meta {
-            display: flex;
-            gap: 2rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
             font-weight: 600;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 5px;
+            border-radius: 4px;
+            display: inline-block;
         }
 
-        .meta-item .material-icons {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.3);
+        .task-short-desc {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            line-height: 1.3;
+            margin-top: 2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .task-type-badge {
-            padding: 0.6rem 1.2rem;
-            border-radius: 14px;
-            font-size: 0.8rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border: 1.5px solid currentColor;
+        .task-footer-meta {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .meta-line {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            min-width: 160px;
-            justify-content: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
         }
+
+        .meta-line .material-icons {
+            font-size: 0.75rem;
+        }
+
+        /* Type specific colors from the screenshot */
+        .type-mekanik { --type-color: #38bdf8; } /* Light Blue */
+        .type-elektrik { --type-color: #fbbf24; } /* Yellow */
+        .type-planli { --type-color: #fb923c; }   /* Orange */
+        .type-is { --type-color: #22d3ee; }       /* Cyan */
+        .type-other { --type-color: #94a3b8; }
 
         /* Animations */
         @keyframes pulse {
@@ -444,33 +453,32 @@
                 const aciklama = row[10] || "-";
                 const gorevli = row[14] || "Bekliyor";
                 
-                const isUrgent = tur.toLowerCase().includes("mekanik") || tur.toLowerCase().includes("elektrik");
-                const accentColor = tur.toLowerCase().includes("mekanik") ? "var(--accent-red)" : 
-                                  tur.toLowerCase().includes("elektrik") ? "var(--accent-blue)" : "var(--accent-green)";
+                let typeClass = "type-other";
+                if (tur.includes("MEKANİK")) typeClass = "type-mekanik";
+                else if (tur.includes("ELEKTRİK")) typeClass = "type-elektrik";
+                else if (tur.includes("PLANLI")) typeClass = "type-planli";
+                else if (tur.includes("YAPILAN")) typeClass = "type-is";
 
                 html += `
-                    <div class="task-card" style="--border-color: ${accentColor}">
-                        <div class="task-info">
-                            <div style="display: flex; align-items: center; gap: 0.8rem">
-                                <h3>${bolum}</h3>
-                                <span class="task-bolum">${vardiya}</span>
-                            </div>
-                            <p class="task-desc">${aciklama}</p>
-                            <div class="task-meta">
-                                <div class="meta-item">
-                                    <span class="material-icons">person_outline</span> ${acan}
-                                </div>
-                                <div class="meta-item">
-                                    <span class="material-icons">engineering</span> ${gorevli}
-                                </div>
-                                <div class="meta-item">
-                                    <span class="material-icons">access_time</span> ${tarih}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="task-type-badge" style="color: ${accentColor}">
-                            <span class="material-icons" style="font-size: 1rem">${isUrgent ? 'bolt' : 'info'}</span>
+                    <div class="task-card ${typeClass}">
+                        <div class="task-title">
                             ${tur}
+                            <span class="material-icons" style="font-size: 0.8rem">info_outline</span>
+                        </div>
+                        <div class="task-main-name">${bolum}</div>
+                        <div class="task-sub-info">${vardiya}</div>
+                        <div class="task-short-desc">${aciklama}</div>
+                        
+                        <div class="task-footer-meta">
+                            <div class="meta-line">
+                                <span class="material-icons">person</span> ${acan}
+                            </div>
+                            <div class="meta-line">
+                                <span class="material-icons">engineering</span> ${gorevli}
+                            </div>
+                            <div class="meta-line">
+                                <span class="material-icons">history</span> ${tarih}
+                            </div>
                         </div>
                     </div>
                 `;
