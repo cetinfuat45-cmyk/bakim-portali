@@ -168,11 +168,15 @@
             const grid = document.getElementById('grid-view');
             const list = document.getElementById('list-view');
             
+            // Bugünün tarihini al (G.A.Y formatında: 27.04.2026)
+            const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
             let gridHtml = "";
             let listHtml = "";
 
             dataRows.forEach(row => {
-                const tarih = row[0] || "-";
+                const tarihFull = row[0] || "";
+                const tarihSadece = tarihFull.split(' ')[0] || "";
                 const acan = row[2] || "-";
                 const bolum = row[4] || "-";
                 const turRaw = (row[8] || "DİĞER");
@@ -181,29 +185,31 @@
                 const makineP = (row[15] || "").trim();
                 const bit = (row[20] || "").trim();
 
-                const info = getTypeInfo(turRaw);
+                if (bit === "" && tarihFull !== "" && aciklama !== "-") {
+                    const info = getTypeInfo(turRaw);
+                    const displayName = (makineP === "" || makineP.startsWith('#')) ? bolum : makineP;
 
-                // Sadece Bitmemiş (Açık) işleri göster
-                if (bit === "" && tarih !== "" && aciklama !== "-") {
-                    // P sütunu boşsa Üste GRID'e, doluysa Altta LİSTE'ye
-                    if (makineP === "" || makineP.startsWith('#')) {
+                    // BUGÜNÜN ARALARI -> KART (GRID)
+                    if (tarihSadece === today) {
                         gridHtml += `
                             <div class="grid-card ${info.c}">
-                                <div class="type">${info.label} <span class="material-icons" style="font-size:10px">more_horiz</span></div>
-                                <div class="name">${bolum}</div>
+                                <div class="type">${info.label} <span class="material-icons" style="font-size:10px">bolt</span></div>
+                                <div class="name">${displayName}</div>
                                 <div class="desc">${aciklama}</div>
                                 <div class="meta">
                                     <span>${acan}</span>
-                                    <span>${tarih.split(' ')[1] || ''}</span>
+                                    <span>${tarihFull.split(' ')[1] || ''}</span>
                                 </div>
                             </div>
                         `;
-                    } else {
+                    } 
+                    // ESKİ ARIZALAR -> TABLO (LİSTE)
+                    else {
                         listHtml += `
                             <div class="table-row">
-                                <div style="color:#64748b">${tarih.split(' ')[0]} <span style="color:#94a3b8">${tarih.split(' ')[1] || ''}</span></div>
+                                <div style="color:#64748b">${tarihSadece} <span style="color:#94a3b8">${tarihFull.split(' ')[1] || ''}</span></div>
                                 <div style="font-weight:700">${acan}</div>
-                                <div style="color:var(--mekanik)">${makineP}</div>
+                                <div style="color:var(--mekanik)">${displayName}</div>
                                 <div class="row-type ${info.c}">${info.label}</div>
                                 <div style="color:#cbd5e1">${aciklama}</div>
                                 <div style="text-align:right; font-weight:800; color:var(--mekanik)">${gorevli}</div>
@@ -213,8 +219,8 @@
                 }
             });
 
-            grid.innerHTML = gridHtml || '<div style="padding:20px; color:#64748b">Yeni arıza kaydı yok.</div>';
-            list.innerHTML = listHtml || '<div style="padding:20px; color:#64748b">Devam eden iş bulunmuyor.</div>';
+            grid.innerHTML = gridHtml || '<div style="padding:20px; color:#64748b">Bugün henüz bir arıza girilmedi.</div>';
+            list.innerHTML = listHtml || '<div style="padding:20px; color:#64748b">Eski bekleyen iş bulunmuyor.</div>';
         }
 
         function fetchData() {
