@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,8 +22,19 @@
             --isg: #ef4444;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; cursor: default; }
-        body { background-color: var(--bg-dark); color: var(--text-main); font-size: 11px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            cursor: default;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-size: 11px;
+        }
 
         .top-bar {
             height: 24px;
@@ -33,6 +45,7 @@
             gap: 12px;
             border-bottom: 1px solid #1e293b;
         }
+
         .stat-btn {
             display: flex;
             align-items: center;
@@ -41,6 +54,7 @@
             font-weight: 800;
             text-transform: uppercase;
         }
+
         .stat-btn span:last-child {
             background: #1e293b;
             padding: 0 4px;
@@ -48,7 +62,10 @@
             color: #fff;
             font-size: 9px;
         }
-        .stat-btn .material-icons { font-size: 10px; }
+
+        .stat-btn .material-icons {
+            font-size: 10px;
+        }
 
         .section-header {
             padding: 5px 10px;
@@ -63,59 +80,161 @@
 
         .grid-view {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 6px;
-            padding: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 10px;
+            padding: 10px;
             background: var(--bg-dark);
         }
+
         .card {
             background: rgba(30, 41, 59, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 3px solid var(--c);
-            padding: 6px;
-            border-radius: 4px;
-            height: 110px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--c);
+            padding: 10px;
+            border-radius: 6px;
+            height: 160px;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-        .card .c-title { font-size: 8px; font-weight: 800; color: var(--c); display: flex; justify-content: space-between; align-items: center; }
-        .card .c-name { font-size: 12px; font-weight: 800; margin: 3px 0; color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .card .c-sub { font-size: 7px; color: var(--text-dim); margin-bottom: 3px; background: rgba(0,0,0,0.2); padding: 1px 4px; border-radius: 3px; display: inline-block; width: fit-content; }
-        .card .c-desc { font-size: 9.5px; color: #cbd5e1; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-        .card .c-foot { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 3px; display: flex; justify-content: space-between; font-size: 7px; color: #64748b; }
 
-        .list-view { padding: 5px 10px; }
+        .card .c-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--c);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .card .c-name {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 6px 0;
+            color: #fff;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .card .c-sub {
+            font-size: 10px;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        .card .c-desc {
+            font-size: 12px;
+            color: #e2e8f0;
+            line-height: 1.4;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            margin-bottom: 5px;
+        }
+
+        .card .c-foot {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .list-view {
+            padding: 5px 10px;
+        }
+
         .list-row {
             display: grid;
             grid-template-columns: 80px 100px 120px 110px 1fr 100px;
             gap: 8px;
             padding: 2px 5px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             align-items: center;
         }
-        .list-row:hover { background: rgba(255,255,255,0.03); }
-        .r-type { font-weight: 800; font-size: 8px; text-align: center; color: var(--c); background: rgba(255,255,255,0.03); border-radius: 2px; padding: 1px 0; }
-        .r-val { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #94a3b8; font-size: 10px; }
 
-        .group-sep { border-bottom: 2px solid var(--c); padding: 3px 10px; font-size: 9px; font-weight: 800; color: var(--c); margin-top: 10px; text-transform: uppercase; }
+        .list-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
 
-        .c-mekanik { --c: var(--mekanik); }
-        .c-elektrik { --c: var(--elektrik); }
-        .c-planli { --c: var(--planli); }
-        .c-is { --c: var(--is); }
-        .c-isg { --c: var(--isg); }
-        .c-other { --c: #94a3b8; }
+        .r-type {
+            font-weight: 800;
+            font-size: 8px;
+            text-align: center;
+            color: var(--c);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 2px;
+            padding: 1px 0;
+        }
+
+        .r-val {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #94a3b8;
+            font-size: 10px;
+        }
+
+        .group-sep {
+            border-bottom: 2px solid var(--c);
+            padding: 3px 10px;
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--c);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .c-mekanik {
+            --c: var(--mekanik);
+        }
+
+        .c-elektrik {
+            --c: var(--elektrik);
+        }
+
+        .c-planli {
+            --c: var(--planli);
+        }
+
+        .c-is {
+            --c: var(--is);
+        }
+
+        .c-isg {
+            --c: var(--isg);
+        }
+
+        .c-other {
+            --c: #94a3b8;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="top-bar">
         <div class="stat-btn">TOPLAM <span id="s-total">0</span></div>
-        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span id="s-mek">0</span></div>
-        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span id="s-elek">0</span></div>
-        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span id="s-isg">0</span></div>
+        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span
+                id="s-mek">0</span></div>
+        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span
+                id="s-elek">0</span></div>
+        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span
+                id="s-isg">0</span></div>
         <div class="stat-btn"><span class="material-icons">history</span> TEKRAR <span id="s-tek">0</span></div>
-        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
+        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span
+                id="s-plan">0</span></div>
     </div>
 
     <div class="section-header" style="color:var(--is)">BUGÜNÜN ARIZALARI</div>
@@ -142,8 +261,9 @@
             const grid = document.getElementById('grid-view');
             const list = document.getElementById('list-view');
             const today = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            
+
             let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
+            let todayTasks = [];
             let gridHtml = "";
             let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
 
@@ -170,17 +290,7 @@
                         else if (tur.includes("İSG")) counts.isg++;
                         else if (tur.includes("PLANLI")) counts.plan++;
 
-                        gridHtml += `
-                            <div class="card ${info.c}">
-                                <div class="c-title">${info.label} <span class="material-icons">${info.icon}</span></div>
-                                <div class="c-name">${name}</div>
-                                <div class="c-sub">${tech} / ${timePart}</div>
-                                <div class="c-desc">${desc}</div>
-                                <div class="c-foot">
-                                    <span>${acan}</span>
-                                    <span>${datePart}</span>
-                                </div>
-                            </div>`;
+                        todayTasks.push({ info, name, tech, timePart, desc, acan, datePart });
                     } else {
                         const rowHtml = `
                             <div class="list-row">
@@ -191,7 +301,7 @@
                                 <div class="r-val" style="color:#fff">${desc}</div>
                                 <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800">${tech}</div>
                             </div>`;
-                        
+
                         if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
                         else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
                         else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
@@ -202,6 +312,21 @@
                 }
             });
 
+            // Bugünün görevlerini EN YENİ EN BAŞTA olacak şekilde ters çevirip bas
+            todayTasks.reverse().forEach(t => {
+                gridHtml += `
+                    <div class="card ${t.info.c}">
+                        <div class="c-title">${t.info.label} <span class="material-icons">${t.info.icon}</span></div>
+                        <div class="c-name">${t.name}</div>
+                        <div class="c-sub">${t.tech} / ${t.timePart}</div>
+                        <div class="c-desc">${t.desc}</div>
+                        <div class="c-foot">
+                            <span>${t.acan}</span>
+                            <span>${t.datePart}</span>
+                        </div>
+                    </div>`;
+            });
+
             document.getElementById('s-total').innerText = counts.total;
             document.getElementById('s-mek').innerText = counts.mek;
             document.getElementById('s-elek').innerText = counts.elek;
@@ -209,7 +334,7 @@
             document.getElementById('s-plan').innerText = counts.plan;
 
             grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün henüz bir kayıt girilmedi.</div>';
-            
+
             let listHtml = "";
             const renderGroup = (title, items, colorVar) => {
                 if (items.length === 0) return "";
@@ -230,7 +355,7 @@
             const url = CSV_URL + '&t=' + new Date().getTime();
             Papa.parse(url, {
                 download: true, header: false, skipEmptyLines: true,
-                complete: function(res) { processData(res.data); }
+                complete: function (res) { processData(res.data); }
             });
         }
 
@@ -238,4 +363,5 @@
         setInterval(fetchData, 20000);
     </script>
 </body>
+
 </html>
