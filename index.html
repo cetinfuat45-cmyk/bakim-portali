@@ -159,9 +159,9 @@
             padding-top: 4px;
             display: flex;
             justify-content: space-between;
-            font-size: 8px;
-            color: #94a3b8;
-            font-weight: 600;
+            font-size: 11px;
+            color: #fff;
+            font-weight: 800;
         }
 
         .list-view {
@@ -316,6 +316,13 @@
             return { c: "c-other", label: tur, icon: "info" };
         }
 
+        function shortenName(name) {
+            if (!name || name === "-") return "-";
+            let p = name.trim().split(' ');
+            if (p.length < 2) return name;
+            return p[0] + "." + p[p.length - 1][0] + ".";
+        }
+
         function processData(rows) {
             const dataRows = rows.slice(1);
             const grid = document.getElementById('grid-view');
@@ -331,7 +338,7 @@
                 const rawDate = row[0] || "";
                 const datePart = rawDate.split(' ')[0] || "";
                 const timePart = rawDate.split(' ')[1] || "";
-                const acan = row[2] || "-";
+                const acan = shortenName(row[2] || "-");
                 const bolum = row[4] || "-";
                 const tur = (row[8] || "DİĞER").toUpperCase();
                 const desc = row[10] || "-";
@@ -387,7 +394,7 @@
                         <div class="c-sub">${t.tech}</div>
                         <div class="c-desc">${t.desc}</div>
                         <div class="c-foot">
-                            <span>Açan: ${t.acan} | ${t.timePart} - ${t.datePart}</span>
+                            <span>Açan: <b style="color:#fff">${t.acan}</b> | ${t.timePart} - ${t.datePart}</span>
                         </div>
                     </div>`;
             });
