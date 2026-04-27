@@ -394,13 +394,14 @@
             // Headers are at rows[0], data starts at rows[1]
             const dataRows = rows.slice(1);
             
-            // FİLTRE: Tarih varsa (geçerli satır) VE P sütunu boş/hatalıysa (açık arıza)
+            // FİLTRE: Tarih varsa VE P sütunu boş/hatalıysa VE Arıza Açıklaması varsa
             const activeTasks = dataRows.filter(row => {
                 const tarih = (row[0] || "").trim();
+                const aciklama = (row[10] || "").trim();
                 const makineP = (row[15] || "").trim();
                 
-                // Satırın bir tarihi olmalı (boş satırları elemek için)
-                if (tarih === "" || tarih === "TARİH") return false;
+                // Satırın geçerli olması için Tarih ve Açıklama dolu olmalı
+                if (tarih === "" || tarih === "TARİH" || aciklama === "") return false;
                 
                 // P sütunu boşsa VEYA formül hatası içeriyorsa (#) arıza AÇIKTIR
                 return (makineP === "" || makineP.startsWith('#'));
