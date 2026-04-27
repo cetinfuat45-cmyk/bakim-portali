@@ -3,377 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakım HUB | Kesintisiz İzleme</title>
-    <!-- Fonts & Icons -->
+    <title>Bakım HUB Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    
     <style>
         :root {
-            --bg-dark: #020617;
-            --bg-card: rgba(15, 23, 42, 0.6);
-            --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
-            --accent-green: #10b981;
+            --bg-dark: #0f172a;
+            --bg-header: #020617;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
-            --neon-red: 0 0 15px rgba(239, 68, 68, 0.3);
-            --neon-blue: 0 0 15px rgba(59, 130, 246, 0.3);
+            --mekanik: #38bdf8;
+            --elektrik: #fbbf24;
+            --planli: #fb923c;
+            --is: #22d3ee;
+            --isg: #ef4444;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Outfit', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-size: 14px; overflow-x: hidden; }
 
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.05) 0%, transparent 50%);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
+        /* Top Counter Header */
+        .top-status-bar {
+            background: var(--bg-header);
+            padding: 5px 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
         }
+        .status-item { display: flex; align-items: center; gap: 4px; }
+        .status-item span:last-child { background: #1e293b; padding: 1px 6px; border-radius: 4px; color: #fff; }
 
-        /* Navbar Styling */
+        /* Navigation Header */
         nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 1rem 2rem;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        .logo { font-weight: 800; font-size: 18px; letter-spacing: -1px; }
+        .logo span { color: var(--mekanik); }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: -1px;
-            font-size: 1.5rem;
-        }
-
-        .logo .warning-icon {
-            color: var(--accent-red);
-            animation: pulse 2s infinite;
-        }
-
-        .logo span span {
-            color: var(--accent-blue);
-        }
-
-        .status-badge {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: var(--accent-green);
-            padding: 0.4rem 1rem;
-            border-radius: 99px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            letter-spacing: 1px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-green);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent-green);
-        }
-
-        /* Stats Section */
-        .stats-grid {
-            max-width: 1200px;
-            margin: 2rem auto;
+        /* Grid Section (New Failures) */
+        .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            padding: 0 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
+            padding: 10px;
+            background: #020617;
         }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: scale(1.02);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
-        }
-
-        /* Main Content */
-        main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem 4rem;
-        }
-
-        .data-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 0.75rem;
-            padding: 0.5rem;
-        }
-
-        .task-card {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid var(--type-color, #94a3b8);
-            padding: 0.8rem;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            transition: transform 0.2s ease;
-            min-height: 140px;
-        }
-
-        .task-card:hover {
-            transform: translateY(-3px);
-            background: rgba(30, 41, 59, 0.9);
-        }
-
-        .task-title {
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--type-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .task-main-name {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .task-sub-info {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            font-weight: 600;
-            background: rgba(255,255,255,0.05);
-            padding: 2px 5px;
+        .grid-card {
+            background: #1e293b;
+            border-top: 3px solid var(--c);
+            padding: 8px;
             border-radius: 4px;
-            display: inline-block;
-        }
-
-        .task-short-desc {
-            font-size: 0.75rem;
-            color: #cbd5e1;
-            line-height: 1.3;
-            margin-top: 2px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .task-footer-meta {
-            margin-top: auto;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 5px;
+            height: 120px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
         }
+        .grid-card .type { font-size: 9px; font-weight: 800; color: var(--c); display: flex; justify-content: space-between; }
+        .grid-card .name { font-size: 13px; font-weight: 700; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .grid-card .desc { font-size: 10px; color: #cbd5e1; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .grid-card .meta { margin-top: auto; font-size: 8px; color: #64748b; display: flex; justify-content: space-between; align-items: center; }
 
-        .meta-line {
-            display: flex;
+        /* List Section (Work in Progress) */
+        .list-container {
+            margin-top: 5px;
+            padding: 0 10px;
+        }
+        .list-header-sep {
+            border-top: 2px solid #ef4444;
+            margin: 10px 0;
+            position: relative;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 100px 120px 120px 120px 1fr 120px;
+            gap: 10px;
+            padding: 4px 8px;
+            border-bottom: 1px solid #1e293b;
+            font-size: 11px;
             align-items: center;
-            gap: 4px;
-            font-size: 0.6rem;
-            color: rgba(255,255,255,0.4);
-            font-weight: 500;
         }
+        .table-row:hover { background: rgba(255,255,255,0.05); }
+        .row-type { font-weight: 800; font-size: 9px; padding: 2px 5px; border-radius: 3px; background: rgba(255,255,255,0.05); color: var(--c); text-align: center; }
 
-        .meta-line .material-icons {
-            font-size: 0.75rem;
-        }
+        .c-mekanik { --c: var(--mekanik); }
+        .c-elektrik { --c: var(--elektrik); }
+        .c-planli { --c: var(--planli); }
+        .c-is { --c: var(--is); }
+        .c-isg { --c: var(--isg); }
+        .c-other { --c: var(--text-dim); }
 
-        /* Type specific colors from the screenshot */
-        .type-mekanik { --type-color: #38bdf8; } /* Light Blue */
-        .type-elektrik { --type-color: #fbbf24; } /* Yellow */
-        .type-planli { --type-color: #fb923c; }   /* Orange */
-        .type-is { --type-color: #22d3ee; }       /* Cyan */
-        .type-other { --type-color: #94a3b8; }
-
-        /* Animations */
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .loading-view {
-            text-align: center;
-            padding: 5rem;
-            color: var(--text-dim);
-            font-weight: 800;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            animation: pulse 2s infinite;
-        }
-
-        /* Healthy State Styling */
-        .systems-healthy {
-            text-align: center;
-            padding: 6rem 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            animation: fadeIn 1s ease-out;
-        }
-
-        .healthy-shield {
-            font-size: 5rem !important;
-            color: var(--accent-green);
-            text-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
-            animation: shieldPulse 3s infinite ease-in-out;
-        }
-
-        .systems-healthy h2 {
-            font-weight: 800;
-            letter-spacing: 4px;
-            font-size: 1.2rem;
-            color: var(--accent-green);
-        }
-
-        /* Connection Error Styling */
-        .connection-error {
-            text-align: center;
-            padding: 6rem 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .error-icon {
-            font-size: 5rem !important;
-            color: var(--accent-red);
-            text-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
-            animation: pulse 1s infinite;
-        }
-
-        .connection-error h2 {
-            font-weight: 800;
-            letter-spacing: 4px;
-            font-size: 1.2rem;
-            color: var(--accent-red);
-        }
-
-        @keyframes shieldPulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .task-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1.5rem;
-            }
-            .task-type-badge {
-                align-self: flex-start;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-container">
-            <div class="logo">
-                <span class="material-icons warning-icon">warning</span>
-                <span>Bakım<span>HUB</span></span>
-            </div>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                HUB CANLI İZLEME
-            </div>
-        </div>
-    </nav>
+    <div class="top-status-bar" id="top-stats">
+        <div class="status-item">TOPLAM <span id="s-total">0</span></div>
+        <div class="status-item" style="color: var(--mekanik)">MEK <span id="s-mek">0</span></div>
+        <div class="status-item" style="color: var(--elektrik)">ELEK <span id="s-elek">0</span></div>
+        <div class="status-item" style="color: var(--isg)">İSG <span id="s-isg">0</span></div>
+        <div class="status-item">TEKRAR <span id="s-tek">0</span></div>
+        <div class="status-item" style="color: var(--planli)">P.BAKIM <span id="s-plan">0</span></div>
+        <div class="status-item">DİĞER <span id="s-other">0</span></div>
+    </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="stat-label">Toplam Arıza</span>
-            <span class="stat-value" id="count-total">0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label" style="color: var(--accent-red)">Mekanik</span>
-            <span class="stat-value" id="count-mekanik" style="color: var(--accent-red)">0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label" style="color: var(--accent-blue)">Elektrik</span>
-            <span class="stat-value" id="count-elektrik" style="color: var(--accent-blue)">0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Diğer Bağlantılı</span>
-            <span class="stat-value" id="count-other">0</span>
+    <div class="grid-container" id="grid-view">
+        <!-- New arızas will be here -->
+    </div>
+
+    <div class="list-container">
+        <div class="list-header-sep"></div>
+        <div id="list-view">
+            <!-- Active tasks will be here -->
         </div>
     </div>
 
-    <main>
-        <div id="data-list" class="data-list">
-            <div class="loading-view">Sistem Taranıyor...</div>
-        </div>
-    </main>
-
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSiAuiO1cWDZLOtuFdAkBOU1PNf5mpThgH3yKalH5NHpj0QDrJmpt7XbRuCnQejkxF89oQ_uu1zO-2/pub?gid=0&single=true&output=csv';
+
+        function updateStats(data) {
+            let s = { total: 0, mek: 0, elek: 0, isg: 0, tek: 0, plan: 0, other: 0 };
+            data.forEach(row => {
+                const tur = (row[8] || "").toLowerCase();
+                const bit = (row[20] || "").trim();
+                if (bit === "") {
+                    s.total++;
+                    if (tur.includes("mekanik")) s.mek++;
+                    else if (tur.includes("elektrik")) s.elek++;
+                    else if (tur.includes("isg") || tur.includes("güvenlik")) s.isg++;
+                    else if (tur.includes("planlı")) s.plan++;
+                    else s.other++;
+                }
+            });
+            document.getElementById('s-total').innerText = s.total;
+            document.getElementById('s-mek').innerText = s.mek;
+            document.getElementById('s-elek').innerText = s.elek;
+            document.getElementById('s-isg').innerText = s.isg;
+            document.getElementById('s-plan').innerText = s.plan;
+            document.getElementById('s-other').innerText = s.other;
+        }
+
+        function getTypeInfo(tur) {
+            tur = tur.toUpperCase();
+            if (tur.includes("MEKANİK")) return { c: "c-mekanik", label: "MEKANİK ARIZA" };
+            if (tur.includes("ELEKTRİK")) return { c: "c-elektrik", label: "ELEKTRİK ARIZA" };
+            if (tur.includes("PLANLI")) return { c: "c-planli", label: "PLANLI BAKIM KODU" };
+            if (tur.includes("YAPILAN")) return { c: "c-is", label: "YAPILAN İŞ HAKKINDA" };
+            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) return { c: "c-isg", label: "İSG GÜVENLİĞİ" };
+            return { c: "c-other", label: tur };
+        }
+
+        function processData(rows) {
+            const dataRows = rows.slice(1);
+            updateStats(dataRows);
+
+            const grid = document.getElementById('grid-view');
+            const list = document.getElementById('list-view');
+            
+            let gridHtml = "";
+            let listHtml = "";
+
+            dataRows.forEach(row => {
+                const tarih = row[0] || "-";
+                const acan = row[2] || "-";
+                const bolum = row[4] || "-";
+                const turRaw = (row[8] || "DİĞER");
+                const aciklama = row[10] || "-";
+                const gorevli = row[14] || "-";
+                const makineP = (row[15] || "").trim();
+                const bit = (row[20] || "").trim();
+
+                const info = getTypeInfo(turRaw);
+
+                // Sadece Bitmemiş (Açık) işleri göster
+                if (bit === "" && tarih !== "" && aciklama !== "-") {
+                    // P sütunu boşsa Üste GRID'e, doluysa Altta LİSTE'ye
+                    if (makineP === "" || makineP.startsWith('#')) {
+                        gridHtml += `
+                            <div class="grid-card ${info.c}">
+                                <div class="type">${info.label} <span class="material-icons" style="font-size:10px">more_horiz</span></div>
+                                <div class="name">${bolum}</div>
+                                <div class="desc">${aciklama}</div>
+                                <div class="meta">
+                                    <span>${acan}</span>
+                                    <span>${tarih.split(' ')[1] || ''}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        listHtml += `
+                            <div class="table-row">
+                                <div style="color:#64748b">${tarih.split(' ')[0]} <span style="color:#94a3b8">${tarih.split(' ')[1] || ''}</span></div>
+                                <div style="font-weight:700">${acan}</div>
+                                <div style="color:var(--mekanik)">${makineP}</div>
+                                <div class="row-type ${info.c}">${info.label}</div>
+                                <div style="color:#cbd5e1">${aciklama}</div>
+                                <div style="text-align:right; font-weight:800; color:var(--mekanik)">${gorevli}</div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            grid.innerHTML = gridHtml || '<div style="padding:20px; color:#64748b">Yeni arıza kaydı yok.</div>';
+            list.innerHTML = listHtml || '<div style="padding:20px; color:#64748b">Devam eden iş bulunmuyor.</div>';
+        }
 
         function fetchData() {
             const url = CSV_URL + '&t=' + new Date().getTime();
@@ -381,118 +223,8 @@
                 download: true,
                 header: false,
                 skipEmptyLines: true,
-                complete: function(results) {
-                    processRows(results.data);
-                },
-                error: function(err) {
-                    console.error("CSV Fetch Error:", err);
-                    document.getElementById('data-list').innerHTML = `
-                        <div class="connection-error">
-                            <span class="material-icons error-icon">wifi_off</span>
-                            <h2>BAĞLANTI KESİLDİ</h2>
-                            <p>E-Tablo yayınına ulaşılamıyor. Lütfen "Web'de Yayınla" ve "CSV" ayarlarınızı kontrol edin.</p>
-                            <button onclick="location.reload()" style="margin-top:20px; padding:10px 25px; background:var(--accent-red); color:white; border:none; border-radius:10px; font-weight:800; cursor:pointer;">TEKRAR DENE</button>
-                        </div>
-                    `;
-                }
+                complete: function(res) { processData(res.data); }
             });
-        }
-
-        function processRows(rows) {
-            const list = document.getElementById('data-list');
-            // Headers are at rows[0], data starts at rows[1]
-            const dataRows = rows.slice(1);
-            
-            // FİLTRE: Tarih varsa VE P sütunu boş/hatalıysa VE Arıza Açıklaması varsa
-            const activeTasks = dataRows.filter(row => {
-                const tarih = (row[0] || "").trim();
-                const aciklama = (row[10] || "").trim();
-                const makineP = (row[15] || "").trim();
-                
-                // Satırın geçerli olması için Tarih ve Açıklama dolu olmalı
-                if (tarih === "" || tarih === "TARİH" || aciklama === "") return false;
-                
-                // P sütunu boşsa VEYA formül hatası içeriyorsa (#) arıza AÇIKTIR
-                return (makineP === "" || makineP.startsWith('#'));
-            });
-
-            // İstatistikleri hesapla
-            let counts = { mekanik: 0, elektrik: 0, other: 0 };
-            activeTasks.forEach(task => {
-                const tur = (task[8] || "").toLowerCase();
-                if (tur.includes("mekanik")) counts.mekanik++;
-                else if (tur.includes("elektrik")) counts.elektrik++;
-                else counts.other++;
-            });
-
-            updateValue('count-total', activeTasks.length);
-            updateValue('count-mekanik', counts.mekanik);
-            updateValue('count-elektrik', counts.elektrik);
-            updateValue('count-other', counts.other);
-            
-            list.innerHTML = '';
-
-            if (activeTasks.length === 0) {
-                list.innerHTML = `
-                    <div class="systems-healthy">
-                        <span class="material-icons healthy-shield">verified_user</span>
-                        <h2>TÜM SİSTEMLER NOMİNAL</h2>
-                        <p>Şu an için bekleyen açık arıza kaydı bulunmuyor.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = "";
-            activeTasks.slice().reverse().forEach(row => {
-                const tarih = row[0] || "-";
-                const acan = row[2] || "-";
-                const bolum = row[4] || "-";
-                const vardiya = row[6] || "-";
-                const tur = (row[8] || "DİĞER").toUpperCase();
-                const aciklama = row[10] || "-";
-                const gorevli = row[14] || "Bekliyor";
-                
-                let typeClass = "type-other";
-                if (tur.includes("MEKANİK")) typeClass = "type-mekanik";
-                else if (tur.includes("ELEKTRİK")) typeClass = "type-elektrik";
-                else if (tur.includes("PLANLI")) typeClass = "type-planli";
-                else if (tur.includes("YAPILAN")) typeClass = "type-is";
-
-                html += `
-                    <div class="task-card ${typeClass}">
-                        <div class="task-title">
-                            ${tur}
-                            <span class="material-icons" style="font-size: 0.8rem">info_outline</span>
-                        </div>
-                        <div class="task-main-name">${bolum}</div>
-                        <div class="task-sub-info">${vardiya}</div>
-                        <div class="task-short-desc">${aciklama}</div>
-                        
-                        <div class="task-footer-meta">
-                            <div class="meta-line">
-                                <span class="material-icons">person</span> ${acan}
-                            </div>
-                            <div class="meta-line">
-                                <span class="material-icons">engineering</span> ${gorevli}
-                            </div>
-                            <div class="meta-line">
-                                <span class="material-icons">history</span> ${tarih}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            list.innerHTML = html;
-        }
-
-        function updateValue(id, value) {
-            const el = document.getElementById(id);
-            if (el.innerText != value) {
-                el.style.transform = "scale(1.2)";
-                el.innerText = value;
-                setTimeout(() => el.style.transform = "scale(1)", 200);
-            }
         }
 
         window.onload = fetchData;
