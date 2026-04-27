@@ -380,12 +380,14 @@
             todayTasks.reverse().forEach(t => {
                 gridHtml += `
                     <div class="card ${t.info.c}">
-                        <div class="c-title">${t.info.label} <span class="material-icons">${t.info.icon}</span></div>
-                        <div class="c-name">${t.name}</div>
-                        <div class="c-sub">${t.tech} / ${t.timePart} - ${t.datePart}</div>
+                        <div class="c-title">
+                            <span>${t.info.label}</span>
+                            <span style="margin-left:auto; font-size:10px; color:#fff">${t.name}</span>
+                        </div>
+                        <div class="c-sub">${t.tech}</div>
                         <div class="c-desc">${t.desc}</div>
                         <div class="c-foot">
-                            <span>Açan: ${t.acan}</span>
+                            <span>Açan: ${t.acan} | ${t.timePart} - ${t.datePart}</span>
                         </div>
                     </div>`;
             });
