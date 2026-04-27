@@ -322,7 +322,10 @@
         <div class="stat-btn"><span class="material-icons">history</span> TEKRAR <span id="s-tek">0</span></div>
         <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
         
-        <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
+                YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">10</span>S
+            </div>
             <div class="stat-btn" style="gap: 2px; color: var(--text-dim);">
                 ÖLÇEK: 
                 <select id="scale-select" style="background:#1e293b; color:#fff; border:none; font-size:10px; border-radius:3px; outline:none; padding:2px;">
@@ -546,8 +549,20 @@
         const savedScale = localStorage.getItem('hub-scale');
         applyScale(savedScale || '0.75');
 
-        window.onload = fetchData;
-        setInterval(fetchData, 10000);
+        let refreshCounter = 10;
+        function updateRefreshTimer() {
+            refreshCounter--;
+            if (refreshCounter <= 0) {
+                fetchData();
+                refreshCounter = 10;
+            }
+            document.getElementById('refresh-timer').innerText = refreshCounter;
+        }
+
+        window.onload = () => {
+            fetchData();
+            setInterval(updateRefreshTimer, 1000);
+        };
     </script>
 </body>
 
