@@ -324,6 +324,9 @@
         <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
         
         <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <div id="install-btn" class="stat-btn" style="display:none; background:var(--c-mekanik); color:#fff; cursor:pointer;" onclick="installPWA()">
+                <span class="material-icons">download</span> YÜKLE
+            </div>
             <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800; min-width:80px;">SON: --:--:--</div>
             <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
                 YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">20</span>S
@@ -363,6 +366,26 @@
             if (tur.includes("YAPILAN")) return { c: "c-is", label: "YAPILAN İŞ HAKKINDA", icon: "task_alt" };
             if (tur.includes("İSG") || tur.includes("GÜVENLİ")) return { c: "c-isg", label: "İSG GÜVENLİĞİ", icon: "gpp_maybe" };
             return { c: "c-other", label: tur, icon: "info" };
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('install-btn');
+            if (btn) btn.style.display = 'flex';
+        });
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    const btn = document.getElementById('install-btn');
+                    if(btn) btn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            });
         }
 
         function shortenName(name) {
