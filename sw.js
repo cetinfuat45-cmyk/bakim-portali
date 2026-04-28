@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bakim-hub-v2';
+const CACHE_NAME = 'bakim-hub-v3';
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
