@@ -341,7 +341,7 @@
     <div id="list-view" class="list-view"></div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzQxmf98Wv_2U01SbQ8BQHUZ4_f4Sp6WTl2cEd7fZUcLxRIyBlEQruYj_8_MfpuYZ-z5A/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzGNk4gqo8cQiL59pAYVK-ahOEb_lk-ZErruGUvgpVkGh5eZUkAAPsis7fqxwpkqrB_jg/exec';
 
         function getTypeInfo(tur) {
             tur = tur.toUpperCase();
@@ -410,7 +410,8 @@
             return comp1.d === comp2.d && comp1.m === comp2.m && comp1.y === comp2.y;
         }
 
-        function processData(rows) {
+        function processData(rawData) {
+            let rows = Array.isArray(rawData) ? rawData : (rawData.value || rawData.data || Object.values(rawData)[0] || []);
             if (!rows || rows.length < 2) return;
             
             // API kullanıldığı için CDN Dalgalanma korumasına artık gerek yok. Veri milisaniyesinde anlıktır.
