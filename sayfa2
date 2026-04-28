@@ -157,15 +157,23 @@
             <select id="f-durus" class="form-select">
                 <option value="DURUŞ YOK">DURUŞ YOK</option>
                 <option value="MAKİNE ARIZA">MAKİNE ARIZA</option>
-                <option value="MAKİNE AYAR">MAKİNE AYAR</option>
                 <option value="PLANLI BAKIM">PLANLI BAKIM</option>
+                <option value="GÖREV">GÖREV</option>
+            </select>
+
+            <label class="form-label">Yapılan Bakım (Durum Kategorisi)</label>
+            <select id="f-kategori" class="form-select">
+                <option value="İŞLETMEDE">İŞLETMEDE (Çalışıyor)</option>
+                <option value="DURUŞ YOK">DURUŞ YOK (Kontrol)</option>
+                <option value="PLANLI BAKIM">PLANLI BAKIM</option>
+                <option value="MAKİNE ARIZA">MAKİNE ARIZA (Devam Ediyor)</option>
             </select>
 
             <label class="form-label">Çalışma Süresi (Dakika)</label>
             <input type="number" id="f-sure" class="form-input" placeholder="Örn: 45">
 
-            <label class="form-label">Yapılan Bakım / İşlem</label>
-            <textarea id="f-bakim" class="form-textarea" placeholder="Yapılan işlemi detaylıca yazınız..."></textarea>
+            <label class="form-label">Ayrıntılı Açıklama (Yapılanlar)</label>
+            <textarea id="f-aciklama" class="form-textarea" placeholder="Yapılan işlemi detaylıca yazınız..."></textarea>
 
             <div class="form-actions">
                 <button class="btn-cancel" onclick="closeForm()">İPTAL</button>
@@ -302,8 +310,9 @@
             document.getElementById('selected-desc').innerText = desc;
             
             document.getElementById('f-sure').value = "";
-            document.getElementById('f-bakim').value = "";
+            document.getElementById('f-aciklama').value = "";
             document.getElementById('f-durus').value = "DURUŞ YOK";
+            document.getElementById('f-kategori').value = "İŞLETMEDE";
 
             document.getElementById('form-modal').style.display = 'flex';
         }
@@ -315,10 +324,11 @@
         function saveForm() {
             const sure = document.getElementById('f-sure').value;
             const durus = document.getElementById('f-durus').value;
-            const bakim = document.getElementById('f-bakim').value;
+            const kategori = document.getElementById('f-kategori').value;
+            const aciklama = document.getElementById('f-aciklama').value;
 
-            if(!sure || !bakim) {
-                alert("Lütfen Süre ve Yapılan Bakım alanlarını boş bırakmayınız!");
+            if(!sure || !aciklama) {
+                alert("Lütfen Süre ve Açıklama alanlarını boş bırakmayınız!");
                 return;
             }
 
@@ -329,7 +339,8 @@
                 operator: me.name,
                 sure: sure,
                 durus: durus,
-                bakim: bakim
+                bakim: kategori,
+                aciklama: aciklama
             };
 
             const btn = document.getElementById('btn-save');
