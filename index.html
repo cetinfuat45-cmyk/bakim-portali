@@ -341,7 +341,7 @@
     <div id="list-view" class="list-view"></div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzGNk4gqo8cQiL59pAYVK-ahOEb_lk-ZErruGUvgpVkGh5eZUkAAPsis7fqxwpkqrB_jg/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwQS11Ce9KO5zpfsUVRpK8DjZrHCGz-T-6dVQC7awZ0llyas_CVii2UXV3Rg0ivDKllmA/exec';
 
         function getTypeInfo(tur) {
             tur = tur.toUpperCase();
@@ -433,18 +433,19 @@
                 const dataRows = rows.slice(1);
 
                 dataRows.forEach(row => {
-                    if (!row || row.length < 6) return; // En az Açıklamaya (F) kadar dolu olmalı
+                    if (!row || row.length < 1) return;
                     const rawDate = row[0] || "";
+                    if (rawDate === "") return;
+
                     const datePart = rawDate.split(' ')[0] || "";
-                    const machine = (row[2] || "").trim(); // C: İŞ İSTEK MAKİNE
-                    const desc = (row[5] || "").trim();    // F: AÇIKLAMA
+                    const machine = row[2] ? row[2].trim() : "-"; // C: Makine
+                    const desc = row[5] ? row[5].trim() : "-";    // F: Açıklama
                     
                     const key = datePart + "_" + machine + "_" + desc;
                     if (seenKeys.has(key)) return; 
                     
-                    if (rawDate !== "" && desc !== "" && desc !== "-") {
-                        seenKeys.add(key);
-                        counts.total++;
+                    seenKeys.add(key);
+                    counts.total++;
                         
                         // Eğer bu görev bilgisayarın kalıcı hafızasında (LocalStorage) yoksa YENİDİR:
                         if (!wasMemoryEmpty && !alertedKeys.has(key)) {
@@ -469,28 +470,28 @@
 
                 const finalSeen = new Set();
                 dataRows.forEach(row => {
-                    if (!row || row.length < 6) return;
+                    if (!row || row.length < 1) return;
                     const rawDate = row[0] || "";
+                    if (rawDate === "") return;
+
                     const datePart = rawDate.split(' ')[0] || "";
                     const rowDateComp = parseDateComponents(rawDate);
                     const timePart = rawDate.split(' ')[1] || "";
                     
-                    const acan = shortenName(row[1] || "-");       // B: İŞ İSTEK AÇAN
-                    const machine = (row[2] || "").trim();         // C: İŞ İSTEK MAKİNE
-                    const tur = (row[4] || "DİĞER").toUpperCase(); // E: İŞ TÜRÜ
-                    const desc = (row[5] || "-").trim();           // F: AÇIKLAMA
-                    let tech = (row[6] || "").trim();              // G: GÖREVLİ
+                    const acan = shortenName(row[1] || "-");
+                    const machine = row[2] ? row[2].trim() : "-";
+                    const tur = (row[4] || "DİĞER").toUpperCase();
+                    const desc = row[5] ? row[5].trim() : "-";
+                    let tech = (row[6] || "").trim();
                     
                     const isNew = (tech === "" || tech === "-");
-
                     if (tech === "" || tech === "-") tech = "PERSONEL ATANMADI";
 
                     const key = datePart + "_" + machine + "_" + desc;
                     if (finalSeen.has(key)) return;
 
-                    if (rawDate !== "" && desc !== "" && desc !== "-") {
-                        finalSeen.add(key);
-                        const info = getTypeInfo(tur);
+                    finalSeen.add(key);
+                    const info = getTypeInfo(tur);
 
                         // Eğer bugün gelen ve HENÜZ GÖREVLİ EKLENMEMİŞ bir arızaysa Yukarıdaki KART ızgarasına düşer
                         if (isToday(realToday, rowDateComp) && isNew) {
@@ -502,7 +503,7 @@
                         } else {
                             // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
-                                <div class="list-row ${info.c}">
+                                <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
                                     <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
                                     <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
                                     <div class="r-val" style="color:var(--mekanik)">${machine}</div>
@@ -526,7 +527,14 @@
                 document.getElementById('s-isg').innerText = counts.isg;
                 document.getElementById('s-plan').innerText = counts.plan;
 
-                todayTasks.reverse().forEach(t => {
+                // Ne olursa olsun her zaman EN YENİ (En yakın saat) en üstte çıkacak şekilde sırala
+                todayTasks.sort((a, b) => {
+                    // Tarih formatı tr: dd.mm.yyyy HH:MM:SS -> ISO: yyyy-mm-ddTHH:MM:SS
+                    const formatIso = (dp, tp) => dp.split('.').reverse().join('-') + 'T' + (tp.length === 5 ? tp+':00' : tp);
+                    return new Date(formatIso(b.datePart, b.timePart)) - new Date(formatIso(a.datePart, a.timePart));
+                });
+
+                todayTasks.forEach(t => {
                     gridHtml += `
                         <div class="card ${t.info.c}">
                             <div class="c-title">
