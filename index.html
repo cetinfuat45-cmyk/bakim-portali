@@ -564,12 +564,16 @@
         function fetchData() {
             const url = API_URL + '?_t=' + new Date().getTime();
             
-            fetch(url, { cache: 'no-store' })
+            fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error("Ağ hatası: " + response.status);
-                    return response.json();
+                    return response.text();
                 })
-                .then(data => {
+                .then(text => {
+                    if (text.startsWith('<')) {
+                        throw new Error("Google Giriş Ekranı geldi! Makro yetkisi 'Herkes (Anyone)' olarak ayarlanmamış.");
+                    }
+                    const data = JSON.parse(text);
                     processData(data);
                     const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     const syncEl = document.getElementById('last-sync');
@@ -577,6 +581,18 @@
                 })
                 .catch(err => {
                     console.error("Veri Güncelleme Hatası:", err);
+                    const syncEl = document.getElementById('last-sync');
+                    if (syncEl) syncEl.innerText = "BAĞLANTI HATASI";
+                    
+                    const grid = document.getElementById('grid-view');
+                    if (grid && grid.innerHTML === '') {
+                        grid.innerHTML = `<div style="color:var(--isg); padding:20px; font-weight:bold; font-size:16px; border: 2px solid var(--isg); border-radius: 8px; margin: 10px; background: rgba(239, 68, 68, 0.1);">
+                            ⚠️ VERİ BAĞLANTISI BAŞARISIZ OLDU!<br><br>
+                            Olası Sebepler:<br>
+                            1. Google Apps Script ayarı yanlış. Lütfen yeni Makro bağlantısını alırken "Kimler erişebilir" kısmını kesinlikle <b>"Herhangi Biri (Anyone)"</b> olarak seçin.<br>
+                            2. Hata Detayı: ${err.message}
+                        </div>`;
+                    }
                 });
         }
 
