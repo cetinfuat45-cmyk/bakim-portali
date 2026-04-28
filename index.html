@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakım  Dashboard</title>
+    <title>Bakım HUB Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -357,7 +357,7 @@
             if (!name || name === "-") return "-";
             let p = name.trim().split(' ');
             if (p.length < 2) return name;
-            return p[0] + "." + p[p.length - 1][0] + ".";
+            return p[0][0].toUpperCase() + "." + p[p.length - 1];
         }
 
         let savedKeys = [];
@@ -479,6 +479,7 @@
                     
                     const acan = shortenName(row[1] || "-");
                     const machine = row[2] ? row[2].trim() : "-";
+                    const vardiya = row[3] ? row[3].trim() : "";
                     const tur = (row[4] || "DİĞER").toUpperCase();
                     const desc = row[5] ? row[5].trim() : "-";
                     let tech = (row[6] || "").trim();
@@ -498,7 +499,7 @@
                             else if (tur.includes("ELEKTRİK")) counts.elek++;
                             else if (tur.includes("İSG") || tur.includes("GÜVENLİ")) counts.isg++;
                             else if (tur.includes("PLANLI")) counts.plan++;
-                            todayTasks.push({ info, name: machine, tech, timePart, desc, acan, datePart: datePart });
+                            todayTasks.push({ info, name: machine, tech, timePart, desc, acan, datePart: datePart, vardiya: vardiya });
                         } else {
                             // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
@@ -533,17 +534,19 @@
                 });
 
                 todayTasks.forEach(t => {
+                    const timeShort = (t.timePart || "").substring(0, 5);
                     gridHtml += `
-                        <div class="card ${t.info.c}">
-                            <div class="c-title">
-                                <span>${t.info.label}</span>
-                                <span style="margin-left:auto; font-size:10px; color:#fff">${t.name}</span>
+                        <div class="card ${t.info.c}" style="padding: 6px 10px; gap: 2px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="color:var(--c); font-weight:900; font-size:16px; text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
+                                <div style="color:var(--c); font-weight:800; font-size:13px; border:1px solid rgba(var(--c-rgb),0.5); padding:1px 5px; border-radius:4px;">${timeShort}</div>
                             </div>
-                            <div class="c-sub">${t.tech}</div>
-                            <div class="c-desc">${t.desc}</div>
-                            <div class="c-foot">
-                                <span>Açan: <b style="color:#fff">${t.acan}</b> | ${t.timePart} - ${t.datePart}</span>
+                            <div style="color:#fff; font-weight:800; font-size:14px; line-height:1.2; margin-top:2px;">${t.acan}</div>
+                            <div style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:3px; margin-top:2px;">
+                                <span style="color:var(--c); font-weight:800;">${t.name}</span>
+                                <span style="color:var(--text-dim);">/ ${t.vardiya}</span>
                             </div>
+                            <div style="color:#72d127; font-weight:700; font-size:12px; margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${t.desc}</div>
                         </div>`;
                 });
                 grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün bekleyen açık arıza kaydı bulunmuyor.</div>';
