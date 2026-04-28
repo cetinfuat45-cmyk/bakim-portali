@@ -360,8 +360,10 @@
             return p[0] + "." + p[p.length - 1][0] + ".";
         }
 
-        let isFirstLoad = true;
-        let alertedKeys = new Set();
+        let savedKeys = [];
+        try { savedKeys = JSON.parse(localStorage.getItem('hub-alerts') || '[]'); } catch(e) {}
+        let alertedKeys = new Set(savedKeys);
+        let wasMemoryEmpty = savedKeys.length === 0;
         let alertInterval;
 
         function showAlert(machine, desc, person) {
@@ -425,6 +427,7 @@
                 let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
                 
                 const seenKeys = new Set(); // Mükerrer kayıdı engellemek için
+                const nextAlertedKeys = new Set(); // Hafıza temizliği için geçici liste
                 let latestTask = null;
                 const dataRows = rows.slice(1);
 
@@ -445,13 +448,13 @@
                         seenKeys.add(key);
                         counts.total++;
                         
-                        // Eğer bu görev daha önce hiç uyarısı verilmemiş yeni bir görevse:
-                        if (!isFirstLoad && !alertedKeys.has(key)) {
+                        // Eğer bu görev bilgisayarın kalıcı hafızasında (LocalStorage) yoksa YENİDİR:
+                        if (!wasMemoryEmpty && !alertedKeys.has(key)) {
                             latestTask = row;
                         }
                         
-                        // Hafızaya al ki Google verisi dalgalansa bile bir daha uyarmasın
-                        alertedKeys.add(key); 
+                        // Açık olan bu arızayı yeni hafıza listesine ekle
+                        nextAlertedKeys.add(key); 
                     }
                 });
 
@@ -459,7 +462,10 @@
                     const machine = (latestTask[15] || "").trim() || latestTask[4] || "-";
                     showAlert(machine, latestTask[10], latestTask[2]);
                 }
-                isFirstLoad = false;
+                
+                wasMemoryEmpty = false;
+                alertedKeys = nextAlertedKeys; // Sadece BUGÜN açık olan arızaları hafızada tut (Çöp Temizliği)
+                localStorage.setItem('hub-alerts', JSON.stringify([...alertedKeys]));
 
                 const finalSeen = new Set();
                 dataRows.forEach(row => {
