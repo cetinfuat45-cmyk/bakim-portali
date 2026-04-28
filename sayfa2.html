@@ -283,15 +283,20 @@
                             <div class="group-title">${bolum} (${items.length})</div>`;
                 
                 items.forEach(item => {
-                    let badgeColor = item.tur.includes('ELEK') ? 'var(--c-elek)' : (item.tur.includes('İSG') ? 'var(--c-isg)' : 'var(--c-mek)');
+                    let tur = item.tur || "BİLİNMİYOR";
+                    let badgeColor = tur.includes('ELEK') ? 'var(--c-elek)' : (tur.includes('İSG') ? 'var(--c-isg)' : 'var(--c-mek)');
+                    let mTitle = (item.makine || '-').replace(/'/g, "");
+                    let mDesc = (item.aciklama || '-').replace(/'/g, "");
+                    let mTarih = (item.tarih || "-").split(' ')[0];
+                    
                     html += `
-                        <div class="fault-card" onclick="openForm(${item.rowId}, '${item.makine.replace(/'/g, "")}', '${item.aciklama.replace(/'/g, "")}')">
-                            <div class="badge" style="color:${badgeColor}">${item.tur}</div>
+                        <div class="fault-card" onclick="openForm(${item.rowId}, '${mTitle}', '${mDesc}')">
+                            <div class="badge" style="color:${badgeColor}">${tur}</div>
                             <div class="f-makine">${item.makine || '-'}</div>
                             <div class="f-desc">${item.aciklama || '-'}</div>
                             <div class="f-meta">
-                                <span><span class="material-icons" style="font-size:12px; vertical-align:middle">calendar_month</span> ${item.tarih.split(' ')[0]}</span>
-                                <span><span class="material-icons" style="font-size:12px; vertical-align:middle">person</span> ${item.acan}</span>
+                                <span><span class="material-icons" style="font-size:12px; vertical-align:middle">calendar_month</span> ${mTarih}</span>
+                                <span><span class="material-icons" style="font-size:12px; vertical-align:middle">person</span> ${item.acan || '-'}</span>
                             </div>
                         </div>
                     `;
