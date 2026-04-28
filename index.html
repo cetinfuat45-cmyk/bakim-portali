@@ -341,7 +341,7 @@
     <div id="list-view" class="list-view"></div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyjtJJOL1X0D1lPRwBQl5UhqzPEsLsLN1VyXzrkjxXcbD_fcPW9KP9WyQ7DbswqTtNY6Q/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzQxmf98Wv_2U01SbQ8BQHUZ4_f4Sp6WTl2cEd7fZUcLxRIyBlEQruYj_8_MfpuYZ-z5A/exec';
 
         function getTypeInfo(tur) {
             tur = tur.toUpperCase();
@@ -432,19 +432,16 @@
                 const dataRows = rows.slice(1);
 
                 dataRows.forEach(row => {
-                    if (!row || row.length < 10) return;
+                    if (!row || row.length < 6) return; // En az Açıklamaya (F) kadar dolu olmalı
                     const rawDate = row[0] || "";
                     const datePart = rawDate.split(' ')[0] || "";
-                    const bolum = (row[4] || "").trim();
-                    const desc = (row[10] || "").trim();
-                    const finished = (row[20] || "").trim();
+                    const machine = (row[2] || "").trim(); // C: İŞ İSTEK MAKİNE
+                    const desc = (row[5] || "").trim();    // F: AÇIKLAMA
                     
-                    // Benzersiz anahtar: Tarih (sadece gün) + Bölüm + Açıklama  
-                    // Aynı gün içinde yanlışlıkla iki kez girilen aynı arızayı engeller.
-                    const key = datePart + "_" + bolum + "_" + desc;
+                    const key = datePart + "_" + machine + "_" + desc;
                     if (seenKeys.has(key)) return; 
                     
-                    if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
+                    if (rawDate !== "" && desc !== "" && desc !== "-") {
                         seenKeys.add(key);
                         counts.total++;
                         
@@ -459,8 +456,10 @@
                 });
 
                 if (latestTask) {
-                    const machine = (latestTask[15] || "").trim() || latestTask[4] || "-";
-                    showAlert(machine, latestTask[10], latestTask[2]);
+                    const machine = (latestTask[2] || "").trim() || "-";
+                    const desc = (latestTask[5] || "").trim() || "-";
+                    const acan = shortenName(latestTask[1] || "-");
+                    showAlert(machine, desc, acan);
                 }
                 
                 wasMemoryEmpty = false;
@@ -469,42 +468,43 @@
 
                 const finalSeen = new Set();
                 dataRows.forEach(row => {
-                    if (!row || row.length < 10) return;
+                    if (!row || row.length < 6) return;
                     const rawDate = row[0] || "";
                     const datePart = rawDate.split(' ')[0] || "";
                     const rowDateComp = parseDateComponents(rawDate);
                     const timePart = rawDate.split(' ')[1] || "";
-                    const acan = shortenName(row[2] || "-");
-                    const bolum = (row[4] || "").trim();
-                    const tur = (row[8] || "DİĞER").toUpperCase();
-                    const desc = (row[10] || "-").trim();
-                    let tech = (row[14] || "").trim();
+                    
+                    const acan = shortenName(row[1] || "-");       // B: İŞ İSTEK AÇAN
+                    const machine = (row[2] || "").trim();         // C: İŞ İSTEK MAKİNE
+                    const tur = (row[4] || "DİĞER").toUpperCase(); // E: İŞ TÜRÜ
+                    const desc = (row[5] || "-").trim();           // F: AÇIKLAMA
+                    let tech = (row[6] || "").trim();              // G: GÖREVLİ
+                    
+                    const isNew = (tech === "" || tech === "-");
+
                     if (tech === "" || tech === "-") tech = "PERSONEL ATANMADI";
 
-                    const machine = (row[15] || "").trim();
-                    const finished = (row[20] || "").trim();
-
-                    const key = datePart + "_" + bolum + "_" + desc;
+                    const key = datePart + "_" + machine + "_" + desc;
                     if (finalSeen.has(key)) return;
 
-                    if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
+                    if (rawDate !== "" && desc !== "" && desc !== "-") {
                         finalSeen.add(key);
                         const info = getTypeInfo(tur);
-                        const name = (machine === "" || machine.startsWith('#')) ? bolum : machine;
-                        const isNew = (machine === "" || machine.startsWith('#'));
 
+                        // Eğer bugün gelen ve HENÜZ GÖREVLİ EKLENMEMİŞ bir arızaysa Yukarıdaki KART ızgarasına düşer
                         if (isToday(realToday, rowDateComp) && isNew) {
                             if (tur.includes("MEKANİK")) counts.mek++;
                             else if (tur.includes("ELEKTRİK")) counts.elek++;
-                            else if (tur.includes("İSG")) counts.isg++;
+                            else if (tur.includes("İSG") || tur.includes("GÜVENLİ")) counts.isg++;
                             else if (tur.includes("PLANLI")) counts.plan++;
-                            todayTasks.push({ info, name, tech, timePart, desc, acan, datePart: datePart });
+                            todayTasks.push({ info, name: machine, tech, timePart, desc, acan, datePart: datePart });
                         } else {
+                            // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
                                 <div class="list-row ${info.c}">
                                     <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
                                     <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
-                                    <div class="r-val" style="color:var(--mekanik)">${name}</div>
+                                    <div class="r-val" style="color:var(--mekanik)">${machine}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
                                     <div class="r-val" style="color:#4ade80; font-weight:600">${desc}</div>
                                     <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800; font-size:11px;">${tech}</div>
