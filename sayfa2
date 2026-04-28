@@ -1,1 +1,371 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>İş Emri & Arıza Kapatma</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --bg-grid: #0f172a;
+            --c-planli: #eab308; /* Sarı - Uyarı / Aksiyon */
+            --c-isg: #ef4444;    /* Kırmızı - İSG / Acil */
+            --c-elek: #3b82f6;   /* Mavi - Elektrik */
+            --c-mek: #22c55e;    /* Yeşil - Mekanik */
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
 
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            margin: 0; padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 50px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 15px;
+            border-bottom: 2px solid var(--c-planli);
+            justify-content: space-between;
+        }
+
+        /* --- Auth Modal --- */
+        .auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0, 0.95); z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .auth-box {
+            background: var(--bg-grid); border: 2px solid var(--c-planli);
+            padding: 30px; border-radius: 12px; text-align: center; width: 320px;
+        }
+        .auth-input {
+            background: rgba(255,255,255,0.05); border: 2px solid var(--text-dim);
+            color: #fff; font-size: 28px; text-align: center; padding: 12px; 
+            width: 100%; margin: 20px 0; border-radius: 6px; letter-spacing:8px;
+            outline: none; transition: 0.3s; box-sizing: border-box;
+        }
+        .auth-input:focus { border-color: var(--c-planli); }
+        .btn-main {
+            background: var(--c-planli); color: #000; font-size: 16px; font-weight:900;
+            padding: 14px; width: 100%; border: none; border-radius: 6px; cursor: pointer;
+        }
+
+        /* Liste Görünümü */
+        .container { padding: 15px; max-width: 800px; margin: auto; }
+        
+        .header-title { font-size: 22px; font-weight: 900; color: var(--c-planli); margin-bottom: 20px; }
+        
+        .fault-group { margin-bottom: 25px; }
+        .group-title { font-size: 14px; font-weight: 900; color: #fff; background: #1e293b; padding: 8px 12px; border-radius: 6px; border-left: 4px solid var(--c-elek); margin-bottom: 15px; }
+
+        .fault-card {
+            background: var(--bg-grid); border: 1px solid #1e293b;
+            border-radius: 8px; padding: 15px; margin-bottom: 12px;
+            cursor: pointer; position: relative;
+        }
+        .fault-card:hover { border-color: var(--c-planli); }
+        .badge { position: absolute; top: 15px; right: 15px; background: #333; font-size: 10px; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+        .f-makine { font-size: 16px; font-weight: 900; margin-bottom: 5px; color: #fff; padding-right: 50px; }
+        .f-desc { font-size: 13px; color: var(--text-dim); line-height: 1.4; margin-bottom: 8px; }
+        .f-meta { display: flex; gap: 15px; font-size: 11px; color: #64748b; font-weight: 700;}
+
+        /* Form Modal */
+        .form-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0, 0.85); z-index: 10000;
+            display: none; align-items: flex-end; justify-content: center;
+        }
+        .form-box {
+            background: var(--bg-dark); border-top: 3px solid var(--c-planli);
+            padding: 25px; width: 100%; border-radius: 20px 20px 0 0;
+            box-sizing: border-box; max-width: 800px;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .form-label { font-size: 12px; color: var(--text-dim); font-weight: bold; margin-bottom: 5px; display: block; margin-top:15px; }
+        .form-select, .form-input, .form-textarea {
+            width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff;
+            padding: 12px; border-radius: 6px; outline: none; box-sizing: border-box;
+            font-family: 'Roboto', sans-serif; font-size: 15px;
+        }
+        .form-textarea { resize: none; min-height: 80px; }
+        .form-actions { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-cancel { background: #334155; color: #fff; padding: 14px; border: none; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer;}
+        .btn-save { flex: 2; background: var(--c-planli); color: #000; padding: 14px; border: none; border-radius: 6px; font-weight: 900; cursor: pointer; }
+
+        /* Loader */
+        #loader { text-align: center; color: var(--text-dim); padding: 50px 0; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Ekranı -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-box">
+            <span class="material-icons" style="color:var(--c-planli); font-size:48px;">handyman</span>
+            <div style="color:var(--text-main); font-size:20px; font-weight:900; margin-top:10px;">OPERATÖR GİRİŞİ</div>
+            <div style="color:var(--text-dim); font-size:12px; margin-top:5px;">Devam etmek için 4 haneli PIN şifrenizi girin</div>
+            <input type="password" id="pin-input" class="auth-input" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric">
+            <button class="btn-main" onclick="verifyPin()">İŞ EMİRLERİNE GİR</button>
+            <div style="margin-top:20px; font-size:12px; color:var(--text-dim);">Ana sayfaya dönmek için <a href="index.html" style="color:var(--c-planli)">tıklayın</a></div>
+        </div>
+    </div>
+
+    <!-- Uygulama -->
+    <div id="app" style="display:none;">
+        <div class="top-bar">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="material-icons" style="color:var(--c-planli);">engineering</span>
+                <span style="font-weight:900; font-size:16px;">İŞ EMİRLERİ PORTALI (<span id="logged-user" style="color:var(--c-planli)"></span>)</span>
+            </div>
+            <span class="material-icons" style="color:#ef4444; cursor:pointer;" onclick="logout()">logout</span>
+        </div>
+
+        <div class="container">
+            <div class="header-title">BAKLEYEN AÇIK ARIZALAR</div>
+            <div id="loader">Kayıtlar aranıyor... Lütfen bekleyin.</div>
+            <div id="faults-container"></div>
+        </div>
+    </div>
+
+    <!-- Arıza Kapatma Formu -->
+    <div id="form-modal" class="form-overlay">
+        <div class="form-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:15px; margin-bottom:15px;">
+                <div style="font-weight:900; font-size:18px;">ARIZAYI KAPAT</div>
+                <span class="material-icons" style="color:#94a3b8; cursor:pointer;" onclick="closeForm()">close</span>
+            </div>
+            
+            <div id="selected-makine" style="color:var(--c-planli); font-weight:bold; font-size:16px; margin-bottom:5px;">-</div>
+            <div id="selected-desc" style="color:var(--text-dim); font-size:12px; margin-bottom:10px;">-</div>
+
+            <label class="form-label">Duruş Nedeni</label>
+            <select id="f-durus" class="form-select">
+                <option value="DURUŞ YOK">DURUŞ YOK</option>
+                <option value="MAKİNE ARIZA">MAKİNE ARIZA</option>
+                <option value="MAKİNE AYAR">MAKİNE AYAR</option>
+                <option value="PLANLI BAKIM">PLANLI BAKIM</option>
+            </select>
+
+            <label class="form-label">Çalışma Süresi (Dakika)</label>
+            <input type="number" id="f-sure" class="form-input" placeholder="Örn: 45">
+
+            <label class="form-label">Yapılan Bakım / İşlem</label>
+            <textarea id="f-bakim" class="form-textarea" placeholder="Yapılan işlemi detaylıca yazınız..."></textarea>
+
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="closeForm()">İPTAL</button>
+                <button class="btn-save" onclick="saveForm()" id="btn-save">KAYDET</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // !!!!!!!! UYARI: BURAYA YENİ YAZDIĞINIZ GOOGLE APPS SCRIPT URLSİNİ YAPIŞTIRIN !!!!!!!!
+        const NEW_API_URL = 'BURAYA_YENI_API_URL_GELECEK'; 
+
+        let globalArizalar = [];
+        let globalKullanicilar = [];
+        let selectedRowId = null;
+
+        // AUTHENTICATION
+        function checkAuth() {
+            const auth = localStorage.getItem('opAuthSayfa2');
+            if (auth) {
+                const u = JSON.parse(auth);
+                document.getElementById('logged-user').innerText = u.name;
+                document.getElementById('auth-modal').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                fetchArizalar();
+            } else {
+                document.getElementById('auth-modal').style.display = 'flex';
+                document.getElementById('app').style.display = 'none';
+            }
+        }
+
+        function verifyPin() {
+            const pin = document.getElementById('pin-input').value;
+            if(!pin) return;
+            
+            // Kullanıcıları ilk başta dummy URL'den okumadığı için eski API'den çekebiliriz. 
+            // Fakat NEW_API_URL yapıldığına göre direkt oradan fetch etmeliyiz.
+            // Henüz API yüklenmediyse, kullanıcıyı geçici olarak içeri alıp listeyi getirirken kilitlerdik ama
+            // en doğrusu sisteme girmeden önce API'den "kullanicilar" listesini okumaktır. 
+            // Burada basitlik adına localStorage'da index.html'den gelen 'userAuth' varsa kullanalım.
+            // VEYA direkt Index.html deki PIN eşleşmesini kullanabiliriz:
+            
+            const sharedAuth = localStorage.getItem('userAuth'); 
+            if(sharedAuth) {
+                localStorage.setItem('opAuthSayfa2', sharedAuth);
+                checkAuth();
+                return;
+            } else {
+                alert("İlk girişi Lütfen Ana Sayfadan (Ana Pano) yapın, veya API entegrasyonu bekleyin!");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('opAuthSayfa2');
+            localStorage.removeItem('userAuth');
+            window.location.href = 'index.html';
+        }
+
+        // FETCH DATA
+        function fetchArizalar() {
+            if(NEW_API_URL === 'BURAYA_YENI_API_URL_GELECEK') {
+                document.getElementById('loader').style.display = 'block';
+                document.getElementById('loader').innerHTML = `
+                    <span class="material-icons" style="font-size:48px; color:var(--text-dim)">code</span><br><br>
+                    Lütfen <b>sayfa2.html</b> içine yeni Google Apps Script URL'nizi yapıştırıp sayfayı yenileyin.
+                `;
+                return;
+            }
+
+            document.getElementById('loader').style.display = 'block';
+            fetch(NEW_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('loader').style.display = 'none';
+                    if (data.status === 'success') {
+                        globalArizalar = data.arizalar;
+                        renderGroups();
+                    } else {
+                        alert("Hata: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('loader').style.display = 'none';
+                    alert("Ağ bağlantı hatası!");
+                });
+        }
+
+        // GRUPLAMA VE EKRANA BASMA
+        function renderGroups() {
+            const container = document.getElementById('faults-container');
+            if (globalArizalar.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-dim); text-align:center; padding:20px;">Harika! Üzerinizde bekleyen açık arıza bulunmuyor.</div>';
+                return;
+            }
+
+            // Bölümlere göre grupla
+            let groups = {};
+            globalArizalar.forEach(a => {
+                let g = a.bolum || "DİĞER";
+                if(!groups[g]) groups[g] = [];
+                groups[g].push(a);
+            });
+
+            let html = "";
+            for (const [bolum, items] of Object.entries(groups)) {
+                html += `<div class="fault-group">
+                            <div class="group-title">${bolum} (${items.length})</div>`;
+                
+                items.forEach(item => {
+                    let badgeColor = item.tur.includes('ELEK') ? 'var(--c-elek)' : (item.tur.includes('İSG') ? 'var(--c-isg)' : 'var(--c-mek)');
+                    html += `
+                        <div class="fault-card" onclick="openForm(${item.rowId}, '${item.makine.replace(/'/g, "")}', '${item.aciklama.replace(/'/g, "")}')">
+                            <div class="badge" style="color:${badgeColor}">${item.tur}</div>
+                            <div class="f-makine">${item.makine || '-'}</div>
+                            <div class="f-desc">${item.aciklama || '-'}</div>
+                            <div class="f-meta">
+                                <span><span class="material-icons" style="font-size:12px; vertical-align:middle">calendar_month</span> ${item.tarih.split(' ')[0]}</span>
+                                <span><span class="material-icons" style="font-size:12px; vertical-align:middle">person</span> ${item.acan}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // FORM İŞLEMLERİ
+        function openForm(rowId, makine, desc) {
+            selectedRowId = rowId;
+            document.getElementById('selected-makine').innerText = makine;
+            document.getElementById('selected-desc').innerText = desc;
+            
+            document.getElementById('f-sure').value = "";
+            document.getElementById('f-bakim').value = "";
+            document.getElementById('f-durus').value = "DURUŞ YOK";
+
+            document.getElementById('form-modal').style.display = 'flex';
+        }
+
+        function closeForm() {
+            document.getElementById('form-modal').style.display = 'none';
+        }
+
+        function saveForm() {
+            const sure = document.getElementById('f-sure').value;
+            const durus = document.getElementById('f-durus').value;
+            const bakim = document.getElementById('f-bakim').value;
+
+            if(!sure || !bakim) {
+                alert("Lütfen Süre ve Yapılan Bakım alanlarını boş bırakmayınız!");
+                return;
+            }
+
+            const me = JSON.parse(localStorage.getItem('opAuthSayfa2'));
+
+            const payload = {
+                rowId: selectedRowId,
+                operator: me.name,
+                sure: sure,
+                durus: durus,
+                bakim: bakim
+            };
+
+            const btn = document.getElementById('btn-save');
+            btn.innerText = "KAYDEDİLİYOR...";
+            btn.disabled = true;
+
+            fetch(NEW_API_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert("Kayıt başarıyla tamamlandı!");
+                    closeForm();
+                    fetchArizalar(); // Listesi güncelle
+                } else {
+                    alert("HATA: " + data.message);
+                }
+            })
+            .catch(err => {
+                alert("Ağ Hatası!");
+            })
+            .finally(() => {
+                btn.innerText = "KAYDET";
+                btn.disabled = false;
+            });
+        }
+
+        // Start
+        // Pin sayfasını doğrudan atlamaktansa Ana sayfa eşleşmesini kullandırıyoruz.
+        if(localStorage.getItem('opAuthSayfa2') || localStorage.getItem('userAuth')){
+            if(!localStorage.getItem('opAuthSayfa2')) localStorage.setItem('opAuthSayfa2', localStorage.getItem('userAuth'));
+            checkAuth();
+        }
+
+    </script>
+</body>
+</html>
