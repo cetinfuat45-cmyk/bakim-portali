@@ -443,11 +443,14 @@
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
+                    const datePart = rawDate.split(' ')[0] || "";
+                    const bolum = (row[4] || "").trim();
                     const desc = (row[10] || "").trim();
                     const finished = (row[20] || "").trim();
                     
-                    // Benzersiz anahtar: Tarih + Açıklama
-                    const key = rawDate + desc;
+                    // Benzersiz anahtar: Tarih (sadece gün) + Bölüm + Açıklama  
+                    // Aynı gün içinde yanlışlıkla iki kez girilen aynı arızayı engeller.
+                    const key = datePart + "_" + bolum + "_" + desc;
                     if (seenKeys.has(key)) return; 
                     
                     if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
@@ -463,15 +466,15 @@
                 }
                 lastTotalCount = counts.total;
 
-                // Sıfırlanmış seenKeys ile tekrar dön (ya da ilk döngüde hallet)
                 const finalSeen = new Set();
                 dataRows.forEach(row => {
                     if (!row || row.length < 10) return;
                     const rawDate = row[0] || "";
+                    const datePart = rawDate.split(' ')[0] || "";
                     const rowDateComp = parseDateComponents(rawDate);
                     const timePart = rawDate.split(' ')[1] || "";
                     const acan = shortenName(row[2] || "-");
-                    const bolum = row[4] || "-";
+                    const bolum = (row[4] || "").trim();
                     const tur = (row[8] || "DİĞER").toUpperCase();
                     const desc = (row[10] || "-").trim();
                     let tech = (row[14] || "").trim();
@@ -480,7 +483,7 @@
                     const machine = (row[15] || "").trim();
                     const finished = (row[20] || "").trim();
 
-                    const key = rawDate + desc;
+                    const key = datePart + "_" + bolum + "_" + desc;
                     if (finalSeen.has(key)) return;
 
                     if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
@@ -494,12 +497,11 @@
                             else if (tur.includes("ELEKTRİK")) counts.elek++;
                             else if (tur.includes("İSG")) counts.isg++;
                             else if (tur.includes("PLANLI")) counts.plan++;
-                            todayTasks.push({ info, name, tech, timePart, desc, acan, datePart: rawDate.split(' ')[0] });
+                            todayTasks.push({ info, name, tech, timePart, desc, acan, datePart: datePart });
                         } else {
-                            const dateDisp = rawDate.split(' ')[0];
                             const rowHtml = `
                                 <div class="list-row">
-                                    <div class="r-val" style="color:var(--text-dim)">${dateDisp} ${timePart}</div>
+                                    <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
                                     <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
                                     <div class="r-val" style="color:var(--mekanik)">${name}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
@@ -561,27 +563,23 @@
             if (isFetching) return;
             isFetching = true;
             
-            // Aggressive Cache Busting
-            const url = CSV_URL + '&t=' + new Date().getTime();
+            const url = CSV_URL + '&t=' + new Date().getTime(); // Zaman etiketi önbelleği engeller
             
-            fetch(url, { cache: 'no-store', headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' } })
-                .then(response => response.text())
-                .then(csvData => {
-                    Papa.parse(csvData, {
-                        header: false,
-                        skipEmptyLines: true,
-                        complete: function (res) {
-                            processData(res.data);
-                            const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                            document.getElementById('last-sync').innerText = "SON: " + now;
-                            isFetching = false;
-                        }
-                    });
-                })
-                .catch(err => {
-                    console.error("Fetch Hatası:", err);
+            Papa.parse(url, {
+                download: true,
+                header: false,
+                skipEmptyLines: true,
+                complete: function (res) {
+                    processData(res.data);
+                    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    document.getElementById('last-sync').innerText = "SON: " + now;
                     isFetching = false;
-                });
+                },
+                error: function(err) {
+                    console.error("Veri Çekme Hatası:", err);
+                    isFetching = false;
+                }
+            });
         }
 
         function toggleFullScreen() {
