@@ -503,12 +503,12 @@
                             // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
                                 <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
-                                    <div class="r-val" style="color:var(--text-dim)">${datePart} ${timePart}</div>
-                                    <div class="r-val" style="color:#fff; font-weight:800">${acan}</div>
-                                    <div class="r-val" style="color:var(--mekanik)">${machine}</div>
+                                    <div class="r-val" style="color:var(--c); font-weight:700">${datePart} ${timePart}</div>
+                                    <div class="r-val" style="color:var(--c); font-weight:800">${acan}</div>
+                                    <div class="r-val" style="color:var(--c); font-weight:800">${machine}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
                                     <div class="r-val" style="color:#4ade80; font-weight:600">${desc}</div>
-                                    <div class="r-val" style="text-align:right; color:var(--mekanik); font-weight:800; font-size:11px;">${tech}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--text-dim); font-weight:800; font-size:11px;">${tech}</div>
                                 </div>`;
                             if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
                             else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
