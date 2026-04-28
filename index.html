@@ -373,7 +373,6 @@
 
         let lastTotalCount = -1;
         let alertInterval;
-        let isFetching = false;
 
         function showAlert(machine, desc, person) {
             const overlay = document.getElementById('alert-overlay');
@@ -560,26 +559,28 @@
         }
 
         function fetchData() {
-            if (isFetching) return;
-            isFetching = true;
+            const url = CSV_URL + '&_t=' + new Date().getTime();
             
-            const url = CSV_URL + '&t=' + new Date().getTime(); // Zaman etiketi önbelleği engeller
-            
-            Papa.parse(url, {
-                download: true,
-                header: false,
-                skipEmptyLines: true,
-                complete: function (res) {
-                    processData(res.data);
-                    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    document.getElementById('last-sync').innerText = "SON: " + now;
-                    isFetching = false;
-                },
-                error: function(err) {
-                    console.error("Veri Çekme Hatası:", err);
-                    isFetching = false;
-                }
-            });
+            fetch(url, { cache: 'no-store' })
+                .then(response => {
+                    if (!response.ok) throw new Error("Ağ hatası: " + response.status);
+                    return response.text();
+                })
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: false,
+                        skipEmptyLines: true,
+                        complete: function (res) {
+                            processData(res.data);
+                            const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            const syncEl = document.getElementById('last-sync');
+                            if (syncEl) syncEl.innerText = "SON: " + now;
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error("Veri Güncelleme Hatası:", err);
+                });
         }
 
         function toggleFullScreen() {
