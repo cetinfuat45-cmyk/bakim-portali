@@ -722,7 +722,7 @@
 
         function openOpAuth() {
             if (localStorage.getItem('userAuth')) {
-                window.location.href = 'sayfa2.html';
+                showOpPage();
             } else {
                 document.getElementById('auth-modal').style.display = 'flex';
                 document.getElementById('pin-input').value = '';
@@ -748,7 +748,7 @@
                 localStorage.setItem('userAuth', JSON.stringify(foundUser));
                 closeAuth();
                 checkAuthStatus();
-                window.location.href = 'sayfa2.html';
+                showOpPage();
             } else {
                 alert("Hatalı PIN! Lütfen geçerli bir kod girin.");
             }
