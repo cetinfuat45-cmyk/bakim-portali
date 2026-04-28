@@ -341,7 +341,7 @@
     <div id="list-view" class="list-view"></div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQco9PPZZeJ7kIGJYQ6g46Cv7_O3C15mzU4ErF6rrrOYhadpwgGeahHhZdGIM2blF23XpoFuxQ01IFx/pub?gid=1212520136&single=true&output=csv';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyjtJJOL1X0D1lPRwBQl5UhqzPEsLsLN1VyXzrkjxXcbD_fcPW9KP9WyQ7DbswqTtNY6Q/exec';
 
         function getTypeInfo(tur) {
             tur = tur.toUpperCase();
@@ -408,26 +408,10 @@
             return comp1.d === comp2.d && comp1.m === comp2.m && comp1.y === comp2.y;
         }
 
-        let maxSeenRows = 0;
-        let bounceIgnoreCount = 0;
-
         function processData(rows) {
             if (!rows || rows.length < 2) return;
             
-            // Google Sheets CDN Bounce (Dalgalanma) Koruması
-            // Eğer yeni gelen satır sayısı, bizim daha önce gördüğümüzden az ise Google eski sürümü yollamış demektir.
-            if (rows.length < maxSeenRows) {
-                bounceIgnoreCount++;
-                if (bounceIgnoreCount < 8) {
-                    console.log("Eski veri tespit edildi (CDN Dalgalanması). Ekran korunuyor.");
-                    return; // Eski veriyi ekrana basıp yeni arızayı kaybetme!
-                }
-            }
-            bounceIgnoreCount = 0;
-            if (rows.length > maxSeenRows) {
-                maxSeenRows = rows.length;
-            }
-
+            // API kullanıldığı için CDN Dalgalanma korumasına artık gerek yok. Veri milisaniyesinde anlıktır.
             try {
                 const grid = document.getElementById('grid-view');
                 const list = document.getElementById('list-view');
@@ -571,24 +555,18 @@
         }
 
         function fetchData() {
-            const url = CSV_URL + '&_t=' + new Date().getTime();
+            const url = API_URL + '?_t=' + new Date().getTime();
             
             fetch(url, { cache: 'no-store' })
                 .then(response => {
                     if (!response.ok) throw new Error("Ağ hatası: " + response.status);
-                    return response.text();
+                    return response.json();
                 })
-                .then(csvText => {
-                    Papa.parse(csvText, {
-                        header: false,
-                        skipEmptyLines: true,
-                        complete: function (res) {
-                            processData(res.data);
-                            const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                            const syncEl = document.getElementById('last-sync');
-                            if (syncEl) syncEl.innerText = "SON: " + now;
-                        }
-                    });
+                .then(data => {
+                    processData(data);
+                    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const syncEl = document.getElementById('last-sync');
+                    if (syncEl) syncEl.innerText = "SON: " + now;
                 })
                 .catch(err => {
                     console.error("Veri Güncelleme Hatası:", err);
