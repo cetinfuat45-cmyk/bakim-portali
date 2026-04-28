@@ -155,18 +155,12 @@
 
             <label class="form-label">Duruş Nedeni</label>
             <select id="f-durus" class="form-select">
-                <option value="DURUŞ YOK">DURUŞ YOK</option>
-                <option value="MAKİNE ARIZA">MAKİNE ARIZA</option>
-                <option value="PLANLI BAKIM">PLANLI BAKIM</option>
-                <option value="GÖREV">GÖREV</option>
+                <option value="DURUŞ YOK">Yükleniyor...</option>
             </select>
 
             <label class="form-label">Yapılan Bakım (Durum Kategorisi)</label>
             <select id="f-kategori" class="form-select">
-                <option value="İŞLETMEDE">İŞLETMEDE (Çalışıyor)</option>
-                <option value="DURUŞ YOK">DURUŞ YOK (Kontrol)</option>
-                <option value="PLANLI BAKIM">PLANLI BAKIM</option>
-                <option value="MAKİNE ARIZA">MAKİNE ARIZA (Devam Ediyor)</option>
+                <option value="İŞLETMEDE">Yükleniyor...</option>
             </select>
 
             <label class="form-label">Çalışma Süresi (Dakika)</label>
@@ -250,6 +244,7 @@
                     document.getElementById('loader').style.display = 'none';
                     if (data.status === 'success') {
                         globalArizalar = data.arizalar;
+                        populateSelects(data.durusList, data.arizaNedeniList);
                         renderGroups();
                     } else {
                         alert("Hata: " + data.message);
@@ -259,6 +254,31 @@
                     document.getElementById('loader').style.display = 'none';
                     alert("Ağ bağlantı hatası!");
                 });
+        }
+
+        function populateSelects(duruslar, kategoriler) {
+            const dEl = document.getElementById('f-durus');
+            const kEl = document.getElementById('f-kategori');
+            dEl.innerHTML = ''; kEl.innerHTML = '';
+            if (duruslar && duruslar.length > 0) {
+                duruslar.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d; opt.innerText = d;
+                    dEl.appendChild(opt);
+                });
+            } else {
+                dEl.innerHTML = '<option value="DURUŞ YOK">DURUŞ YOK</option>';
+            }
+
+            if (kategoriler && kategoriler.length > 0) {
+                kategoriler.forEach(k => {
+                    const opt = document.createElement('option');
+                    opt.value = k; opt.innerText = k;
+                    kEl.appendChild(opt);
+                });
+            } else {
+                kEl.innerHTML = '<option value="İŞLETMEDE">İŞLETMEDE</option>';
+            }
         }
 
         // GRUPLAMA VE EKRANA BASMA
@@ -316,8 +336,11 @@
             
             document.getElementById('f-sure').value = "";
             document.getElementById('f-aciklama').value = "";
-            document.getElementById('f-durus').value = "DURUŞ YOK";
-            document.getElementById('f-kategori').value = "İŞLETMEDE";
+            // Optional values default
+            const dSel = document.getElementById('f-durus');
+            if(dSel.options.length > 0) dSel.selectedIndex = 0;
+            const kSel = document.getElementById('f-kategori');
+            if(kSel.options.length > 0) kSel.selectedIndex = 0;
 
             document.getElementById('form-modal').style.display = 'flex';
         }
