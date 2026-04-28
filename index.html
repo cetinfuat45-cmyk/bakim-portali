@@ -360,7 +360,8 @@
             return p[0] + "." + p[p.length - 1][0] + ".";
         }
 
-        let lastTotalCount = -1;
+        let isFirstLoad = true;
+        let alertedKeys = new Set();
         let alertInterval;
 
         function showAlert(machine, desc, person) {
@@ -444,15 +445,22 @@
                     if (finished === "" && rawDate !== "" && desc !== "" && desc !== "-") {
                         seenKeys.add(key);
                         counts.total++;
-                        latestTask = row;
+                        
+                        // Eğer bu görev daha önce hiç uyarısı verilmemiş yeni bir görevse:
+                        if (!isFirstLoad && !alertedKeys.has(key)) {
+                            latestTask = row;
+                        }
+                        
+                        // Hafızaya al ki Google verisi dalgalansa bile bir daha uyarmasın
+                        alertedKeys.add(key); 
                     }
                 });
 
-                if (lastTotalCount !== -1 && counts.total > lastTotalCount && latestTask) {
+                if (latestTask) {
                     const machine = (latestTask[15] || "").trim() || latestTask[4] || "-";
                     showAlert(machine, latestTask[10], latestTask[2]);
                 }
-                lastTotalCount = counts.total;
+                isFirstLoad = false;
 
                 const finalSeen = new Set();
                 dataRows.forEach(row => {
