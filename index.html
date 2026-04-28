@@ -408,14 +408,29 @@
             return comp1.d === comp2.d && comp1.m === comp2.m && comp1.y === comp2.y;
         }
 
+        let maxSeenRows = 0;
+        let bounceIgnoreCount = 0;
+
         function processData(rows) {
             if (!rows || rows.length < 2) return;
+            
+            // Google Sheets CDN Bounce (Dalgalanma) Koruması
+            // Eğer yeni gelen satır sayısı, bizim daha önce gördüğümüzden az ise Google eski sürümü yollamış demektir.
+            if (rows.length < maxSeenRows) {
+                bounceIgnoreCount++;
+                if (bounceIgnoreCount < 8) {
+                    console.log("Eski veri tespit edildi (CDN Dalgalanması). Ekran korunuyor.");
+                    return; // Eski veriyi ekrana basıp yeni arızayı kaybetme!
+                }
+            }
+            bounceIgnoreCount = 0;
+            if (rows.length > maxSeenRows) {
+                maxSeenRows = rows.length;
+            }
+
             try {
                 const grid = document.getElementById('grid-view');
                 const list = document.getElementById('list-view');
-                
-                grid.innerHTML = '';
-                list.innerHTML = '';
                 
                 const nowDT = new Date();
                 const realToday = { d: nowDT.getDate(), m: nowDT.getMonth() + 1, y: nowDT.getFullYear() };
