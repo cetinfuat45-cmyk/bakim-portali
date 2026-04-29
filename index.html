@@ -239,8 +239,8 @@
             grid-template-columns: 11em 10em 12em 13em 1fr 11em;
             gap: 8px;
             padding: 1px 6px;
-            border-bottom: 1px solid rgba(var(--c-rgb), 0.2);
-            background: var(--row-bg, rgba(var(--c-rgb), 0.05));
+            border-bottom: 1px solid var(--row-border, rgba(0,0,0,0.3));
+            background: var(--row-bg, var(--c));
             align-items: center;
             border-radius: 2px;
             margin-bottom: 1px;
@@ -248,15 +248,16 @@
         }
 
         .list-row:hover {
-            background: var(--row-bg-hover, rgba(var(--c-rgb), 0.1));
+            background: var(--row-bg-hover, var(--c));
+            filter: brightness(0.9);
         }
 
         .r-type {
             font-weight: 800;
             font-size: 0.8em;
             text-align: center;
-            color: var(--c);
-            background: rgba(255, 255, 255, 0.03);
+            color: var(--row-color-primary, #000);
+            background: rgba(0, 0, 0, 0.15);
             border-radius: 2px;
             padding: 1px 0;
         }
@@ -678,12 +679,12 @@
                             // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
                                 <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
-                                    <div class="r-val" style="color:var(--row-color-primary, var(--c)); font-weight:700">${datePart} ${timePart}</div>
-                                    <div class="r-val" style="color:var(--row-color-primary, var(--c)); font-weight:800">${acan}</div>
-                                    <div class="r-val" style="color:var(--row-color-primary, var(--c)); font-weight:800">${machine}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:700">${datePart} ${timePart}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${acan}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
-                                    <div class="r-val" style="color:var(--row-color-desc, var(--desc-color)); font-weight:600">${desc}</div>
-                                    <div class="r-val" style="text-align:right; color:var(--row-color-primary, var(--c)); font-weight:800; font-size:1.1em;">${tech}</div>
+                                    <div class="r-val" style="color:var(--row-color-desc, #111); font-weight:700">${desc}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--row-color-primary, #000); font-weight:900; font-size:1.1em;">${tech}</div>
                                 </div>`;
                             if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
                             else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
