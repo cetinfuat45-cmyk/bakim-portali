@@ -17,7 +17,7 @@
         });
       }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
@@ -38,7 +38,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: var(--font-family, 'Roboto'), -apple-system, BlinkMacSystemFont, sans-serif;
             cursor: default;
         }
 
@@ -50,6 +50,10 @@
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
         }
+
+        body[data-thickness="thin"] *:not(.material-icons) { font-weight: 300 !important; }
+        body[data-thickness="normal"] { /* default */ }
+        body[data-thickness="thick"] *:not(.material-icons) { font-weight: 900 !important; }
 
         /* Top Bar - Enhanced */
         .top-bar {
@@ -432,6 +436,25 @@
                         <span>Beyaz Tema</span>
                     </div>
                 </div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Yazı Karakteri (Font)</div>
+                <select id="font-family-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="Roboto" style="color: #000;">Roboto (Varsayılan)</option>
+                    <option value="Inter" style="color: #000;">Inter</option>
+                    <option value="Montserrat" style="color: #000;">Montserrat</option>
+                    <option value="Open Sans" style="color: #000;">Open Sans</option>
+                </select>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Yazı Kalınlığı</div>
+                <select id="font-weight-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="normal" style="color: #000;">Standart (Varsayılan)</option>
+                    <option value="thin" style="color: #000;">İnce Yazı</option>
+                    <option value="thick" style="color: #000;">Ekstra Kalın Yazı</option>
+                </select>
             </div>
 
             <div style="text-align: left; margin-bottom: 20px;">
@@ -880,6 +903,8 @@
             originalTheme = localStorage.getItem('hub-theme') || 'dark';
             document.getElementById('settings-modal').style.display = 'flex';
             document.getElementById('scale-select-modal').value = localStorage.getItem('hub-scale') || '0.75';
+            document.getElementById('font-family-select').value = localStorage.getItem('hub-font') || 'Roboto';
+            document.getElementById('font-weight-select').value = localStorage.getItem('hub-weight') || 'normal';
             updateThemeUI(originalTheme);
         }
 
@@ -908,11 +933,22 @@
             const activeOpt = document.querySelector('.theme-opt.active');
             const selectedTheme = activeOpt ? activeOpt.getAttribute('data-theme') : originalTheme;
             const selectedScale = document.getElementById('scale-select-modal').value;
+            const selectedFont = document.getElementById('font-family-select').value;
+            const selectedWeight = document.getElementById('font-weight-select').value;
             
             originalTheme = selectedTheme;
             localStorage.setItem('hub-theme', selectedTheme);
+            localStorage.setItem('hub-font', selectedFont);
+            localStorage.setItem('hub-weight', selectedWeight);
+            
             applyScale(selectedScale);
+            applyFont(selectedFont, selectedWeight);
             closeSettingsModal();
+        }
+
+        function applyFont(family, weight) {
+            document.documentElement.style.setProperty('--font-family', `'${family}'`);
+            document.body.setAttribute('data-thickness', weight);
         }
 
         function changeThemeVariables(themeType) {
@@ -948,6 +984,9 @@
 
         const savedScale = localStorage.getItem('hub-scale');
         applyScale(savedScale || '0.75');
+        const savedFont = localStorage.getItem('hub-font') || 'Roboto';
+        const savedWeight = localStorage.getItem('hub-weight') || 'normal';
+        applyFont(savedFont, savedWeight);
 
         // Apply saved theme on load
         const savedTheme = localStorage.getItem('hub-theme');
