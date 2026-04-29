@@ -33,6 +33,8 @@
             --is: #22d3ee;
             --isg: #ef4444;
             --desc-color: #4ade80;
+            --card-fs-base: 14px;
+            --row-fs-base: 10px;
         }
 
         * {
@@ -169,10 +171,11 @@
             display: flex;
             flex-direction: column;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            font-size: var(--card-fs-base);
         }
 
         .card .c-title {
-            font-size: 9px;
+            font-size: 0.65em;
             font-weight: 800;
             color: var(--c);
             display: flex;
@@ -182,7 +185,7 @@
         }
 
         .card .c-name {
-            font-size: 14px;
+            font-size: 1em;
             font-weight: 800;
             margin: 4px 0;
             color: var(--text-main);
@@ -192,7 +195,7 @@
         }
 
         .card .c-sub {
-            font-size: 9.5px;
+            font-size: 0.7em;
             color: var(--text-main);
             margin-bottom: 4px;
             background: rgba(0, 0, 0, 0.4);
@@ -203,7 +206,7 @@
         }
 
         .card .c-desc {
-            font-size: 11px;
+            font-size: 0.8em;
             color: var(--desc-color);
             line-height: 1.3;
             overflow: hidden;
@@ -220,7 +223,7 @@
             padding-top: 4px;
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
+            font-size: 0.8em;
             color: var(--text-main);
             font-weight: 800;
         }
@@ -239,6 +242,7 @@
             align-items: center;
             border-radius: 2px;
             margin-bottom: 1px;
+            font-size: var(--row-fs-base);
         }
 
         .list-row:hover {
@@ -247,7 +251,7 @@
 
         .r-type {
             font-weight: 800;
-            font-size: 8px;
+            font-size: 0.8em;
             text-align: center;
             color: var(--c);
             background: rgba(255, 255, 255, 0.03);
@@ -260,14 +264,14 @@
             white-space: nowrap;
             text-overflow: ellipsis;
             color: var(--text-dim);
-            font-size: 10px;
+            font-size: 1em;
         }
 
         .group-sep {
             background: rgba(var(--c-rgb), 0.15);
             border-left: 4px solid var(--c);
             padding: 6px 10px;
-            font-size: 10px;
+            font-size: 1em;
             font-weight: 800;
             color: var(--c);
             margin-top: 12px;
@@ -456,6 +460,18 @@
                     <option value="thin" style="color: #000;">İnce Yazı</option>
                     <option value="thick" style="color: #000;">Ekstra Kalın Yazı</option>
                 </select>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Kart Yazı Boyutu</div>
+                <input type="range" id="card-fs-slider" min="4" max="16" step="0.5" style="width:100%" oninput="document.getElementById('card-fs-val').innerText = this.value + 'px'">
+                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="card-fs-val">14px</div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Satır Yazı Boyutu</div>
+                <input type="range" id="row-fs-slider" min="4" max="16" step="0.5" style="width:100%" oninput="document.getElementById('row-fs-val').innerText = this.value + 'px'">
+                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="row-fs-val">10px</div>
             </div>
 
             <div style="text-align: left; margin-bottom: 20px;">
@@ -665,7 +681,7 @@
                                     <div class="r-val" style="color:var(--c); font-weight:800">${machine}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
                                     <div class="r-val" style="color:var(--desc-color); font-weight:600">${desc}</div>
-                                    <div class="r-val" style="text-align:right; color:var(--c); font-weight:800; font-size:11px;">${tech}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--c); font-weight:800; font-size:1.1em;">${tech}</div>
                                 </div>`;
                             if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
                             else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
@@ -694,15 +710,15 @@
                     gridHtml += `
                         <div class="card ${t.info.c}" style="padding: 6px 10px; gap: 2px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                <div style="color:var(--c); font-weight:900; font-size:16px; text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
-                                <div style="color:var(--c); font-weight:800; font-size:13px; border:1px solid rgba(var(--c-rgb),0.5); padding:1px 5px; border-radius:4px;">${timeShort}</div>
+                                <div style="color:var(--c); font-weight:900; font-size:var(--card-title-fs, 1.15em); text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
+                                <div style="color:var(--c); font-weight:800; font-size:var(--card-time-fs, 0.95em); border:1px solid rgba(var(--c-rgb),0.5); padding:1px 5px; border-radius:4px;">${timeShort}</div>
                             </div>
-                            <div style="color:var(--text-main); font-weight:800; font-size:14px; line-height:1.2; margin-top:2px;">${t.acan}</div>
-                            <div style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:3px; margin-top:2px;">
+                            <div style="color:var(--text-main); font-weight:800; font-size:var(--card-body-fs, 1em); line-height:1.2; margin-top:2px;">${t.acan}</div>
+                            <div style="font-size:var(--card-sm-fs, 0.8em); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:3px; margin-top:2px;">
                                 <span style="color:var(--c); font-weight:800;">${t.name}</span>
                                 <span style="color:var(--text-dim);">/ ${t.vardiya}</span>
                             </div>
-                            <div style="color:#72d127; font-weight:700; font-size:12px; margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${t.desc}</div>
+                            <div style="color:var(--desc-color); font-weight:700; font-size:var(--card-desc-fs, 0.85em); margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${t.desc}</div>
                         </div>`;
                 });
                 grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün bekleyen açık arıza kaydı bulunmuyor.</div>';
@@ -906,6 +922,14 @@
             document.getElementById('scale-select-modal').value = localStorage.getItem('hub-scale') || '0.75';
             document.getElementById('font-family-select').value = localStorage.getItem('hub-font') || 'Roboto';
             document.getElementById('font-weight-select').value = localStorage.getItem('hub-weight') || 'normal';
+            
+            const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
+            const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
+            document.getElementById('card-fs-slider').value = savedCardFs;
+            document.getElementById('card-fs-val').innerText = savedCardFs + 'px';
+            document.getElementById('row-fs-slider').value = savedRowFs;
+            document.getElementById('row-fs-val').innerText = savedRowFs + 'px';
+
             updateThemeUI(originalTheme);
         }
 
@@ -937,19 +961,30 @@
             const selectedFont = document.getElementById('font-family-select').value;
             const selectedWeight = document.getElementById('font-weight-select').value;
             
+            const cardFs = document.getElementById('card-fs-slider').value;
+            const rowFs = document.getElementById('row-fs-slider').value;
+            
             originalTheme = selectedTheme;
             localStorage.setItem('hub-theme', selectedTheme);
             localStorage.setItem('hub-font', selectedFont);
             localStorage.setItem('hub-weight', selectedWeight);
+            localStorage.setItem('hub-card-fs', cardFs);
+            localStorage.setItem('hub-row-fs', rowFs);
             
             applyScale(selectedScale);
             applyFont(selectedFont, selectedWeight);
+            applyFontSize(cardFs, rowFs);
             closeSettingsModal();
         }
 
         function applyFont(family, weight) {
             document.documentElement.style.setProperty('--font-family', `'${family}'`);
             document.body.setAttribute('data-thickness', weight);
+        }
+
+        function applyFontSize(cardFs, rowFs) {
+            document.documentElement.style.setProperty('--card-fs-base', cardFs + 'px');
+            document.documentElement.style.setProperty('--row-fs-base', rowFs + 'px');
         }
 
         function changeThemeVariables(themeType) {
@@ -1004,6 +1039,9 @@
         const savedFont = localStorage.getItem('hub-font') || 'Roboto';
         const savedWeight = localStorage.getItem('hub-weight') || 'normal';
         applyFont(savedFont, savedWeight);
+        const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
+        const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
+        applyFontSize(savedCardFs, savedRowFs);
 
         // Apply saved theme on load
         const savedTheme = localStorage.getItem('hub-theme');
