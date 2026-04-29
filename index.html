@@ -86,12 +86,14 @@
             padding: 12px; width: 100%; border: none; border-radius: 6px; cursor: pointer;
         }
         .auth-btn:hover { opacity: 0.9; }
-        .theme-btn {
-            color: #fff; font-size: 14px; font-weight:800;
-            padding: 12px; width: 100%; border-radius: 6px; cursor: pointer;
-            transition: all 0.2s;
+        .theme-opt {
+            display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 5px;
+            background: rgba(255,255,255,0.05); border: 2px solid transparent; 
+            border-radius: 6px; cursor: pointer; transition: all 0.2s;
+            color: #fff; font-weight: 700;
         }
-        .theme-btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .theme-opt:hover { background: rgba(255,255,255,0.1); }
+        .theme-opt.active { border-color: var(--mekanik); background: rgba(56,189,248,0.1); }
 
         .op-card {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
@@ -404,23 +406,36 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="auth-overlay">
-        <div class="auth-box">
+    <div id="settings-modal" class="auth-overlay" style="background: rgba(0,0,0,0.4); backdrop-filter: none;">
+        <div class="auth-box" style="box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 2px solid var(--mekanik);">
             <span class="material-icons" style="color:var(--mekanik); font-size:48px;">settings</span>
             <div style="color:var(--mekanik); font-size:20px; font-weight:900; margin-top:10px;">AYARLAR</div>
             <div style="color:var(--text-dim); font-size:12px; margin-top:5px; margin-bottom: 20px;">Görünüm ayarlarını düzenleyin</div>
             
             <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:var(--text-main); font-size:12px; font-weight:800; margin-bottom: 5px;">Arka Plan Teması</div>
-                <select id="theme-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="dark" style="color: #000;">Koyu Tema (Varsayılan)</option>
-                    <option value="blue" style="color: #000;">Lacivert Tema</option>
-                    <option value="gray" style="color: #000;">Gri Tema</option>
-                </select>
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Arka Plan Teması</div>
+                <div id="theme-options" style="display: flex; flex-direction: column;">
+                    <div class="theme-opt" data-theme="dark" onclick="previewTheme('dark')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#020617; border:1px solid #94a3b8;"></div>
+                        <span>Koyu Tema</span>
+                    </div>
+                    <div class="theme-opt" data-theme="blue" onclick="previewTheme('blue')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#082f49; border:1px solid #94a3b8;"></div>
+                        <span>Lacivert Tema</span>
+                    </div>
+                    <div class="theme-opt" data-theme="gray" onclick="previewTheme('gray')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#1e293b; border:1px solid #94a3b8;"></div>
+                        <span>Gri Tema</span>
+                    </div>
+                    <div class="theme-opt" data-theme="white" onclick="previewTheme('white')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#f1f5f9; border:1px solid #94a3b8;"></div>
+                        <span>Beyaz Tema</span>
+                    </div>
+                </div>
             </div>
 
             <div style="text-align: left; margin-bottom: 20px;">
-                <div style="color:var(--text-main); font-size:12px; font-weight:800; margin-bottom: 5px;">Sayfa Ölçeği (Zoom)</div>
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Sayfa Ölçeği (Zoom)</div>
                 <select id="scale-select-modal" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
                     <option value="0.30" style="color: #000;">30%</option>
                     <option value="0.50" style="color: #000;">50%</option>
@@ -859,26 +874,52 @@
             localStorage.setItem('hub-scale', val);
         }
 
+        let originalTheme = 'dark';
+
         function openSettingsModal() {
+            originalTheme = localStorage.getItem('hub-theme') || 'dark';
             document.getElementById('settings-modal').style.display = 'flex';
-            document.getElementById('theme-select').value = localStorage.getItem('hub-theme') || 'dark';
             document.getElementById('scale-select-modal').value = localStorage.getItem('hub-scale') || '0.75';
+            updateThemeUI(originalTheme);
+        }
+
+        function previewTheme(themeType) {
+            changeThemeVariables(themeType);
+            updateThemeUI(themeType);
+        }
+
+        function updateThemeUI(activeTheme) {
+            document.querySelectorAll('.theme-opt').forEach(el => {
+                if (el.getAttribute('data-theme') === activeTheme) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
         }
         
         function closeSettingsModal() {
             document.getElementById('settings-modal').style.display = 'none';
+            // Revert preview if not saved
+            changeThemeVariables(originalTheme);
         }
 
         function saveSettings() {
-            const selectedTheme = document.getElementById('theme-select').value;
+            const activeOpt = document.querySelector('.theme-opt.active');
+            const selectedTheme = activeOpt ? activeOpt.getAttribute('data-theme') : originalTheme;
             const selectedScale = document.getElementById('scale-select-modal').value;
-            changeTheme(selectedTheme);
+            
+            originalTheme = selectedTheme;
+            localStorage.setItem('hub-theme', selectedTheme);
             applyScale(selectedScale);
             closeSettingsModal();
         }
 
-        function changeTheme(themeType) {
+        function changeThemeVariables(themeType) {
             const root = document.documentElement;
+            root.style.setProperty('--text-main', '#f8fafc');
+            root.style.setProperty('--text-dim', '#94a3b8');
+            
             if (themeType === 'dark') {
                 root.style.setProperty('--bg-dark', '#020617');
                 root.style.setProperty('--bg-grid', '#0f172a');
@@ -891,7 +932,17 @@
                 root.style.setProperty('--bg-dark', '#1e293b');
                 root.style.setProperty('--bg-grid', '#334155');
                 root.style.setProperty('--header-black', '#0f172a');
+            } else if (themeType === 'white') {
+                root.style.setProperty('--bg-dark', '#f1f5f9');
+                root.style.setProperty('--bg-grid', '#ffffff');
+                root.style.setProperty('--header-black', '#e2e8f0');
+                root.style.setProperty('--text-main', '#0f172a');
+                root.style.setProperty('--text-dim', '#475569');
             }
+        }
+
+        function changeTheme(themeType) {
+            changeThemeVariables(themeType);
             localStorage.setItem('hub-theme', themeType);
         }
 
