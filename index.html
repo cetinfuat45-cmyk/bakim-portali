@@ -164,7 +164,7 @@
         }
 
         .card {
-            background: rgba(var(--c-rgb), 0.12);
+            background: var(--card-bg, rgba(var(--c-rgb), 0.12));
             border: 1px solid rgba(var(--c-rgb), 0.25);
             border-top: 4px solid var(--c);
             padding: 8px;
@@ -240,7 +240,7 @@
             gap: 8px;
             padding: 1px 6px;
             border-bottom: 1px solid rgba(var(--c-rgb), 0.2);
-            background: rgba(var(--c-rgb), 0.05);
+            background: var(--row-bg, rgba(var(--c-rgb), 0.05));
             align-items: center;
             border-radius: 2px;
             margin-bottom: 1px;
@@ -248,7 +248,7 @@
         }
 
         .list-row:hover {
-            background: rgba(var(--c-rgb), 0.1);
+            background: var(--row-bg-hover, rgba(var(--c-rgb), 0.1));
         }
 
         .r-type {
@@ -678,12 +678,12 @@
                             // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
                                 <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
-                                    <div class="r-val" style="color:var(--c); font-weight:700">${datePart} ${timePart}</div>
-                                    <div class="r-val" style="color:var(--c); font-weight:800">${acan}</div>
-                                    <div class="r-val" style="color:var(--c); font-weight:800">${machine}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, var(--c)); font-weight:700">${datePart} ${timePart}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, var(--c)); font-weight:800">${acan}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, var(--c)); font-weight:800">${machine}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
-                                    <div class="r-val" style="color:var(--desc-color); font-weight:600">${desc}</div>
-                                    <div class="r-val" style="text-align:right; color:var(--c); font-weight:800; font-size:1.1em;">${tech}</div>
+                                    <div class="r-val" style="color:var(--row-color-desc, var(--desc-color)); font-weight:600">${desc}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--row-color-primary, var(--c)); font-weight:800; font-size:1.1em;">${tech}</div>
                                 </div>`;
                             if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
                             else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
@@ -712,15 +712,15 @@
                     gridHtml += `
                         <div class="card ${t.info.c}" style="padding: 6px 10px; gap: 2px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                <div style="color:var(--c); font-weight:900; font-size:var(--card-title-fs, 1.15em); text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
-                                <div style="color:var(--c); font-weight:800; font-size:var(--card-time-fs, 0.95em); border:1px solid rgba(var(--c-rgb),0.5); padding:1px 5px; border-radius:4px;">${timeShort}</div>
+                                <div style="color:var(--card-color-primary, var(--c)); font-weight:900; font-size:var(--card-title-fs, 1.15em); text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
+                                <div style="color:var(--card-color-primary, var(--c)); font-weight:800; font-size:var(--card-time-fs, 0.95em); border:1px solid var(--card-border, rgba(var(--c-rgb),0.5)); padding:1px 5px; border-radius:4px;">${timeShort}</div>
                             </div>
-                            <div style="color:var(--text-main); font-weight:800; font-size:var(--card-body-fs, 1em); line-height:1.2; margin-top:2px;">${t.acan}</div>
+                            <div style="color:var(--card-color-text, var(--text-main)); font-weight:800; font-size:var(--card-body-fs, 1em); line-height:1.2; margin-top:2px;">${t.acan}</div>
                             <div style="font-size:var(--card-sm-fs, 0.8em); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:3px; margin-top:2px;">
-                                <span style="color:var(--c); font-weight:800;">${t.name}</span>
-                                <span style="color:var(--text-dim);">/ ${t.vardiya}</span>
+                                <span style="color:var(--card-color-primary, var(--c)); font-weight:800;">${t.name}</span>
+                                <span style="color:var(--card-color-muted, var(--text-dim));">/ ${t.vardiya}</span>
                             </div>
-                            <div style="color:var(--desc-color); font-weight:700; font-size:var(--card-desc-fs, 0.85em); margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${t.desc}</div>
+                            <div style="color:var(--card-color-desc, var(--desc-color)); font-weight:700; font-size:var(--card-desc-fs, 0.85em); margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${t.desc}</div>
                         </div>`;
                 });
                 grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün bekleyen açık arıza kaydı bulunmuyor.</div>';
@@ -1001,6 +1001,17 @@
             root.style.setProperty('--is', '#22d3ee');
             root.style.setProperty('--isg', '#ff0000');
             root.style.setProperty('--desc-color', '#4ade80');
+            
+            root.style.removeProperty('--card-bg');
+            root.style.removeProperty('--card-color-primary');
+            root.style.removeProperty('--card-color-text');
+            root.style.removeProperty('--card-color-muted');
+            root.style.removeProperty('--card-color-desc');
+            root.style.removeProperty('--card-border');
+            root.style.removeProperty('--row-bg');
+            root.style.removeProperty('--row-bg-hover');
+            root.style.removeProperty('--row-color-primary');
+            root.style.removeProperty('--row-color-desc');
 
             if (themeType === 'dark') {
                 root.style.setProperty('--bg-dark', '#020617');
@@ -1027,7 +1038,19 @@
                 root.style.setProperty('--planli', '#ffa500');
                 root.style.setProperty('--is', '#22d3ee');
                 root.style.setProperty('--isg', '#ff0000');
-                root.style.setProperty('--desc-color', '#4ade80');
+                root.style.setProperty('--desc-color', '#15803d');
+                
+                // In white theme: backgrounds use the neon colors, text is black
+                root.style.setProperty('--card-bg', 'var(--c)');
+                root.style.setProperty('--card-color-primary', '#000000');
+                root.style.setProperty('--card-color-text', '#000000');
+                root.style.setProperty('--card-color-muted', '#111111');
+                root.style.setProperty('--card-color-desc', '#000000');
+                root.style.setProperty('--card-border', '#000000');
+                root.style.setProperty('--row-bg', 'var(--c)');
+                root.style.setProperty('--row-bg-hover', 'var(--c)');
+                root.style.setProperty('--row-color-primary', '#000000');
+                root.style.setProperty('--row-color-desc', '#111111');
             }
         }
 
