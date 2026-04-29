@@ -27,11 +27,11 @@
             --header-black: #000000;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
-            --mekanik: #38bdf8;
-            --elektrik: #facc15;
-            --planli: #fb923c;
+            --mekanik: #00ffff;
+            --elektrik: #ffff00;
+            --planli: #ffa500;
             --is: #22d3ee;
-            --isg: #ef4444;
+            --isg: #ff0000;
             --desc-color: #4ade80;
             --card-fs-base: 14px;
             --row-fs-base: 10px;
@@ -282,11 +282,11 @@
             border-radius: 4px;
         }
 
-        .c-mekanik { --c: var(--mekanik); --c-rgb: 56, 189, 248; }
-        .c-elektrik { --c: var(--elektrik); --c-rgb: 250, 204, 21; }
-        .c-planli { --c: var(--planli); --c-rgb: 251, 146, 60; }
+        .c-mekanik { --c: var(--mekanik); --c-rgb: 0, 255, 255; }
+        .c-elektrik { --c: var(--elektrik); --c-rgb: 255, 255, 0; }
+        .c-planli { --c: var(--planli); --c-rgb: 255, 165, 0; }
         .c-is { --c: var(--is); --c-rgb: 34, 211, 238; }
-        .c-isg { --c: var(--isg); --c-rgb: 239, 68, 68; }
+        .c-isg { --c: var(--isg); --c-rgb: 255, 0, 0; }
         .c-other { --c: var(--text-dim); --c-rgb: 148, 163, 184; }
 
         /* New Record Alert Window - Enlarged */
@@ -995,11 +995,11 @@
             root.style.setProperty('--text-dim', '#94a3b8');
             
             // Restore default bright colors for dark backgrounds
-            root.style.setProperty('--mekanik', '#38bdf8');
-            root.style.setProperty('--elektrik', '#facc15');
-            root.style.setProperty('--planli', '#fb923c');
+            root.style.setProperty('--mekanik', '#00ffff');
+            root.style.setProperty('--elektrik', '#ffff00');
+            root.style.setProperty('--planli', '#ffa500');
             root.style.setProperty('--is', '#22d3ee');
-            root.style.setProperty('--isg', '#ef4444');
+            root.style.setProperty('--isg', '#ff0000');
             root.style.setProperty('--desc-color', '#4ade80');
 
             if (themeType === 'dark') {
