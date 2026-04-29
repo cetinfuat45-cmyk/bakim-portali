@@ -86,6 +86,12 @@
             padding: 12px; width: 100%; border: none; border-radius: 6px; cursor: pointer;
         }
         .auth-btn:hover { opacity: 0.9; }
+        .theme-btn {
+            color: #fff; font-size: 14px; font-weight:800;
+            padding: 12px; width: 100%; border-radius: 6px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .theme-btn:hover { opacity: 0.9; transform: scale(1.02); }
 
         .op-card {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
@@ -368,17 +374,8 @@
             <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
                 YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">20</span>S
             </div>
-            <div class="stat-btn" style="gap: 2px; color: var(--text-dim);">
-                ÖLÇEK: 
-                <select id="scale-select" style="background:#1e293b; color:#fff; border:none; font-size:10px; border-radius:3px; outline:none; padding:2px;">
-                    <option value="0.30">30%</option>
-                    <option value="0.50">50%</option>
-                    <option value="0.75" selected>75%</option>
-                    <option value="1">100%</option>
-                    <option value="1.25">125%</option>
-                    <option value="1.5">150%</option>
-                    <option value="2">200%</option>
-                </select>
+            <div class="fs-toggle" onclick="openSettingsModal()" style="margin-right: 5px;" title="Ayarlar">
+                <span class="material-icons">settings</span>
             </div>
             <div class="fs-toggle" id="fs-btn">
                 <span class="material-icons">fullscreen</span>
@@ -403,6 +400,40 @@
             <input type="password" id="pin-input" class="auth-input" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric">
             <button class="auth-btn" onclick="verifyPin()">GİRİŞ YAP</button>
             <div style="margin-top:20px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeAuth()">İptal Et</div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="auth-overlay">
+        <div class="auth-box">
+            <span class="material-icons" style="color:var(--mekanik); font-size:48px;">settings</span>
+            <div style="color:var(--mekanik); font-size:20px; font-weight:900; margin-top:10px;">AYARLAR</div>
+            <div style="color:var(--text-dim); font-size:12px; margin-top:5px; margin-bottom: 20px;">Görünüm ayarlarını düzenleyin</div>
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:var(--text-main); font-size:12px; font-weight:800; margin-bottom: 5px;">Arka Plan Teması</div>
+                <select id="theme-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="dark" style="color: #000;">Koyu Tema (Varsayılan)</option>
+                    <option value="blue" style="color: #000;">Lacivert Tema</option>
+                    <option value="gray" style="color: #000;">Gri Tema</option>
+                </select>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 20px;">
+                <div style="color:var(--text-main); font-size:12px; font-weight:800; margin-bottom: 5px;">Sayfa Ölçeği (Zoom)</div>
+                <select id="scale-select-modal" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="0.30" style="color: #000;">30%</option>
+                    <option value="0.50" style="color: #000;">50%</option>
+                    <option value="0.75" style="color: #000;">75%</option>
+                    <option value="1" style="color: #000;">100%</option>
+                    <option value="1.25" style="color: #000;">125%</option>
+                    <option value="1.5" style="color: #000;">150%</option>
+                    <option value="2" style="color: #000;">200%</option>
+                </select>
+            </div>
+
+            <button class="auth-btn" onclick="saveSettings()" style="background:var(--mekanik);">KAYDET</button>
+            <div style="margin-top:15px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeSettingsModal()">İptal Et</div>
         </div>
     </div>
 
@@ -823,15 +854,55 @@
 
         document.getElementById('fs-btn').onclick = toggleFullScreen;
 
-        const scaleSelect = document.getElementById('scale-select');
         function applyScale(val) {
             document.body.style.zoom = val;
-            scaleSelect.value = val;
             localStorage.setItem('hub-scale', val);
         }
-        scaleSelect.onchange = (e) => applyScale(e.target.value);
+
+        function openSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'flex';
+            document.getElementById('theme-select').value = localStorage.getItem('hub-theme') || 'dark';
+            document.getElementById('scale-select-modal').value = localStorage.getItem('hub-scale') || '0.75';
+        }
+        
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            const selectedTheme = document.getElementById('theme-select').value;
+            const selectedScale = document.getElementById('scale-select-modal').value;
+            changeTheme(selectedTheme);
+            applyScale(selectedScale);
+            closeSettingsModal();
+        }
+
+        function changeTheme(themeType) {
+            const root = document.documentElement;
+            if (themeType === 'dark') {
+                root.style.setProperty('--bg-dark', '#020617');
+                root.style.setProperty('--bg-grid', '#0f172a');
+                root.style.setProperty('--header-black', '#000000');
+            } else if (themeType === 'blue') {
+                root.style.setProperty('--bg-dark', '#082f49');
+                root.style.setProperty('--bg-grid', '#0c4a6e');
+                root.style.setProperty('--header-black', '#042f2e');
+            } else if (themeType === 'gray') {
+                root.style.setProperty('--bg-dark', '#1e293b');
+                root.style.setProperty('--bg-grid', '#334155');
+                root.style.setProperty('--header-black', '#0f172a');
+            }
+            localStorage.setItem('hub-theme', themeType);
+        }
+
         const savedScale = localStorage.getItem('hub-scale');
         applyScale(savedScale || '0.75');
+
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('hub-theme');
+        if (savedTheme) {
+            changeTheme(savedTheme);
+        }
 
         let refreshCounter = 20;
         function updateRefreshTimer() {
