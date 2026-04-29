@@ -120,7 +120,7 @@
             background: #1e293b;
             padding: 1px 8px;
             border-radius: 4px;
-            color: #fff;
+            color: var(--text-main);
             font-size: 14px;
         }
 
@@ -136,7 +136,7 @@
         }
 
         .fs-toggle:hover {
-            color: #fff;
+            color: var(--text-main);
         }
 
         .section-header {
@@ -184,7 +184,7 @@
             font-size: 14px;
             font-weight: 800;
             margin: 4px 0;
-            color: #fff;
+            color: var(--text-main);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -220,7 +220,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 11px;
-            color: #fff;
+            color: var(--text-main);
             font-weight: 800;
         }
 
@@ -287,7 +287,7 @@
             position: fixed; top: 50%; left: 50%; 
             transform: translate(-50%, -50%);
             width: 650px; padding: 40px;
-            background: #020617;
+            background: var(--bg-dark);
             z-index: 9999; display: none; align-items: center; justify-content: center;
             flex-direction: column; text-align: center;
             border: 5px solid var(--isg); border-radius: 15px;
@@ -299,10 +299,10 @@
             50% { transform: translate(-50%, -50%) scale(1.03); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
-        #alert-overlay h1 { font-size: 36px; color: #fff; margin-bottom: 20px; font-weight: 800; border-bottom: 2px solid var(--isg); padding-bottom: 10px; width: 100%; }
-        #alert-details { width: 100%; text-align: left; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--isg); }
+        #alert-overlay h1 { font-size: 36px; color: var(--text-main); margin-bottom: 20px; font-weight: 800; border-bottom: 2px solid var(--isg); padding-bottom: 10px; width: 100%; }
+        #alert-details { width: 100%; text-align: left; background: var(--bg-grid); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--isg); }
         #alert-details .d-label { font-size: 14px; color: var(--text-dim); margin-bottom: 5px; font-weight: 800; text-transform: uppercase; }
-        #alert-details .d-val { font-size: 24px; color: #fff; font-weight: 800; margin-bottom: 15px; }
+        #alert-details .d-val { font-size: 24px; color: var(--text-main); font-weight: 800; margin-bottom: 15px; }
         #alert-details .d-desc { font-size: 18px; color: #4ade80; font-weight: 700; line-height: 1.4; }
         
         #alert-overlay .timer { font-size: 16px; color: #94a3b8; margin-bottom: 25px; }
@@ -355,7 +355,7 @@
             <div class="d-val" id="alert-machine">-</div>
             <div class="d-label">Arıza Açıklaması</div>
             <div class="d-desc" id="alert-desc">-</div>
-            <div style="margin-top:15px; font-size:14px; color:#fff">
+            <div style="margin-top:15px; font-size:14px; color:var(--text-main)">
                 <span style="color:var(--text-dim)">BİLDİREN:</span> <span id="alert-person">-</span>
             </div>
         </div>
@@ -373,12 +373,12 @@
         
         <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
             <!-- Butonlar Kaldırıldı -->
-            <div id="install-btn" class="stat-btn" style="display:none; background:var(--c-mekanik); color:#fff; cursor:pointer;" onclick="installPWA()">
+            <div id="install-btn" class="stat-btn" style="display:none; background:var(--c-mekanik); color:var(--text-main); cursor:pointer;" onclick="installPWA()">
                 <span class="material-icons">download</span> YÜKLE
             </div>
             <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800; min-width:80px;">SON: --:--:--</div>
             <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
-                YENİLEME: <span id="refresh-timer" style="color:#fff; min-width:20px; display:inline-block">20</span>S
+                YENİLEME: <span id="refresh-timer" style="color:var(--text-main); min-width:20px; display:inline-block">20</span>S
             </div>
             <div class="fs-toggle" onclick="openSettingsModal()" style="margin-right: 5px;" title="Ayarlar">
                 <span class="material-icons">settings</span>
@@ -696,7 +696,7 @@
                                 <div style="color:var(--c); font-weight:900; font-size:16px; text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
                                 <div style="color:var(--c); font-weight:800; font-size:13px; border:1px solid rgba(var(--c-rgb),0.5); padding:1px 5px; border-radius:4px;">${timeShort}</div>
                             </div>
-                            <div style="color:#fff; font-weight:800; font-size:14px; line-height:1.2; margin-top:2px;">${t.acan}</div>
+                            <div style="color:var(--text-main); font-weight:800; font-size:14px; line-height:1.2; margin-top:2px;">${t.acan}</div>
                             <div style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:3px; margin-top:2px;">
                                 <span style="color:var(--c); font-weight:800;">${t.name}</span>
                                 <span style="color:var(--text-dim);">/ ${t.vardiya}</span>
@@ -865,7 +865,7 @@
                     <div class="op-card">
                         <img src="${fotoUrl}" class="op-foto" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
                         <div>
-                            <div style="color:#fff; font-weight:800; font-size:16px;">${ad}</div>
+                            <div style="color:var(--text-main); font-weight:800; font-size:16px;">${ad}</div>
                             <div style="color:${color}; font-size:11px; font-weight:800; letter-spacing:1px; margin-top:3px;">${role}</div>
                         </div>
                     </div>
