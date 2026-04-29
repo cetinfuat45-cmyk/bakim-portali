@@ -32,6 +32,7 @@
             --planli: #ffa500;
             --is: #22d3ee;
             --isg: #ff0000;
+            --diger: #fffafa;
             --desc-color: #4ade80;
             --card-fs-base: 14px;
             --row-fs-base: 10px;
@@ -287,7 +288,7 @@
         .c-planli { --c: var(--planli); --c-rgb: 255, 165, 0; }
         .c-is { --c: var(--is); --c-rgb: 34, 211, 238; }
         .c-isg { --c: var(--isg); --c-rgb: 255, 0, 0; }
-        .c-other { --c: var(--text-dim); --c-rgb: 148, 163, 184; }
+        .c-other { --c: var(--diger); --c-rgb: 255, 250, 250; }
 
         /* New Record Alert Window - Enlarged */
         #alert-overlay {
@@ -1000,6 +1001,7 @@
             root.style.setProperty('--planli', '#ffa500');
             root.style.setProperty('--is', '#22d3ee');
             root.style.setProperty('--isg', '#ff0000');
+            root.style.setProperty('--diger', '#fffafa');
             root.style.setProperty('--desc-color', '#4ade80');
             
             root.style.removeProperty('--card-bg');
@@ -1038,6 +1040,7 @@
                 root.style.setProperty('--planli', '#ffa500');
                 root.style.setProperty('--is', '#22d3ee');
                 root.style.setProperty('--isg', '#ff0000');
+                root.style.setProperty('--diger', '#fffafa');
                 root.style.setProperty('--desc-color', '#15803d');
                 
                 // In white theme: backgrounds use the neon colors, text is black
