@@ -155,10 +155,11 @@
 
         .grid-view {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(17.5em, 100%), 1fr));
             gap: 10px;
             padding: 10px;
             background: var(--bg-dark);
+            font-size: var(--card-fs-base);
         }
 
         .card {
@@ -167,11 +168,11 @@
             border-top: 4px solid var(--c);
             padding: 8px;
             border-radius: 6px;
-            height: 125px;
+            min-height: 8.9em;
+            height: auto;
             display: flex;
             flex-direction: column;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            font-size: var(--card-fs-base);
         }
 
         .card .c-title {
@@ -234,7 +235,7 @@
 
         .list-row {
             display: grid;
-            grid-template-columns: 110px 100px 120px 130px 1fr 110px;
+            grid-template-columns: 11em 10em 12em 13em 1fr 11em;
             gap: 8px;
             padding: 1px 6px;
             border-bottom: 1px solid rgba(var(--c-rgb), 0.2);
@@ -464,13 +465,13 @@
 
             <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Kart Yazı Boyutu</div>
-                <input type="range" id="card-fs-slider" min="4" max="16" step="0.5" style="width:100%" oninput="document.getElementById('card-fs-val').innerText = this.value + 'px'">
+                <input type="range" id="card-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('card-fs-val').innerText = this.value + 'px'">
                 <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="card-fs-val">14px</div>
             </div>
 
             <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Satır Yazı Boyutu</div>
-                <input type="range" id="row-fs-slider" min="4" max="16" step="0.5" style="width:100%" oninput="document.getElementById('row-fs-val').innerText = this.value + 'px'">
+                <input type="range" id="row-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('row-fs-val').innerText = this.value + 'px'">
                 <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="row-fs-val">10px</div>
             </div>
 
