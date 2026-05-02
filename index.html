@@ -3,1991 +3,1091 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>İş Takip ve Arıza Paneli</title>
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2092/2092063.png">
+    <title>Bakım HUB Dashboard</title>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Hata:', err));
+        });
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto+Condensed:wght@400;700&display=swap');
-        @import url('https://fonts.cdnfonts.com/css/digital-7-mono');
-
         :root {
             --bg-dark: #020617;
-            /* Slate 950 - Deeper dark */
-            --card-bg: rgba(30, 41, 59, 0.4);
-            /* Slate 800 with transparency */
-            --header-bg: rgba(15, 23, 42, 0.8);
+            --bg-grid: #0f172a;
+            --header-black: #000000;
             --text-main: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-yellow: #f59e0b;
-            --accent-blue: #3b82f6;
+            --text-dim: #94a3b8;
+            --mekanik: #00ffff;
+            --elektrik: #ffff00;
+            --planli: #ffa500;
+            --is: #22d3ee;
+            --isg: #ff0000;
+            --diger: #fffafa;
+            --desc-color: #4ade80;
+            --card-fs-base: 14px;
+            --row-fs-base: 10px;
+        }
 
-            /* Modern Glow Colors */
-            --color-mekanik: #00d2ff;
-            --color-elektrik: #fde047;
-            --color-isg: #ff4d4d;
-            --color-tekrar: #c084fc;
-            --color-bakim: #fb923c;
-            --color-sikayet: #fb923c;
-            --color-diger: #60a5fa;
-
-            --border-color: rgba(255, 255, 255, 0.1);
-            --card-font-size: 13px;
-            --glass-blur: 8px;
-            /* Reduced for TV Performance */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family, 'Roboto'), -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: default;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background: radial-gradient(circle at top right, #1e293b, #020617);
+            background-color: var(--bg-dark);
             color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            font-size: 11px;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        p,
-        ul,
-        li {
-            margin: 0;
-            padding: 0;
-        }
+        body[data-thickness="thin"] *:not(.material-icons) { font-weight: 300 !important; }
+        body[data-thickness="normal"] { /* default */ }
+        body[data-thickness="thick"] *:not(.material-icons) { font-weight: 900 !important; }
 
-        /* ... header ... */
-
-        /* ... stats bar ... */
-
-        /* ... main content ... */
-
-        /* ... grid container ... */
-
-        /* ... card sizes ... */
-
-        /* --- CARD STYLE (High Res - Optimized) --- */
-        .job-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            position: relative;
-            min-height: var(--card-min-height, 40px);
-            font-size: var(--card-font-size);
-            min-width: 200px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        .job-card:hover {
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            z-index: 10;
-        }
-
-        /* ... header ... */
-
-        /* ... stats bar ... */
-
-        /* ... main content ... */
-
-        /* ... grid container ... */
-
-        /* ... card sizes ... */
-
-        /* --- STATS BAR --- */
-        .stats-bar {
-            background-color: rgba(15, 23, 42, 0.95);
-            /* Less alpha calculation */
-            display: flex;
-            gap: 2px;
-            padding: 0 20px;
-            height: 40px;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-            overflow-x: auto;
-        }
-
-        /* ... scrollbar ... */
-
-        .stat-item {
-            background: var(--card-bg);
-            padding: 2px 8px;
+        /* Top Bar - Enhanced */
+        .top-bar {
+            height: 38px;
+            background: var(--header-black);
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            border-right: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .stat-item-value {
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 800;
-        }
-
-        .stat-item.active {
-            background: var(--header-bg);
-            border-bottom: 2px solid var(--accent-blue);
-            color: var(--accent-blue);
-        }
-
-        /* Operator Stats in Footer/Stats Bar */
-        .operator-stats-container {
-            display: flex;
-            align-items: center;
-            margin-left: 20px;
-            padding-left: 0;
-            border-left: 1px solid var(--border-color);
-            height: 100%;
-        }
-
-        .operator-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--card-bg);
-            border-radius: 0;
-            border-left: 0.5px solid rgba(255, 255, 255, 0.1);
-            border-top: 0.5px solid transparent;
-            border-bottom: 0.5px solid transparent;
-            border-right: 0.5px solid transparent;
-            color: #cbd5e1;
-            font-weight: 700;
-            font-size: 11px;
-        }
-
-        .operator-score {
-            font-size: 14px;
-            color: #fbbf24;
-            font-weight: 800;
-        }
-
-        /* Shift Highlighting - Simplified */
-        .operator-item.operator-active {
-            border: 2px solid var(--accent-blue);
-            /* Removed box-shadow glow */
-            background: rgba(59, 130, 246, 0.1);
-            z-index: 5;
-            position: relative;
-        }
-
-        .operator-item.operator-inactive {
-            opacity: 0.5;
-            /* Removed filter: grayscale */
-        }
-
-        /* ... grid area ... */
-
-        /* ... card sizes ... */
-
-        .job-card {
-            /* ... repeated block in original, cleaned up ... */
-            background: var(--card-bg);
-            border: 0.5px solid var(--border-color);
-            padding: 2px 4px;
-            border-radius: 4px;
-            display: inline-table;
-            flex-direction: column;
-            gap: 0;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            width: auto;
-            line-height: 0.9;
-        }
-
-        /* ... large card ... */
-
-        .job-card:hover {
-            transform: none;
-            /* Disable movement */
-            border-color: #fff;
-            z-index: 10;
-        }
-
-        .status-isg {
-            border: 1px solid #ff0000 !important;
-            color: #fff !important;
-            background: rgba(255, 0, 0, 0.2) !important;
-            /* Removed heavy neon animation */
-            font-weight: bold;
-        }
-
-        .neon-alert-text {
-            color: #ff0000 !important;
-            font-weight: 900;
-            /* Simplified animation removed */
-            /* animation: text-flash 1s infinite alternate; */
-        }
-
-        /* @keyframes text-flash removed */
-
-        /* ... notifications ... */
-        /* Alarm Overlay CSS Removed */
-
-        #yeni-is-bildirim.isg-alert {
-            border: 2px solid #ff0000 !important;
-            /* Removed box-shadow and pulse */
-        }
-
-        .header-logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent-blue);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-transform: uppercase;
-        }
-
-        .header-logo span {
-            color: var(--text-main);
-            font-weight: 400;
-        }
-
-        .header-center-title {
-            font-size: 20px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-            flex: 1;
-            /* Take available space */
-            display: flex;
-            justify-content: center;
-            overflow: hidden;
-            /* Contain marquee */
-            margin: 0 20px;
-        }
-
-        .header-clock {
-            font-family: 'Digital-7 Mono', monospace;
-            font-size: 32px;
-            color: var(--accent-green);
-            background: rgba(0, 0, 0, 0.4);
-            padding: 4px 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
-        }
-
-        /* --- STATS BAR --- */
-        .stats-bar {
-            background-color: rgba(15, 23, 42, 0.8);
-            display: flex;
-            gap: 2px;
-            padding: 0 20px;
-            height: 40px;
-            /* Reduced further */
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-            overflow-x: auto;
-            scrollbar-width: thin;
-        }
-
-        .stats-bar::-webkit-scrollbar {
-            height: 4px;
-            background: #1e293b;
-        }
-
-        .stats-bar::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 2px;
-        }
-
-        .stat-item {
-            background: var(--card-bg);
-            padding: 2px 8px;
-            /* Reduced padding */
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            /* Reduced gap */
-            font-size: 11px;
-            /* Reduced font size */
-            font-weight: 700;
-            color: var(--text-secondary);
-            border-right: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .stat-item-value {
-            color: var(--text-main);
-            font-size: 14px;
-            /* Reduced Value */
-            font-weight: 800;
-        }
-
-        .stat-item.active {
-            background: var(--header-bg);
-            border-bottom: 2px solid var(--accent-blue);
-            color: var(--accent-blue);
-        }
-
-        /* Operator Stats in Footer/Stats Bar */
-        .operator-stats-container {
-            display: flex;
-            align-items: center;
-            margin-left: 20px;
-            padding-left: 0;
-            border-left: 1px solid var(--border-color);
-            height: 100%;
-        }
-
-        .operator-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            /* Reduced gap */
-            background: var(--card-bg);
-            padding: 2px 8px;
-            /* Reduced padding */
-            border-radius: 0;
-            border-left: 0.5px solid rgba(255, 255, 255, 0.1);
-            border-top: 0.5px solid transparent;
-            border-bottom: 0.5px solid transparent;
-            border-right: 0.5px solid transparent;
-
-            color: #cbd5e1;
-            font-weight: 700;
-            font-size: 11px;
-            /* Reduced font size */
-        }
-
-        .operator-score {
-            font-size: 14px;
-            /* Reduced Score */
-            color: #fbbf24;
-            font-weight: 800;
-        }
-
-        /* Shift Highlighting */
-        .operator-item.operator-active {
-            border: 2px solid var(--accent-blue);
-            box-shadow: 0 0 10px var(--accent-blue), inset 0 0 5px var(--accent-blue);
-            z-index: 5;
-            position: relative;
-        }
-
-        .operator-item.operator-inactive {
-            opacity: 0.4;
-            filter: grayscale(0.5);
-        }
-
-        /* --- MAIN GRID AREA --- */
-        .main-content {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        #yeni-grid-container {
-            display: flex;
-            flex-wrap: wrap;
+            padding: 0 15px;
             gap: 15px;
-            align-content: start;
-        }
-
-        /* --- CARD SIZES (Content-Aware) --- */
-        .size-s {
-            width: auto;
-            max-width: 380px;
-        }
-
-        .size-m {
-            width: auto;
-            max-width: 650px;
-        }
-
-        .size-l {
-            width: auto;
-            max-width: 100%;
-        }
-
-        /* --- CARD STYLE --- */
-        .job-card {
-            background: var(--card-bg);
-            border: 0.5px solid var(--border-color);
-            padding: 2px 4px;
-            border-radius: 4px;
-            display: inline-table;
-            flex-direction: column;
-            gap: 0;
-            /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); */
-            /* transition: transform 0.2s, box-shadow 0.2s; */
-            position: relative;
-            min-height: auto;
-            font-size: var(--card-font-size);
-            /* Sizing Base */
-            width: auto;
-            line-height: 0.9;
-        }
-
-        /* --- FEATURED / LARGE CARD TIGHTENING --- */
-        .job-card.size-l,
-        .featured-card {
-            padding: 2px 4px !important;
-            height: auto !important;
-            min-height: auto !important;
-            gap: 0 !important;
-        }
-
-        .job-card.size-l .requester-name,
-        .featured-card .requester-name {
-            margin-bottom: 1px !important;
-            line-height: 1 !important;
-        }
-
-        .job-card.size-l .job-desc,
-        .featured-card .job-desc {
-            margin-top: 2px !important;
-            line-height: 1.1 !important;
-        }
-
-        .job-card.size-l .card-header-line,
-        .featured-card .card-header-line {
-            margin-bottom: 1px !important;
-        }
-
-        .job-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
-
-        .card-header-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 2px;
-        }
-
-        .job-group-header {
-            font-size: 1.4em;
-            font-weight: 800;
-            text-transform: uppercase;
-            line-height: 1.1;
-            /* Color set inline */
-        }
-
-        .requester-name {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 0;
-        }
-
-        .job-time {
-            font-family: 'Digital-7 Mono', monospace;
-            font-size: 1.1em;
-            color: var(--accent-yellow);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2px 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            white-space: nowrap;
-        }
-
-        .job-desc {
-            font-size: 1em;
-            color: #00ff00;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* --- OLDER JOBS LIST STYLE --- */
-        .list-container {
-            margin-top: 20px;
-            /* Flex layout for containment */
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            /* Area for scrolling */
-            flex-grow: 1;
-            overflow: hidden;
-            position: relative;
-            /* Border or separation if needed */
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-        }
-
-        .scroll-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            overflow-y: auto;
-            will-change: transform;
-            /* Hardware Acceleration */
-        }
-
-        /* Pause on hover for readability removed */
-        /* .list-container:hover .scroll-wrapper { animation-play-state: paused; } */
-
-        /* @keyframes scroll-vertical removed */
-
-        /* --- HORIZONTAL MARQUEE REMOVED --- */
-
-        @keyframes scroll-pingpong {
-            0% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(calc(-100% + 300px));
-            }
-
-            /* Just a guess, JS better handles this */
-            100% {
-                transform: translateY(0);
-            }
-        }
-
-        .list-header {
-            font-size: 1.2em;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            font-weight: 700;
-            display: none;
-            /* We will use group headers instead */
-        }
-
-        .group-block {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            border: none;
-            /* remove outer border */
-            border-radius: 0;
-            /* Square */
-            overflow: hidden;
-            margin-bottom: 0px;
-            /* Zero spacing */
-        }
-
-        .group-header {
-            padding: 2px 10px;
-            font-size: 9px;
-            font-weight: 800;
-            line-height: 1.0;
-            border-left: none;
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--group-color, #fff);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 2px solid var(--group-color);
-            margin-top: 0;
-        }
-
-        .group-count {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8em;
-        }
-
-        .old-job-row {
-            background: var(--card-bg);
-            /* backdrop-filter: blur removed for performance */
-            min-height: auto;
-            height: min-content;
-            line-height: 0.9;
-            padding: 0px 8px;
-
-            display: grid;
-            grid-template-columns: 110px 120px 50px 120px 110px 1fr 120px;
-            align-items: center;
-            gap: 4px;
-
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: var(--list-font-size);
-            transition: background 0.1s;
-            border-radius: 0;
-        }
-
-        .old-job-row:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 3px solid var(--accent-blue);
-        }
-
-        /* Last row shouldn't have bottom border in a block usually, but strictly speaking for table look it's fine or we can remove it */
-        .group-block .old-job-row:last-child {
-            border-bottom: none;
-        }
-
-        .group-table-header {
-            display: grid;
-            grid-template-columns: 110px 120px 50px 120px 100px 1fr 120px;
-            gap: 10px;
-            padding: 4px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 2px solid var(--group-color, #475569);
-            color: var(--group-color, #fff);
-            font-weight: 900;
-            font-size: 0.8em;
-            text-transform: uppercase;
-        }
-
-        .old-job-row:hover {
-            background: #475569;
-        }
-
-        /* Column Specifics */
-        .row-date {
-            color: var(--text-secondary);
-            font-size: 0.8em;
-            white-space: nowrap;
-            /* Grid handles width */
-        }
-
-        .row-worker {
-            color: #00ff7f;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .row-requester {
-            color: #fff;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .row-shift {
-            color: #94a3b8;
-            font-size: 0.85em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: center;
-        }
-
-        .row-machine-name {
-            color: #e2e8f0;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .row-type {
-            font-size: 0.75em;
-            font-weight: 800;
-            text-transform: uppercase;
-            padding: 0;
-            border-radius: 4px;
-            background: transparent;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .row-desc {
-            color: #cbd5e1;
-            flex-grow: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 1em;
-        }
-
-        /* Status Colors */
-        .status-mekanik {
-            border-color: var(--color-mekanik) !important;
-            color: var(--color-mekanik) !important;
-        }
-
-        .status-elektrik {
-            border-color: var(--color-elektrik) !important;
-            color: var(--color-elektrik) !important;
-        }
-
-        .status-isg {
-            border: 1px solid #ff0000 !important;
-            color: #fff !important;
-            background: rgba(255, 0, 0, 0.1) !important;
-            /* box-shadow: 0 0 3px #ff0000; */
-            /* animation: neon-pulse 2s infinite alternate; */
-            /* Slower, more subtle pulse */
-            font-weight: bold;
-            /* text-shadow: 0 0 3px #ff0000; */
-        }
-
-        /* @keyframes neon-pulse removed */
-
-        .neon-alert-text {
-            color: #ff0000 !important;
-            font-weight: 900;
-            animation: text-neon-flash 0.5s infinite alternate;
-        }
-
-        @keyframes text-neon-flash {
-            from {
-                text-shadow: 0 0 1px #ff0000, 0 0 2px #ff0000;
-                opacity: 1;
-            }
-
-            to {
-                text-shadow: 0 0 2px #ff0000, 0 0 3px #ff0000, 0 0 5px #ff0000;
-                opacity: 0.8;
-            }
-        }
-
-        .status-tekrar {
-            border-color: var(--color-tekrar) !important;
-            color: var(--color-tekrar) !important;
-        }
-
-        .status-bakim {
-            border-color: var(--color-bakim) !important;
-            color: var(--color-bakim) !important;
-        }
-
-        .status-sikayet {
-            border-color: var(--color-sikayet) !important;
-            color: var(--color-sikayet) !important;
-        }
-
-        .status-diger {
-            border-color: var(--color-diger) !important;
-            color: var(--color-diger) !important;
-        }
-
-        /* --- NOTIFICATIONS & OVERLAYS (Preserved) --- */
-        #kritik-alarm-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(220, 0, 0, 0.95);
-            display: none;
-            z-index: 20002;
-            /* Increased z-index */
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 60px;
-            font-weight: 900;
-            text-align: center;
-            text-shadow: 0 0 50px #000;
-            padding: 40px;
-            pointer-events: none;
-            animation: flash-animation 0.3s infinite alternate;
-        }
-
-        @keyframes flash-animation {
-            from {
-                opacity: 0.5;
-                transform: scale(0.97);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        #yeni-is-bildirim {
-            position: fixed;
-            top: 50px;
-            /* Slightly higher */
-            right: -800px;
-            /* Hide further right */
-            width: 600px;
-            /* Wider */
-            background: #0f172a;
-            color: white;
-            border-radius: 12px;
-            padding: 0;
-            padding: 0;
-            box-shadow: -10px 10px 40px rgba(0, 0, 0, 0.8);
-            z-index: 20000;
-            /* Ensure very high z-index */
-            transition: right 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            border: 4px solid var(--accent-red);
-            /* Thicker border */
-            overflow: hidden;
-        }
-
-        #yeni-is-bildirim.isg-alert {
-            border: 1px solid #ff0000 !important;
-            box-shadow: 0 0 10px #ff0000;
-            animation: neon-pulse 2s infinite alternate !important;
-        }
-
-        #yeni-is-bildirim.active {
-            right: 40px;
-        }
-
-        .bildirim-header {
-            background: var(--accent-red);
-            padding: 15px;
-            font-weight: 900;
-            font-size: 24px;
-            /* Larger Header */
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
-        .bildirim-body {
-            padding: 25px;
-            line-height: 1.4;
-            font-size: 20px;
-            /* Default larger text */
-        }
-
-        #bildirim-countdown {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 5px 10px;
-            border-radius: 50%;
-        }
-
-        /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        /* --- FOOTER --- */
-        .footer-bar {
-            background: var(--header-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 2px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 9px;
-            color: var(--border-color);
-            font-weight: 700;
-            flex-shrink: 0;
-            height: 30px;
-            flex-wrap: nowrap !important;
-            /* Strict single row */
-        }
-
-        .neon-akg {
-            color: var(--accent-blue);
-            text-shadow: 0 0 5px var(--accent-blue);
-            margin-left: 5px;
-        }
-
-        /* --- SETTINGS/CONTROLS (Hidden by default or minimal) --- */
-        .controls-bar {
-            background: var(--header-bg);
-            /* Match header/stats bg */
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: flex-end;
-            /* Align right */
-            padding: 2px 20px;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .ctrl-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 4px 8px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .ctrl-btn:hover {
-            background: var(--border-color);
-            color: #fff;
-        }
-
-
-        /* --- NEW LAYOUT: 2 ROWS --- */
-        .operator-row {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 5px 10px;
-            display: flex;
-            align-items: center;
-            overflow-x: auto;
-            white-space: nowrap;
-            min-height: 30px;
-            /* Ensure it has a dark bg if card-bg is transparent, or use header-bg */
-            background: #0f172a;
-        }
-
-        .main-stats-row {
-            padding: 2px 10px;
-            background: var(--header-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            gap: 5px;
-            /* Reduced gap */
-            flex-wrap: nowrap !important;
-            /* STRICT: Single row only */
-            min-height: 24px;
-            white-space: nowrap;
-        }
-
-        .main-stats-left {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            /* Reduced gap */
-            flex-wrap: nowrap !important;
-        }
-
-        .today-title {
-            font-weight: 900;
-            font-size: 13px;
-            letter-spacing: 1px;
-            color: #fff;
-            margin-right: 10px;
-        }
-
-        .stat-item {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            font-weight: 600;
-            color: var(--text-secondary);
+            border-bottom: 1px solid #1e293b;
+        }
+
+        /* --- Login / Auth Modal --- */
+        .auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(2,6,23, 0.95); z-index: 99999;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .auth-box {
+            background: #0f172a; border: 1px solid var(--c-planli);
+            padding: 30px; border-radius: 12px; text-align: center; width: 320px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        .auth-input {
+            background: rgba(255,255,255,0.05); border: 2px solid var(--text-dim);
+            color: #fff; font-size: 28px; text-align: center; padding: 12px; 
+            width: 100%; margin: 20px 0; border-radius: 6px; font-weight:800; letter-spacing:8px;
+            outline: none; transition: border 0.3s;
+        }
+        .auth-input:focus { border-color: var(--c-planli); }
+        .auth-btn {
+            background: var(--c-planli); color: #fff; font-size: 16px; font-weight:800;
+            padding: 12px; width: 100%; border: none; border-radius: 6px; cursor: pointer;
+        }
+        .auth-btn:hover { opacity: 0.9; }
+        .theme-opt {
+            display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 5px;
+            background: rgba(255,255,255,0.05); border: 2px solid transparent; 
+            border-radius: 6px; cursor: pointer; transition: all 0.2s;
+            color: #fff; font-weight: 700;
+        }
+        .theme-opt:hover { background: rgba(255,255,255,0.1); }
+        .theme-opt.active { border-color: var(--mekanik); background: rgba(56,189,248,0.1); }
+
+        .op-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;
+        }
+        .op-foto {
+            width: 50px; height: 50px; border-radius: 50%; background: #222; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-btn {
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .stat-item .stat-item-value {
-            color: #fff;
+            font-size: 11px;
             font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .stat-btn span:last-child {
+            background: var(--bg-grid);
+            padding: 1px 8px;
+            border-radius: 4px;
+            color: var(--text-main);
             font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
-        .controls-container {
+        .stat-btn .material-icons {
+            font-size: 16px;
+        }
+
+        .fs-toggle {
+            margin-left: auto;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .fs-toggle:hover {
+            color: var(--text-main);
+        }
+
+        .section-header {
+            padding: 5px 10px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--isg);
+            border-bottom: 1px solid #ef4444;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(17.5em, 100%), 1fr));
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-dark);
+            font-size: var(--card-fs-base);
+            align-items: start;
+        }
+
+        .card {
+            background: var(--card-bg, var(--c));
+            border: 1px solid rgba(0,0,0, 0.3);
+            border-top: 4px solid var(--card-border, #000);
+            padding: 8px;
+            border-radius: 6px;
             display: flex;
-            align-items: center;
-            gap: 5px;
-            flex-wrap: nowrap !important;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- ANDROID / MOBILE OPTIMIZATIONS --- */
+        .card .c-title {
+            font-size: 0.65em;
+            font-weight: 800;
+            color: var(--c);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .card .c-name {
+            font-size: 1em;
+            font-weight: 800;
+            margin: 4px 0;
+            color: var(--text-main);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .card .c-sub {
+            font-size: 0.7em;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        .card .c-desc {
+            font-size: 0.8em;
+            color: var(--desc-color);
+            line-height: 1.3;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .card .c-foot {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .list-view {
+            padding: 5px 10px;
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 11em 10em 12em 13em 1fr 11em;
+            gap: 8px;
+            padding: 1px 6px;
+            border-bottom: 1px solid var(--row-border, rgba(0,0,0,0.3));
+            background: var(--row-bg, var(--c));
+            align-items: center;
+            border-radius: 2px;
+            margin-bottom: 1px;
+            font-size: var(--row-fs-base);
+        }
+
+        .list-row:hover {
+            background: var(--row-bg-hover, var(--c));
+            filter: brightness(0.9);
+        }
+
+        .r-type {
+            font-weight: 800;
+            font-size: 0.8em;
+            text-align: center;
+            color: var(--row-color-primary, #000);
+            padding: 1px 0;
+        }
+
+        .r-val {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: var(--text-dim);
+            font-size: 1em;
+        }
+
+        .group-sep {
+            background: var(--c);
+            border-left: 4px solid #000;
+            padding: 6px 10px;
+            font-size: 1em;
+            font-weight: 900;
+            color: var(--row-color-primary, #000);
+            margin-top: 12px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+
+        .c-mekanik { --c: var(--mekanik); --c-rgb: 0, 255, 255; }
+        .c-elektrik { --c: var(--elektrik); --c-rgb: 255, 255, 0; }
+        .c-planli { --c: var(--planli); --c-rgb: 255, 165, 0; }
+        .c-is { --c: var(--is); --c-rgb: 34, 211, 238; }
+        .c-isg { --c: var(--isg); --c-rgb: 255, 0, 0; --row-color-primary: #ffffff; --card-color-primary: #ffffff; --card-color-text: #ffffff; --card-color-muted: #f8fafc; --desc-override: #ffffff; }
+        .c-other { --c: var(--diger); --c-rgb: 255, 250, 250; }
+
+        /* New Record Alert Window - Enlarged */
+        #alert-overlay {
+            position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            width: 650px; padding: 40px;
+            background: var(--bg-dark);
+            z-index: 9999; display: none; align-items: center; justify-content: center;
+            flex-direction: column; text-align: center;
+            border: 5px solid var(--isg); border-radius: 15px;
+            box-shadow: 0 0 80px rgba(239, 68, 68, 0.6);
+            animation: pulse-alert 1s infinite;
+        }
+        @keyframes pulse-alert {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.03); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        #alert-overlay h1 { font-size: 36px; color: var(--text-main); margin-bottom: 20px; font-weight: 800; border-bottom: 2px solid var(--isg); padding-bottom: 10px; width: 100%; }
+        #alert-details { width: 100%; text-align: left; background: var(--bg-grid); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--isg); }
+        #alert-details .d-label { font-size: 14px; color: var(--text-dim); margin-bottom: 5px; font-weight: 800; text-transform: uppercase; }
+        #alert-details .d-val { font-size: 24px; color: var(--text-main); font-weight: 800; margin-bottom: 15px; }
+        #alert-details .d-desc { font-size: 18px; color: var(--desc-color); font-weight: 700; line-height: 1.4; }
+        
+        #alert-overlay .timer { font-size: 16px; color: #94a3b8; margin-bottom: 25px; }
+
+        /* Mobile / Android Responsive Fixes */
         @media screen and (max-width: 768px) {
-
-            /* Adjust header for smaller screens */
-            .header-logo {
-                font-size: 18px;
-            }
-
-            .header-center-title {
-                font-size: 14px;
-                margin: 0 5px;
-            }
-
-            .header-clock {
-                font-size: 20px;
-                padding: 2px 5px;
-            }
-
-            /* Stats bar: Allow horizontal scroll, keep it compact */
-            .stats-bar {
-                padding: 0 10px;
-                gap: 5px;
-            }
-
-            /* Controls: Scale down or hide less important ones if needed */
-            .controls {
-                gap: 5px;
-            }
-
-            .controls select {
-                font-size: 10px;
-            }
-
-            .ctrl-btn {
-                padding: 2px 4px;
-            }
-
-            /* Main Grid: Cards take full width on phone */
-            .job-card {
-                min-width: 100%;
-                margin-bottom: 5px;
-            }
-
-            /* Today Title Bar: Stack or scroll */
-            .today-title-bar {
-                flex-wrap: wrap;
-                font-size: 11px;
-                padding: 5px;
+            #alert-overlay { width: 90%; padding: 20px; }
+            #alert-overlay h1 { font-size: 24px; }
+            #alert-details .d-val { font-size: 18px; }
+            #alert-details .d-desc { font-size: 14px; }
+            .top-bar {
                 height: auto;
-            }
-
-            .today-title-bar .stat-item {
-                font-size: 10px;
-                padding: 2px 4px;
-            }
-
-            /* History List: Compact rows */
-            .old-job-row {
-                padding: 8px;
-                gap: 8px;
                 flex-wrap: wrap;
-                /* Allow wrapping for details */
+                padding: 5px;
+                gap: 8px;
             }
-
-            .row-desc {
-                width: 100%;
-                /* Description on its own line */
-                margin-top: 4px;
+            .stat-btn { font-size: 9px; }
+            .stat-btn span:last-child { font-size: 11px; padding: 1px 5px; }
+            
+            .grid-view {
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
+            .card {
+                height: auto;
+                min-height: 140px;
+            }
+            .card .c-name { font-size: 14px; }
+            .card .c-desc { -webkit-line-clamp: 4; font-size: 11px; }
 
-            /* Hide non-critical columns on very small screens if needed */
-            /* .row-shift { display: none; } */
+            .list-view {
+                overflow-x: auto;
+                padding: 5px 0;
+            }
+            .list-row {
+                min-width: 700px; /* Forces scroll on mobile instead of crushing */
+                padding: 5px 10px;
+            }
+            .group-sep { font-size: 10px; }
         }
     </style>
 </head>
-
 <body>
 
-    <div id="kritik-alarm-overlay">🚨 KRİTİK SEVİYE UYARISI 🚨</div>
-
-    <div id="yeni-is-bildirim">
-        <div class="bildirim-header">YENİ İŞ EMRİ</div>
-        <div class="bildirim-body" id="bildirim-detay"></div>
+    <div id="alert-overlay">
+        <span class="material-icons" style="font-size: 48px; color: var(--isg); margin-bottom: 10px;">warning</span>
+        <h1>YENİ ARIZA KAYDI!</h1>
+        <div id="alert-details">
+            <div class="d-label">Makine / Bölüm</div>
+            <div class="d-val" id="alert-machine">-</div>
+            <div class="d-label">Arıza Açıklaması</div>
+            <div class="d-desc" id="alert-desc">-</div>
+            <div style="margin-top:15px; font-size:14px; color:var(--text-main)">
+                <span style="color:var(--text-dim)">BİLDİREN:</span> <span id="alert-person">-</span>
+            </div>
+        </div>
+        <div class="timer">Bu uyarı <span id="alert-timer">30</span> saniye içinde kapanacaktır.</div>
+        <button class="close-btn" onclick="closeAlert()">KAPAT</button>
     </div>
 
-    <!-- Header -->
-    <!-- Header Removed by User Request -->
-    <!-- Stats Bar Removed by User Request -->
-
-    <!-- ROW 2: Main UI (Title + Stats + Controls) -->
-    <!-- ROW 2: Main UI (Title + Stats + Controls) -->
-    <div class="main-stats-row">
-        <!-- Left Side: Title + Main Stats -->
-        <div class="main-stats-left">
-            <div class="stat-item active">TOPLAM: <span class="stat-item-value" id="stat-toplam">0</span></div>
-            <div class="stat-item" style="color:var(--color-mekanik);">MEK: <span class="stat-item-value"
-                    id="stat-mekanik">0</span>
+    <div class="top-bar">
+        <div class="stat-btn">TOPLAM <span id="s-total">0</span></div>
+        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span id="s-mek">0</span></div>
+        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span id="s-elek">0</span></div>
+        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span id="s-isg">0</span></div>
+        <div class="stat-btn"><span class="material-icons">history</span> TEKRAR <span id="s-tek">0</span></div>
+        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
+        
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+            <!-- Butonlar Kaldırıldı -->
+            <div id="install-btn" class="stat-btn" style="display:none; background:var(--c-mekanik); color:var(--text-main); cursor:pointer;" onclick="installPWA()">
+                <span class="material-icons">download</span> YÜKLE
             </div>
-            <div class="stat-item" style="color:var(--color-elektrik);">ELEK: <span class="stat-item-value"
-                    id="stat-elektrik">0</span></div>
-            <div class="stat-item" style="color:var(--color-isg);">İSG: <span class="stat-item-value"
-                    id="stat-isg">0</span>
+            <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800; min-width:80px;">SON: --:--:--</div>
+            <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
+                YENİLEME: <span id="refresh-timer" style="color:var(--text-main); min-width:20px; display:inline-block">20</span>S
             </div>
-            <div class="stat-item" style="color:var(--color-tekrar);">TEKRAR: <span class="stat-item-value"
-                    id="stat-tekrar">0</span></div>
-            <div class="stat-item" style="color:var(--color-bakim);">P.BAKIM: <span class="stat-item-value"
-                    id="stat-bakim">0</span></div>
-            <div class="stat-item" style="color:var(--color-diger);">DİĞER: <span class="stat-item-value"
-                    id="stat-diger">0</span></div>
-        </div>
-
-        <!-- Right Side: Controls -->
-        <div class="controls-container">
-            <div class="controls">
-                <span style="font-size:8px; color:#64748b; font-weight:bold;">YAZI:</span>
-                <select id="font-size-select"
-                    style="background:#000; color:#fff; border:1px solid #333; padding:1px; font-size:8px;"
-                    onchange="setFontSize(this.value); saveFontSize(this.value);">
-                    <option value="4">4px</option>
-                    <option value="4.5">4.5px</option>
-                    <option value="5">5px</option>
-                    <option value="5.5">5.5px</option>
-                    <option value="6">6px</option>
-                    <option value="6.5">6.5px</option>
-                    <option value="7">7px</option>
-                    <option value="7.5">7.5px</option>
-                    <option value="8">8px</option>
-                    <option value="8.5">8.5px</option>
-                    <option value="9">9px</option>
-                    <option value="9.5">9.5px</option>
-                    <option value="10">10px</option>
-                    <option value="10.5">10.5px</option>
-                    <option value="11">11px</option>
-                    <option value="11.5">11.5px</option>
-                    <option value="12">12px</option>
-                    <option value="13" selected>13px</option>
-                    <option value="14">14px</option>
-                    <option value="15">15px</option>
-                    <option value="16">16px</option>
-                    <option value="18">18px</option>
-                    <option value="20">20px</option>
-                    <option value="24">24px</option>
-                    <option value="28">28px</option>
-                    <option value="32">32px</option>
-                    <option value="36">36px</option>
-                    <option value="40">40px</option>
-                    <option value="48">48px</option>
-                    <option value="60">60px</option>
-                </select>
-
-                <span style="font-size:9px; color:#94a3b8; font-weight:bold; margin-left:5px;">SATIR:</span>
-                <select id="list-font-size-select"
-                    style="background:#0f172a; color:#fff; border:1px solid #334155; padding:1px 2px; font-size:9px; border-radius:4px;"
-                    onchange="setListFontSize(this.value); saveListFontSize(this.value);">
-                    <option value="4">4px</option>
-                    <option value="5">5px</option>
-                    <option value="6">6px</option>
-                    <option value="6">6px</option>
-                    <option value="7" selected>7px</option>
-                    <option value="8">8px</option>
-                    <option value="9">9px</option>
-                    <option value="10">10px</option>
-                    <option value="11">11px</option>
-                    <option value="12">12px</option>
-                    <option value="13">13px</option>
-                    <option value="14">14px</option>
-                    <option value="16">16px</option>
-                    <option value="18">18px</option>
-                    <option value="20">20px</option>
-                    <option value="24">24px</option>
-                </select>
-                <span style="font-size:9px; color:#94a3b8; font-weight:bold; margin-left:5px;">ÖLÇEK:</span>
-                <select id="app-scale-select"
-                    style="background:#0f172a; color:#fff; border:1px solid #334155; padding:1px 2px; font-size:9px; border-radius:4px;"
-                    onchange="setAppScale(this.value); saveAppScale(this.value);">
-                    <option value="1">100%</option>
-                    <option value="0.95">95%</option>
-                    <option value="0.9">90%</option>
-                    <option value="0.85">85%</option>
-                    <option value="0.8" selected>80%</option>
-                    <option value="0.75">75%</option>
-                    <option value="0.7">70%</option>
-                    <option value="0.65">65%</option>
-                    <option value="0.6">60%</option>
-                    <option value="0.55">55%</option>
-                    <option value="0.5">50%</option>
-                </select>
-                <button class="ctrl-btn" onclick="toggleFullScreen()" title="Tam Ekran">⛶</button>
-                <!-- Refresh Button Removed -->
-                <!-- Rapor Button Removed -->
-                <!-- Critical Threshold Input Removed -->
-                <span id="system-monitor"
-                    style="font-size:9px; color:#4ade80; font-weight:bold; margin-left:5px; border:1px solid #334155; padding:0 4px; background:#0f172a;">
-                    FPS: -- | RAM: --
-                </span>
+            <div class="fs-toggle" onclick="openSettingsModal()" style="margin-right: 5px;" title="Ayarlar">
+                <span class="material-icons">settings</span>
+            </div>
+            <div class="fs-toggle" id="fs-btn">
+                <span class="material-icons">fullscreen</span>
             </div>
         </div>
     </div>
 
+    <div id="dashboard-page">
+        <div class="section-header" style="color:var(--is)">BUGÜNÜN ARIZALARI</div>
+        <div id="grid-view" class="grid-view"></div>
 
-
-
-    <!-- Main Grid -->
-    <div class="main-content">
-        <!-- Old Header Removed -->
-        <div id="yeni-grid-container"></div>
-
-        <div id="gecmis-liste-container" class="list-container"></div>
+        <div class="section-header">ESKİ BEKLEYEN KAYITLAR</div>
+        <div id="list-view" class="list-view"></div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer-bar">
-        <!-- Left: Timer + Operators -->
-        <div style="display:flex; align-items:center; flex-grow:1; overflow:hidden;">
-            <span
-                style="font-family:'Digital-7 Mono', monospace; color:var(--accent-yellow); font-size: 1.2em; margin-right:15px; white-space:nowrap;">
-                (<span id="refresh-timer" style="color:#fff;">15</span>)
-            </span>
-            <div id="footer-ops" style="display:flex; width:100%; overflow-x:auto; align-items:center; height:100%;">
-            </div>
+    <!-- Login Modal -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-box">
+            <span class="material-icons" style="color:var(--c-planli); font-size:48px;">lock_person</span>
+            <div style="color:var(--c-planli); font-size:20px; font-weight:900; margin-top:10px;">KİMLİK DOĞRULAMA</div>
+            <div style="color:var(--text-dim); font-size:12px; margin-top:5px;">İş emirlerine erişmek için 4 haneli PIN şifrenizi girin</div>
+            <input type="password" id="pin-input" class="auth-input" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric">
+            <button class="auth-btn" onclick="verifyPin()">GİRİŞ YAP</button>
+            <div style="margin-top:20px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeAuth()">İptal Et</div>
         </div>
-        <span style="white-space:nowrap; margin-left:10px; font-size:10px;">TASARIM: <span class="neon-akg">AKG</span>
-            BAKIM</span>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="auth-overlay" style="background: rgba(0,0,0,0.4); backdrop-filter: none;">
+        <div class="auth-box" style="box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 2px solid var(--mekanik);">
+            <span class="material-icons" style="color:var(--mekanik); font-size:48px;">settings</span>
+            <div style="color:var(--mekanik); font-size:20px; font-weight:900; margin-top:10px;">AYARLAR</div>
+            <div style="color:var(--text-dim); font-size:12px; margin-top:5px; margin-bottom: 20px;">Görünüm ayarlarını düzenleyin</div>
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Arka Plan Teması</div>
+                <div id="theme-options" style="display: flex; flex-direction: column;">
+                    <div class="theme-opt" data-theme="dark" onclick="previewTheme('dark')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#020617; border:1px solid #94a3b8;"></div>
+                        <span>Koyu Tema</span>
+                    </div>
+                    <div class="theme-opt" data-theme="blue" onclick="previewTheme('blue')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#082f49; border:1px solid #94a3b8;"></div>
+                        <span>Lacivert Tema</span>
+                    </div>
+                    <div class="theme-opt" data-theme="gray" onclick="previewTheme('gray')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#1e293b; border:1px solid #94a3b8;"></div>
+                        <span>Gri Tema</span>
+                    </div>
+                    <div class="theme-opt" data-theme="white" onclick="previewTheme('white')">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#f1f5f9; border:1px solid #94a3b8;"></div>
+                        <span>Beyaz Tema</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Yazı Karakteri (Font)</div>
+                <select id="font-family-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="Roboto" style="color: #000;">Roboto (Varsayılan)</option>
+                    <option value="Inter" style="color: #000;">Inter</option>
+                    <option value="Montserrat" style="color: #000;">Montserrat</option>
+                    <option value="Open Sans" style="color: #000;">Open Sans</option>
+                </select>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Yazı Kalınlığı</div>
+                <select id="font-weight-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="normal" style="color: #000;">Standart (Varsayılan)</option>
+                    <option value="thin" style="color: #000;">İnce Yazı</option>
+                    <option value="thick" style="color: #000;">Ekstra Kalın Yazı</option>
+                </select>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Kart Yazı Boyutu</div>
+                <input type="range" id="card-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('card-fs-val').innerText = this.value + 'px'">
+                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="card-fs-val">14px</div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Satır Yazı Boyutu</div>
+                <input type="range" id="row-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('row-fs-val').innerText = this.value + 'px'">
+                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="row-fs-val">10px</div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 20px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Sayfa Ölçeği (Zoom)</div>
+                <select id="scale-select-modal" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
+                    <option value="0.30" style="color: #000;">30%</option>
+                    <option value="0.50" style="color: #000;">50%</option>
+                    <option value="0.75" style="color: #000;">75%</option>
+                    <option value="1" style="color: #000;">100%</option>
+                    <option value="1.25" style="color: #000;">125%</option>
+                    <option value="1.5" style="color: #000;">150%</option>
+                    <option value="2" style="color: #000;">200%</option>
+                </select>
+            </div>
+
+            <button class="auth-btn" onclick="saveSettings()" style="background:var(--mekanik);">KAYDET</button>
+            <div style="margin-top:15px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeSettingsModal()">İptal Et</div>
+        </div>
     </div>
 
     <script>
-        let sonKayitSayisi = -1;
-        let bildirimTimer;
-        // alarmInterval removed
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwQS11Ce9KO5zpfsUVRpK8DjZrHCGz-T-6dVQC7awZ0llyas_CVii2UXV3Rg0ivDKllmA/exec';
 
-        // ... existing wakeLock logic ...
-
-        // Rapor function removed by user request
-
-
-        // ... existing functions ...
-        let wakeLock = null;
-
-        // --- WAKE LOCK (Keep Screen On) ---
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock is active');
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Wake Lock was released');
-                    });
-                }
-            } catch (err) {
-                console.error(`${err.name}, ${err.message}`);
-            }
+        function getTypeInfo(tur) {
+            tur = tur.toUpperCase();
+            if (tur.includes("MEKANİK")) return { c: "c-mekanik", label: "MEKANİK ARIZA", icon: "settings" };
+            if (tur.includes("ELEKTRİK")) return { c: "c-elektrik", label: "ELEKTRİK ARIZA", icon: "bolt" };
+            if (tur.includes("PLANLI")) return { c: "c-planli", label: "PLANLI BAKIM KODU", icon: "event_note" };
+            if (tur.includes("YAPILAN")) return { c: "c-is", label: "YAPILAN İŞ HAKKINDA", icon: "task_alt" };
+            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) return { c: "c-isg", label: "İSG GÜVENLİĞİ", icon: "gpp_maybe" };
+            return { c: "c-other", label: tur, icon: "info" };
         }
 
-        // Re-request wake lock when page becomes visible again
-        document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('install-btn');
+            if (btn) btn.style.display = 'flex';
         });
 
-        // --- PERIODIC FULL RELOAD (Memory Stability) ---
-        // Reload every 3 hours to clear memory
-        const RELOAD_INTERVAL = 3 * 60 * 60 * 1000;
-        setTimeout(() => {
-            console.log("Memory safety: Performing scheduled reload...");
-            window.location.reload();
-        }, RELOAD_INTERVAL);
-
-        // --- FONT SIZE LOGIC ---
-        function setFontSize(val) {
-            document.documentElement.style.setProperty('--card-font-size', val + 'px');
-            // Kartların aşırı geniş olmasını engelliyoruz.
-            // Base 220px, çarpanı düşürdük (18).
-            const newMinWidth = Math.max(220, val * 18);
-            document.documentElement.style.setProperty('--card-min-width', newMinWidth + 'px');
-            document.documentElement.style.setProperty('--card-min-height', Math.max(40, val * 4) + 'px');
-        }
-
-        function saveFontSize(val) {
-            localStorage.setItem('userFontSize', val);
-        }
-
-        function setListFontSize(val) {
-            document.documentElement.style.setProperty('--list-font-size', val + 'px');
-        }
-
-        function saveListFontSize(val) {
-            localStorage.setItem('userListFontSize', val);
-        }
-
-        // --- APP SCALING (ZOOM) ---
-        function setAppScale(val) {
-            const content = document.querySelector('.main-content');
-            if (!content) return;
-
-            // Using zoom for contents only, header/footer stays fixed
-            if ('zoom' in content.style) {
-                content.style.zoom = val;
-            } else {
-                content.style.transform = `scale(${val})`;
-                content.style.transformOrigin = 'top left';
-                content.style.width = (100 / val) + '%';
-            }
-        }
-
-        function saveAppScale(val) {
-            localStorage.setItem('appScale', val);
-        }
-
-        // --- CLOCK ---
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock-display').innerText = now.toLocaleTimeString('tr-TR');
-        }, 1000);
-
-        // --- ALARM LOGIC (Preserved) ---
-        // --- ALARM LOGIC REMOVED ---
-
-        let bildirimCountdownInterval;
-
-        function bildirimGoster(sonIs) {
-            const panel = document.getElementById('yeni-is-bildirim');
-            if (!panel) return;
-            const detay = document.getElementById('bildirim-detay');
-
-            // Tur Kontrolü
-            const tur = (sonIs[3] || "").toString().toUpperCase();
-            if (tur.includes('GÜVENLİ') || tur.includes('İSG')) {
-                panel.classList.add('isg-alert');
-            } else {
-                panel.classList.remove('isg-alert');
-            }
-
-            // Güvenli erişim
-            const tarih = sonIs[0] || '-';
-            const talepEden = sonIs[1] || '-';
-            const turLabel = tur || '-';
-            const aciklama = sonIs[4] || '-';
-
-            // Countdown Logic
-            let remainingTime = 60; // seconds
-
-            detay.innerHTML = `
-                <div id="bildirim-countdown">${remainingTime}</div>
-                <div style="margin-bottom:15px; font-weight:bold; color:#cbd5e1; font-size:22px;">${tarih} - ${talepEden}</div>
-                <div style="margin-bottom:15px; display:inline-block; padding:4px 12px; background:#334155; border-radius:6px; font-size:20px; border:1px solid #64748b;">${turLabel}</div>
-                <div style="font-size:28px; color:#fff; font-weight:bold; line-height:1.2;">${aciklama}</div>
-                <div style="margin-top:20px; text-align:right; font-size:14px; color:#64748b;">Otomatik kapanacak...</div>
-            `;
-
-            panel.classList.add('active');
-
-            // Clear existing timers
-            clearTimeout(bildirimTimer);
-            clearInterval(bildirimCountdownInterval);
-
-            // Start Countdown
-            bildirimCountdownInterval = setInterval(() => {
-                remainingTime--;
-                const countdownEl = document.getElementById('bildirim-countdown');
-                if (countdownEl) countdownEl.innerText = remainingTime;
-
-                if (remainingTime <= 0) {
-                    clearInterval(bildirimCountdownInterval);
+        function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    const btn = document.getElementById('install-btn');
+                    if(btn) btn.style.display = 'none';
                 }
+                deferredPrompt = null;
+            });
+        }
+
+        function shortenName(name) {
+            if (!name || name === "-") return "-";
+            let p = name.trim().split(' ');
+            if (p.length < 2) return name;
+            return p[0][0].toUpperCase() + "." + p[p.length - 1];
+        }
+
+        let savedKeys = [];
+        try { savedKeys = JSON.parse(localStorage.getItem('hub-alerts') || '[]'); } catch(e) {}
+        let alertedKeys = new Set(savedKeys);
+        let wasMemoryEmpty = savedKeys.length === 0;
+        let alertInterval;
+
+        function showAlert(machine, desc, person) {
+            const overlay = document.getElementById('alert-overlay');
+            if (overlay.style.display === 'flex') return;
+
+            const timerSpan = document.getElementById('alert-timer');
+            document.getElementById('alert-machine').innerText = machine || "-";
+            document.getElementById('alert-desc').innerText = desc || "-";
+            document.getElementById('alert-person').innerText = person || "-";
+
+            let timeLeft = 30;
+            overlay.style.display = 'flex';
+            timerSpan.innerText = timeLeft;
+
+            clearInterval(alertInterval);
+            alertInterval = setInterval(() => {
+                timeLeft--;
+                if (timerSpan) timerSpan.innerText = timeLeft;
+                if (timeLeft <= 0) closeAlert();
             }, 1000);
-
-            // Close after 60 seconds
-            bildirimTimer = setTimeout(() => {
-                panel.classList.remove('active');
-                clearInterval(bildirimCountdownInterval);
-            }, 60000);
         }
 
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
+        function closeAlert() {
+            const overlay = document.getElementById('alert-overlay');
+            if (overlay) overlay.style.display = 'none';
+            clearInterval(alertInterval);
         }
 
-        // --- DATA RENDERING ---
-        let lastDataString = "";
+        function parseDateComponents(str) {
+            if (!str) return null;
+            // Gün, Ay, Yıl bul (Ayraç ne olursa olsun)
+            const parts = str.split(' ')[0].split(/[\.\/]/);
+            if (parts.length < 3) return null;
+            return {
+                d: parseInt(parts[0], 10),
+                m: parseInt(parts[1], 10),
+                y: parseInt(parts[2], 10)
+            };
+        }
 
-        function tumPaneliCiz(res) {
-            if (!res || !res.tablo2) return;
+        function isToday(comp1, comp2) {
+            if (!comp1 || !comp2) return false;
+            return comp1.d === comp2.d && comp1.m === comp2.m && comp1.y === comp2.y;
+        }
 
-            // Performance: Check if data actually changed
-            const currentDataString = JSON.stringify(res.tablo2) + (res.operatorler ? JSON.stringify(res.operatorler) : "");
+        function processData(rawData) {
+            let rows = Array.isArray(rawData) ? rawData : (rawData.value || rawData.data || Object.values(rawData)[0] || []);
+            if (!rows || rows.length < 2) return;
+            
+            // API kullanıldığı için CDN Dalgalanma korumasına artık gerek yok. Veri milisaniyesinde anlıktır.
+            try {
+                const grid = document.getElementById('grid-view');
+                const list = document.getElementById('list-view');
+                
+                const nowDT = new Date();
+                const realToday = { d: nowDT.getDate(), m: nowDT.getMonth() + 1, y: nowDT.getFullYear() };
+                
+                let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
+                let todayTasks = [];
+                let gridHtml = "";
+                let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
+                
+                const seenKeys = new Set(); // Mükerrer kayıdı engellemek için
+                const nextAlertedKeys = new Set(); // Hafıza temizliği için geçici liste
+                let latestTask = null;
+                const dataRows = rows.slice(1);
 
-            // ANDROID TV OPTIMIZATION: Prevent unnecessary DOM updates
-            if (currentDataString === lastDataString) {
-                // console.log("Data unchanged, skipping render.");
-                return;
-            }
-            lastDataString = currentDataString;
+                dataRows.forEach(row => {
+                    if (!row || row.length < 1) return;
+                    const rawDate = row[0] || "";
+                    if (rawDate === "") return;
 
-            // Render Operator Stats to Footer
-            const operatorContainer = document.getElementById('footer-ops');
-            if (operatorContainer && res.operatorler && Array.isArray(res.operatorler)) {
-                // Determine Current Shift Column (A:0, B:1, C:2)
-                const trNormalize = (str, isComparison = false) => {
-                    if (!str) return "";
-                    let s = str.toString().trim()
-                        .replace(/İ/g, 'I').replace(/ı/g, 'i')
-                        .replace(/Ğ/g, 'G').replace(/ğ/g, 'g')
-                        .replace(/Ü/g, 'U').replace(/ü/g, 'u')
-                        .replace(/Ş/g, 'S').replace(/ş/g, 's')
-                        .replace(/Ö/g, 'O').replace(/ö/g, 'o')
-                        .replace(/Ç/g, 'C').replace(/ç/g, 'c')
-                        .toUpperCase();
-                    if (isComparison) s = s.replace(/[^A-Z0-9]/g, "");
-                    return s;
+                    const datePart = rawDate.split(' ')[0] || "";
+                    const machine = row[2] ? row[2].trim() : "-"; // C: Makine
+                    const desc = row[5] ? row[5].trim() : "-";    // F: Açıklama
+                    
+                    const key = datePart + "_" + machine + "_" + desc;
+                    if (seenKeys.has(key)) return; 
+                    
+                    seenKeys.add(key);
+                    counts.total++;
+                        
+                        // Eğer bu görev bilgisayarın kalıcı hafızasında (LocalStorage) yoksa YENİDİR:
+                        if (!wasMemoryEmpty && !alertedKeys.has(key)) {
+                            latestTask = row;
+                        }
+                        
+                        // Açık olan bu arızayı yeni hafıza listesine ekle
+                        nextAlertedKeys.add(key); 
+                });
+
+                if (latestTask) {
+                    const machine = (latestTask[2] || "").trim() || "-";
+                    const desc = (latestTask[5] || "").trim() || "-";
+                    const acan = shortenName(latestTask[1] || "-");
+                    showAlert(machine, desc, acan);
+                }
+                
+                wasMemoryEmpty = false;
+                alertedKeys = nextAlertedKeys; // Sadece BUGÜN açık olan arızaları hafızada tut (Çöp Temizliği)
+                localStorage.setItem('hub-alerts', JSON.stringify([...alertedKeys]));
+
+                const finalSeen = new Set();
+                dataRows.forEach(row => {
+                    if (!row || row.length < 1) return;
+                    const rawDate = row[0] || "";
+                    if (rawDate === "") return;
+
+                    const datePart = rawDate.split(' ')[0] || "";
+                    const rowDateComp = parseDateComponents(rawDate);
+                    const timePart = rawDate.split(' ')[1] || "";
+                    
+                    const acan = shortenName(row[1] || "-");
+                    const machine = row[2] ? row[2].trim() : "-";
+                    const vardiya = row[3] ? row[3].trim() : "";
+                    const tur = (row[4] || "DİĞER").toUpperCase();
+                    const desc = row[5] ? row[5].trim() : "-";
+                    let tech = (row[6] || "").trim();
+                    
+                    const isNew = (tech === "" || tech === "-");
+                    if (tech === "" || tech === "-") tech = "PERSONEL ATANMADI";
+
+                    const key = datePart + "_" + machine + "_" + desc;
+                    if (finalSeen.has(key)) return;
+
+                    finalSeen.add(key);
+                    const info = getTypeInfo(tur);
+
+                        // Eğer bugün gelen ve HENÜZ GÖREVLİ EKLENMEMİŞ bir arızaysa Yukarıdaki KART ızgarasına düşer
+                        if (isToday(realToday, rowDateComp) && isNew) {
+                            if (tur.includes("MEKANİK")) counts.mek++;
+                            else if (tur.includes("ELEKTRİK")) counts.elek++;
+                            else if (tur.includes("İSG") || tur.includes("GÜVENLİ")) counts.isg++;
+                            else if (tur.includes("PLANLI")) counts.plan++;
+                            todayTasks.push({ info, name: machine, tech, timePart, desc, acan, datePart: datePart, vardiya: vardiya });
+                        } else {
+                            // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
+                            const rowHtml = `
+                                <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:700">${datePart} ${timePart}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${acan}</div>
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
+                                    <div class="r-type ${info.c}">${info.label}</div>
+                                    <div class="r-val" style="color:var(--desc-override, #00FF00); font-weight:800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${desc}</div>
+                                    <div class="r-val" style="text-align:right; color:var(--row-color-primary, #000); font-weight:900; font-size:1.1em;">${tech}</div>
+                                </div>`;
+                            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
+                            else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
+                            else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
+                            else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
+                            else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
+                            else groups.other.push(rowHtml);
+                        }
+                });
+
+                document.getElementById('s-total').innerText = counts.total;
+                document.getElementById('s-mek').innerText = counts.mek;
+                document.getElementById('s-elek').innerText = counts.elek;
+                document.getElementById('s-isg').innerText = counts.isg;
+                document.getElementById('s-plan').innerText = counts.plan;
+
+                // Ne olursa olsun her zaman EN YENİ (En yakın saat) en üstte çıkacak şekilde sırala
+                todayTasks.sort((a, b) => {
+                    // Tarih formatı tr: dd.mm.yyyy HH:MM:SS -> ISO: yyyy-mm-ddTHH:MM:SS
+                    const formatIso = (dp, tp) => dp.split('.').reverse().join('-') + 'T' + (tp.length === 5 ? tp+':00' : tp);
+                    return new Date(formatIso(b.datePart, b.timePart)) - new Date(formatIso(a.datePart, a.timePart));
+                });
+
+                todayTasks.forEach(t => {
+                    const timeShort = (t.timePart || "").substring(0, 5);
+                    gridHtml += `
+                        <div class="card ${t.info.c}" style="padding: 6px 10px; gap: 2px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="color:var(--card-color-primary, #000); font-weight:900; font-size:var(--card-title-fs, 1.15em); text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
+                                <div style="color:var(--card-color-primary, #000); font-weight:800; font-size:var(--card-time-fs, 0.95em); border:1px solid var(--card-border, rgba(0,0,0,0.5)); padding:1px 5px; border-radius:4px;">${timeShort}</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top:2px; gap: 5px;">
+                                <div style="color:var(--card-color-text, #000); font-weight:800; font-size:var(--card-body-fs, 1em); line-height:1.2;">${t.acan}</div>
+                                ${t.vardiya ? `<div style="color:var(--card-color-muted, #222); font-weight:800; font-size:calc(var(--card-sm-fs, 0.8em) * 0.95); text-align:right; white-space:nowrap;">${t.vardiya}</div>` : ''}
+                            </div>
+                            <div style="color:var(--card-color-primary, #000); font-weight:900; font-size:var(--card-sm-fs, 0.8em); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${t.name}</div>
+                            <div style="color:var(--desc-override, #00FF00); font-weight:900; font-size:var(--card-desc-fs, 0.85em); margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.desc}</div>
+                        </div>`;
+                });
+                grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün bekleyen açık arıza kaydı bulunmuyor.</div>';
+
+                const renderGroup = (label, rows, colorClass) => {
+                    if (rows.length === 0) return "";
+                    return `<div class="group-sep ${colorClass}">${label} (${rows.length})</div>` + rows.join('');
                 };
 
+                let listHtml = "";
+                listHtml += renderGroup("İSG & GÜVENLİK", groups.isg, "c-isg");
+                listHtml += renderGroup("MEKANİK ARIZA", groups.mekanik, "c-mekanik");
+                listHtml += renderGroup("ELEKTRİK ARIZA", groups.elektrik, "c-elektrik");
+                listHtml += renderGroup("PLANLI BAKIM KODU", groups.planli, "c-planli");
+                listHtml += renderGroup("YAPILAN İŞ HAKKINDA", groups.is, "c-is");
+                listHtml += renderGroup("DİĞER KAYITLAR", groups.other, "c-other");
 
+                list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Eski bekleyen kayıt bulunmuyor.</div>';
+            } catch (e) {
+                console.error("Veri işleme hatası:", e);
+            }
+        }
 
-
-                // --- NEW OPERATOR & SHIFT LOGIC ---
-                // 1. Parse Operators (Row 1: Names, Row 2: Scores)
-                const opNames = res.operatorler && res.operatorler.length > 0 ? res.operatorler[0] : [];
-                const opScores = res.operatorler && res.operatorler.length > 1 ? res.operatorler[1] : [];
-
-                // 2. Determine Current Shift (08-16, 16-00, 00-08)
-                const hour = new Date().getHours();
-                // Shift Mapping based on columns I, J, K (Indices 0, 1, 2 in vardiyalar)
-                // Assuming I=08:00-16:00, J=16:00-00:00, K=00:00-08:00
-                // We verify headers to be sure
-
-                let activeColIndex = -1;
-
-                if (res.vardiyalar && res.vardiyalar.length > 0) {
-                    const headers = res.vardiyalar[0]; // Row 1 headers (e.g., 08:00 // 16:00)
-
-                    // Logic to find column based on hour
-                    // 08-16 -> Match "08" or "16" in first part
-                    // 16-00 -> Match "16" or "00"
-                    // 00-08 -> Match "00" or "08"
-
-                    // Simple index fallback if headers are standard:
-                    if (hour >= 8 && hour < 16) activeColIndex = 0;      // 08-16
-                    else if (hour >= 16 && hour < 24) activeColIndex = 1; // 16-24
-                    else activeColIndex = 2;                              // 24-08
-                }
-
-                // 3. Render All Shifts (Grouped)
-                let html = "";
-                const colors = ['#0ea5e9', '#22c55e', '#eab308', '#f97316', '#ef4444', '#a855f7', '#ec4899', '#6366f1'];
-
-                // Define Shift Groups (Indices match columns I, J, K)
-                const shiftGroups = [
-                    { id: 0, label: "08:16", colIndex: 0 },
-                    { id: 1, label: "16:00", colIndex: 1 },
-                    { id: 2, label: "00:08", colIndex: 2 }
-                ];
-
-                let globalColorIndex = 0;
-
-                shiftGroups.forEach(group => {
-                    // Extract operators for this group
-                    const groupOps = [];
-                    if (res.vardiyalar && res.vardiyalar.length > 1) {
-                        for (let r = 1; r < res.vardiyalar.length; r++) {
-                            const row = res.vardiyalar[r];
-                            if (row.length > group.colIndex) {
-                                const name = row[group.colIndex];
-                                if (name && name.toString().trim() !== "") {
-                                    groupOps.push(trNormalize(name, true));
-                                }
-                            }
-                        }
+        function fetchData() {
+            const url = API_URL + '?_t=' + new Date().getTime();
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Ağ hatası: " + response.status);
+                    return response.text();
+                })
+                .then(text => {
+                    if (text.startsWith('<')) {
+                        throw new Error("Google Giriş Ekranı geldi! Makro yetkisi 'Herkes (Anyone)' olarak ayarlanmamış.");
+                    }
+                    const data = JSON.parse(text);
+                    
+                    if (data.arizalar) {
+                        window.opData = data.kullanicilar || [];
+                        processData(data.arizalar);
+                        renderOpPage();
+                    } else if (Array.isArray(data)) {
+                        processData(data);
+                    } else if (data.value && Array.isArray(data.value)) {
+                        processData(data.value);
                     }
 
-                    if (groupOps.length === 0) return; // Skip empty groups
-
-                    const isCurrentShift = (group.colIndex === activeColIndex);
-                    const opacity = isCurrentShift ? "1" : "0.5";
-                    const grayscale = isCurrentShift ? "0" : "1";
-
-                    // Group Separator/Header
-                    html += `
-                        <div style="
-                            display:flex; 
-                            align-items:center; 
-                            height:100%; 
-                            border-right:1px solid #444; 
-                            margin-right:1px;
-                            opacity:${opacity};
-                            filter:grayscale(${grayscale});
-                        ">
-                            <span style="
-                                font-size:10px; 
-                                font-weight:bold; 
-                                color:#ccc; 
-                                padding:0 5px; 
-                                writing-mode: vertical-rl; 
-                                text-orientation: mixed;
-                                transform: rotate(180deg);
-                            ">${group.label}</span>
-                        </div>
-                    `;
-
-                    // Render Ops in this group
-                    groupOps.forEach(opName => {
-                        // Find Score (Partial Match in opNames list from A1:H1)
-                        let matchingScore = "?";
-                        if (opNames) {
-                            const foundIndex = opNames.findIndex(n => {
-                                const norm = trNormalize(n, true);
-                                return norm === opName || norm.includes(opName) || opName.includes(norm);
-                            });
-                            if (foundIndex !== -1 && opScores) {
-                                matchingScore = opScores[foundIndex] || "0";
-                            }
-                        }
-
-                        let displayScore = matchingScore !== "?" ? matchingScore + "dk" : "";
-
-                        // Styling
-                        // Styling
-                        let bgStyle = "";
-                        let nameStyle = "";
-                        let scoreStyle = "";
-
-                        if (isCurrentShift) {
-                            const color = colors[globalColorIndex % colors.length];
-                            globalColorIndex++;
-                            // NEW STYLE: Transparent BG, Colorful Text
-                            bgStyle = `background:transparent; color:${color}; font-weight:bold; z-index:1;`;
-                            nameStyle = "font-size:10px;"; // Smaller name
-                            scoreStyle = "font-size:11px; margin-left:3px;"; // Score 1pt larger
-                        } else {
-                            bgStyle = `background:transparent; color:#666; font-weight:normal; border-right:1px solid #333;`;
-                            nameStyle = "font-size:10px;";
-                            scoreStyle = "font-size:10px; margin-left:3px; opacity:0.7;";
-                        }
-
-                        // Format Name nicely (Title Case mostly)
-                        // Since we have normalized UPPERCASE, we just display it.
-
-                        html += `
-                            <div style="
-                                ${bgStyle}
-                                padding:4px 12px; 
-                                display:flex; 
-                                align-items:center; 
-                                margin-right:8px; 
-                                border-radius:10px;
-                                height:calc(100% - 8px);
-                                white-space:nowrap;
-                                opacity:${opacity};
-                                border: 1px solid ${isCurrentShift ? 'rgba(255,255,255,0.1)' : 'transparent'};
-                            ">
-                                <span style="${nameStyle}">${opName}</span> 
-                                <span style="${scoreStyle}">${displayScore}</span>
-                            </div>
-                        `;
-                    });
+                    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const syncEl = document.getElementById('last-sync');
+                    if (syncEl) syncEl.innerText = "SON: " + now;
+                })
+                .catch(err => {
+                    console.error("Veri Güncelleme Hatası:", err);
+                    const syncEl = document.getElementById('last-sync');
+                    if (syncEl) syncEl.innerText = "BAĞLANTI HATASI";
+                    
+                    const grid = document.getElementById('grid-view');
+                    if (grid && grid.innerHTML === '') {
+                        grid.innerHTML = `<div style="color:var(--isg); padding:20px; font-weight:bold; font-size:16px; border: 2px solid var(--isg); border-radius: 8px; margin: 10px; background: rgba(239, 68, 68, 0.1);">
+                            ⚠️ VERİ BAĞLANTISI BAŞARISIZ OLDU!<br><br>
+                            Hata Detayı: ${err.message}
+                        </div>`;
+                    }
                 });
+        }
 
-                operatorContainer.innerHTML = html;
+        // --- AUTHENTICATION & SPA LOGIC ---
+        function checkAuthStatus() {
+            const auth = localStorage.getItem('userAuth');
+            if(auth) {
+                const u = JSON.parse(auth);
+                const firstName = u.name ? u.name.split(' ')[0] : 'Kullanıcı';
+                // const btnLogin = document.getElementById('btn-login');
+                // const btnLogout = document.getElementById('btn-logout');
+                // if(btnLogin) btnLogin.style.display = 'none';
+                // if(btnLogout) btnLogout.style.display = 'flex';
+                // if(document.getElementById('logged-user')) document.getElementById('logged-user').innerText = firstName;
+            } else {
+                // const btnLogin = document.getElementById('btn-login');
+                // const btnLogout = document.getElementById('btn-logout');
+                // if(btnLogin) btnLogin.style.display = 'flex';
+                // if(btnLogout) btnLogout.style.display = 'none';
             }
+        }
 
-            // Restore Header Title
-            const headerTitle = document.querySelector('.header-center-title');
-            if (headerTitle) {
-                headerTitle.innerText = "INDUSTRIAL MAINTENANCE TRACKER";
+        function openOpAuth() {
+            if (localStorage.getItem('userAuth')) {
+                showOpPage();
+            } else {
+                document.getElementById('auth-modal').style.display = 'flex';
+                document.getElementById('pin-input').value = '';
+                document.getElementById('pin-input').focus();
             }
+        }
 
-            // Stats Calculation
-            let stats = { toplam: 0, mekanik: 0, elektrik: 0, isg: 0, tekrar: 0, bakim: 0, sikayet: 0, diger: 0 };
+        function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
 
-            // Tablo2 Data Handling
-            const dataRows = res.tablo2.slice(1);
-            stats.toplam = dataRows.length;
-
-            // Stats Update Logic Removed (Elements deleted from DOM)
-            // Alarm Logic Removed
-
-
-            // Check for new item notification
-            // Check for new item notification
-            if (sonKayitSayisi !== -1 && stats.toplam > sonKayitSayisi) {
-                if (dataRows.length > 0) {
-                    bildirimGoster(dataRows[dataRows.length - 1]);
+        function verifyPin() {
+            const pin = document.getElementById('pin-input').value;
+            const users = window.opData || [];
+            let foundUser = null;
+            
+            for(let i=1; i<users.length; i++) {
+                if(users[i][1] && users[i][1].toString() === pin.toString()) {
+                    foundUser = { name: users[i][0], role: users[i][2], foto: users[i][6] };
+                    break;
                 }
             }
-            sonKayitSayisi = stats.toplam;
+            
+            if (foundUser) {
+                localStorage.setItem('userAuth', JSON.stringify(foundUser));
+                closeAuth();
+                checkAuthStatus();
+                showOpPage();
+            } else {
+                alert("Hatalı PIN! Lütfen geçerli bir kod girin.");
+            }
+        }
 
-            const gridContainer = document.getElementById('yeni-grid-container');
-            const listContainer = document.getElementById('gecmis-liste-container');
-            const bugunBaslik = document.getElementById('bugun-baslik');
+        function logout() {
+            localStorage.removeItem('userAuth');
+            checkAuthStatus();
+            showDashboard();
+        }
 
-            if (!gridContainer || !listContainer) return;
+        function showOpPage() {
+            document.getElementById('dashboard-page').style.display = 'none';
+            document.getElementById('op-page').style.display = 'block';
+            document.getElementById('btn-login').style.display = 'none';
+            document.getElementById('btn-logout').style.display = 'none';
+        }
 
-            // Clear containers explicitly before rebuilding
-            gridContainer.innerHTML = "";
-            listContainer.innerHTML = "";
+        function showDashboard() {
+            document.getElementById('op-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'block';
+            checkAuthStatus();
+        }
 
-            let gridHtml = "";
-            let listHtml = "";
+        function renderOpPage() {
+            const list = document.getElementById('op-list');
+            const users = window.opData || [];
+            if(users.length < 2) return;
+            
+            let html = '';
+            for(let i=1; i<users.length; i++) {
+                const ad = users[i][0] || "";
+                if(!ad || ad==="-") continue;
+                
+                const role = (users[i][2] || "USER").toUpperCase();
+                let color = "var(--text-dim)";
+                if(role.includes("ADMİN") || role.includes("ADMIN")) color = "var(--c-planli)";
+                
+                let rawFoto = users[i][6];
+                let fotoUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                if(rawFoto && rawFoto.includes("drive.google.com/file/d/")) {
+                    const idMatch = rawFoto.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+                    if(idMatch && idMatch[1]) fotoUrl = `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+                }
 
-            // Grouping Buckets
-            const groups = {
-                'mekanik': { label: 'MEKANİK ARIZA', color: 'var(--color-mekanik)', items: [] },
-                'elektrik': { label: 'ELEKTRİK ARIZA', color: 'var(--color-elektrik)', items: [] },
-                'isg': { label: 'İŞ GÜVENLİĞİ !!!', color: 'var(--color-isg)', items: [] },
-                'tekrar': { label: 'TEKRAR EDEN ARIZA !!!!', color: 'var(--color-tekrar)', items: [] },
-                'bakim': { label: 'PLANLI BAKIM KODU', color: 'var(--color-bakim)', items: [] },
-                'sikayet': { label: 'ŞİKAYET VEYA ÖNERİ', color: 'var(--color-sikayet)', items: [] },
-                'diger': { label: 'DİĞER İŞLER', color: 'var(--color-diger)', items: [] }
-            };
-
-            // Today Date
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-            const todayStr = `${dd}.${mm}.${yyyy}`;
-
-            let hasTodayItems = false;
-            let hasOlderItems = false;
-
-            // Latest First & Limit to 150 items for Performance
-            const reversedData = [...dataRows].reverse().slice(0, 150);
-
-            reversedData.forEach((row, index) => {
-                const isFirst = index === 0;
-                const featuredClass = isFirst ? 'featured-card' : '';
-
-                const rDateFull = row[0] || "";
-                const rDate = rDateFull.substring(0, 16); // Include HH:MM
-                const rReq = row[1] || ""; // (B) İŞ İSTEK AÇAN
-                const rShift = row[2] || ""; // (C) VARDIYA
-                const rType = (row[3] || "").toString().toUpperCase(); // (D) İŞ TÜRÜ
-                const rDesc = row[4] || ""; // (E) AÇIKLAMA
-                const rMach = row[5] || ""; // (F) İŞ İSTEK MAKİNE
-                const rWorker = row[6] || ""; // (G) GÖREVLİ
-
-                // Determine Style Class & Stats
-                let borderClass = 'status-diger';
-                let targetGroup = 'diger';
-
-                if (rType.includes('MEKANİK')) { borderClass = 'status-mekanik'; stats.mekanik++; targetGroup = 'mekanik'; }
-                else if (rType.includes('ELEKTRİK')) { borderClass = 'status-elektrik'; stats.elektrik++; targetGroup = 'elektrik'; }
-                else if (rType.includes('GÜVENLİ') || rType.includes('İSG')) { borderClass = 'status-isg'; stats.isg++; targetGroup = 'isg'; }
-                else if (rType.includes('TEKRAR') || rType.includes('REPEATED')) { borderClass = 'status-tekrar'; stats.tekrar++; targetGroup = 'tekrar'; }
-                else if (rType.includes('PLANLI') || rType.includes('BAKIM')) { borderClass = 'status-bakim'; stats.bakim++; targetGroup = 'bakim'; }
-                else if (rType.includes('ŞİKAYET') || rType.includes('ÖNERİ')) { borderClass = 'status-sikayet'; stats.sikayet++; targetGroup = 'sikayet'; }
-                else { stats.diger++; targetGroup = 'diger'; }
-
-                if (rDate.substring(0, 10) === todayStr) { // Compare only date part
-                    hasTodayItems = true;
-
-                    // Get Group Color
-                    const grpColor = groups[targetGroup].color;
-
-                    // Format Operator Name (First Initial + Dot + Last Name)
-                    let formattedReq = rReq;
-                    if (rReq && rReq.trim().length > 0) {
-                        const parts = rReq.trim().split(/\s+/);
-                        if (parts.length > 1) {
-                            // Example: "ATAKAN AYHAN" -> "A.AYHAN"
-                            formattedReq = parts[0].charAt(0) + '.' + parts[parts.length - 1];
-                        }
-                    }
-
-
-                    // --- DYNAMIC FONT & CARD SIZE LOGIC ---
-                    // Karakter sayısına göre Kart Boyutu (S, M, L) ve Font ayarı
-
-                    const len = rDesc.length;
-                    let sizeClass = "size-s"; // Default small
-                    let dynamicStyle = "";
-                    let clampStyle = "-webkit-line-clamp: 4; line-clamp: 4;"; // Default 4 lines
-
-                    if (len > 150) {
-                        sizeClass = "size-l";
-                        clampStyle = "-webkit-line-clamp: 8; line-clamp: 8;";
-                    } else if (len > 60) {
-                        sizeClass = "size-m";
-                        clampStyle = "-webkit-line-clamp: 6; line-clamp: 6;";
-                    }
-
-                    // Çok uzun yazılarda fontu hafif küçült (Sığdırmak için)
-                    if (len > 250) dynamicStyle = "font-size: 0.9em;";
-
-                    // ----------------------------------
-
-                    gridHtml += `
-                        <div class="job-card ${borderClass} ${sizeClass} ${featuredClass}">
-                            <div class="card-header-line">
-                                <div class="job-group-header" style="color:${grpColor}">${rType}</div>
-                                <div class="job-time">${rDate.substring(11, 16)}</div>
-                            </div>
-                            <div class="requester-name">${formattedReq || '-'}</div>
-                            
-                            <!-- Machine & Shift Details -->
-                            ${(rMach || rShift) ? `
-                            <div style="display:flex; justify-content:space-between; font-size:0.85em; color:var(--text-secondary); margin-top:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                                <span style="color:${grpColor}">${rMach}</span>
-                                <span>${rShift ? ' / ' + rShift : ''}</span>
-                            </div>` : ''}
-                            
-                            ${rWorker ? `<div style="font-size:0.9em; color:var(--accent-yellow); font-weight:bold; margin-top:4px;">Görevli: ${rWorker}</div>` : ''}
-                            
-                            <div class="job-desc" title="${rDesc}" style="margin-top:8px; ${dynamicStyle} ${clampStyle}">${rDesc}</div>
+                html += `
+                    <div class="op-card">
+                        <img src="${fotoUrl}" class="op-foto" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+                        <div>
+                            <div style="color:var(--text-main); font-weight:800; font-size:16px;">${ad}</div>
+                            <div style="color:${color}; font-size:11px; font-weight:800; letter-spacing:1px; margin-top:3px;">${role}</div>
                         </div>
-                    `;
+                    </div>
+                `;
+            }
+            list.innerHTML = html;
+        }
 
+        document.getElementById('pin-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verifyPin();
+        });
+
+        checkAuthStatus();
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.getElementById('fs-btn').onclick = toggleFullScreen;
+
+        function applyScale(val) {
+            document.body.style.zoom = val;
+            localStorage.setItem('hub-scale', val);
+        }
+
+        let originalTheme = 'dark';
+
+        function openSettingsModal() {
+            originalTheme = localStorage.getItem('hub-theme') || 'dark';
+            document.getElementById('settings-modal').style.display = 'flex';
+            document.getElementById('scale-select-modal').value = localStorage.getItem('hub-scale') || '0.75';
+            document.getElementById('font-family-select').value = localStorage.getItem('hub-font') || 'Roboto';
+            document.getElementById('font-weight-select').value = localStorage.getItem('hub-weight') || 'normal';
+            
+            const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
+            const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
+            document.getElementById('card-fs-slider').value = savedCardFs;
+            document.getElementById('card-fs-val').innerText = savedCardFs + 'px';
+            document.getElementById('row-fs-slider').value = savedRowFs;
+            document.getElementById('row-fs-val').innerText = savedRowFs + 'px';
+
+            updateThemeUI(originalTheme);
+        }
+
+        function previewTheme(themeType) {
+            changeThemeVariables(themeType);
+            updateThemeUI(themeType);
+        }
+
+        function updateThemeUI(activeTheme) {
+            document.querySelectorAll('.theme-opt').forEach(el => {
+                if (el.getAttribute('data-theme') === activeTheme) {
+                    el.classList.add('active');
                 } else {
-                    hasOlderItems = true;
-                    // Add to Group Bucket with ALL info
-                    groups[targetGroup].items.push({
-                        date: rDate,
-                        req: rReq,
-                        shift: rShift,
-                        type: rType,
-                        desc: rDesc,
-                        mach: rMach,
-                        worker: rWorker,
-                        cls: borderClass
-                    });
+                    el.classList.remove('active');
                 }
             });
-
-            gridContainer.innerHTML = gridHtml;
-
-            // Build List HTML with Groups
-            if (hasOlderItems) {
-                let innerList = "";
-                const groupOrder = ['isg', 'mekanik', 'elektrik', 'tekrar', 'bakim', 'sikayet', 'diger'];
-
-                groupOrder.forEach(key => {
-                    const grp = groups[key];
-                    if (grp.items.length > 0) {
-                        innerList += `
-                            <div class="group-block" style="--group-color:${grp.color}">
-                                <div class="group-header">
-                                    ${grp.label} <span class="group-count">${grp.items.length}</span>
-                                </div>
-                                <!-- Column Headers Removed -->
-                        `;
-                        grp.items.forEach(item => {
-                            // Strict Grid Columns: Date | Req | Shift | Machine | Type | Desc | Worker
-
-                            // 1. Date
-                            // 2. Requester (Default: -)
-                            const cellReq = item.req ? `<div class="row-requester" title="${item.req}">${item.req}</div>` : `<div class="row-requester">-</div>`;
-                            // 3. Shift (Default: -)
-                            const cellShift = item.shift ? `<div class="row-shift" title="${item.shift}">${item.shift}</div>` : `<div class="row-shift">-</div>`;
-                            // 4. Machine (Default: -)
-                            const cellMach = item.mach ? `<div class="row-machine-name" title="${item.mach}">${item.mach}</div>` : `<div class="row-machine-name">-</div>`;
-                            // 5. Type (Always present)
-                            // 6. Desc (Always present)
-                            // 7. Worker (Default: -)
-                            const cellWorker = item.worker ? `<div class="row-worker" title="${item.worker}">${item.worker}</div>` : `<div class="row-worker">-</div>`;
-
-                            innerList += `
-                                <div class="old-job-row ${item.cls}">
-                                    <div class="row-date">${item.date}</div>
-                                    ${cellReq}
-                                    ${cellShift}
-                                    ${cellMach}
-                                    <div class="row-type">${item.type}</div>
-                                    <div class="row-desc" title="${item.desc}">${item.desc}</div>
-                                    ${cellWorker}
-                                </div>
-                            `;
-                        });
-                        innerList += `</div>`; // Close group-block
-                    }
-                });
-
-                // Create Scroll Wrapper
-                // Use two copies for seamless loop if needed, or just one for ping-pong
-                listContainer.innerHTML = `<div class="scroll-wrapper" id="scroll-content">${innerList}</div>`;
-                listContainer.style.display = 'flex';
-
-                // --- ANIMATION LOGIC (Optimized) ---
-                // Wait for render to calculate height
-                setTimeout(() => {
-                    const wrapper = document.getElementById('scroll-content');
-                    if (wrapper) {
-                        const containerHeight = listContainer.clientHeight;
-                        const contentHeight = wrapper.scrollHeight;
-
-                        if (contentHeight > containerHeight) {
-                            const distance = contentHeight - containerHeight;
-                            const duration = distance / 20; // Speed: 20px/sec roughly
-
-                            // Optimized: Use CSS Variables instead of creating new keyframes
-                            // We need a reusable keyframe in CSS that uses a variable
-                            // Check if global style exists, if not add it ONCE
-                            if (!document.getElementById('optimized-scroll-style')) {
-                                const style = document.createElement('style');
-                                style.id = 'optimized-scroll-style';
-                                style.textContent = `
-                                    @keyframes optimizedScroll {
-                                        0% { transform: translateY(0); }
-                                        50% { transform: translateY(var(--scroll-dist)); }
-                                        100% { transform: translateY(0); }
-                                    }
-                                `;
-                                document.head.appendChild(style);
-                            }
-
-                            // Update the variable on the wrapper
-                            wrapper.style.setProperty('--scroll-dist', `-${distance}px`);
-
-                            // Reset animation to force restart if needed, or just let it run
-                            // For smooth updates, we might need to be careful.
-                            // If duration changes significantly, we update it.
-                            wrapper.style.animation = `optimizedScroll ${duration * 2}s ease-in-out infinite`;
-
-                        } else {
-                            wrapper.style.animation = 'none';
-                        }
-                    }
-                }, 100);
-
-            } else {
-                listContainer.style.display = 'none';
-            }
-
-            // Update Stats Display (Same as before)
-            document.getElementById('stat-toplam').innerText = stats.toplam;
-            document.getElementById('stat-mekanik').innerText = stats.mekanik;
-            document.getElementById('stat-elektrik').innerText = stats.elektrik;
-
-            // ... (rest of stats logic) ...
-            const isgStat = document.getElementById('stat-isg');
-            isgStat.innerText = stats.isg;
-            if (stats.isg > 0) {
-                // isgStat.parentElement.classList.add('neon-alert-text'); // Class removed
-                isgStat.parentElement.style.color = '#ff0000';
-            } else {
-                // isgStat.parentElement.classList.remove('neon-alert-text');
-                isgStat.parentElement.style.color = '#22c55e';
-            }
-
-            document.getElementById('stat-tekrar').innerText = stats.tekrar;
-            document.getElementById('stat-bakim').innerText = stats.bakim;
-            document.getElementById('stat-diger').innerText = stats.diger;
-
+        }
+        
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'none';
+            // Revert preview if not saved
+            changeThemeVariables(originalTheme);
         }
 
-        let isUpdating = false;
-        let refreshSeconds = 15;
+        function saveSettings() {
+            const activeOpt = document.querySelector('.theme-opt.active');
+            const selectedTheme = activeOpt ? activeOpt.getAttribute('data-theme') : originalTheme;
+            const selectedScale = document.getElementById('scale-select-modal').value;
+            const selectedFont = document.getElementById('font-family-select').value;
+            const selectedWeight = document.getElementById('font-weight-select').value;
+            
+            const cardFs = document.getElementById('card-fs-slider').value;
+            const rowFs = document.getElementById('row-fs-slider').value;
+            
+            originalTheme = selectedTheme;
+            localStorage.setItem('hub-theme', selectedTheme);
+            localStorage.setItem('hub-font', selectedFont);
+            localStorage.setItem('hub-weight', selectedWeight);
+            localStorage.setItem('hub-card-fs', cardFs);
+            localStorage.setItem('hub-row-fs', rowFs);
+            
+            applyScale(selectedScale);
+            applyFont(selectedFont, selectedWeight);
+            applyFontSize(cardFs, rowFs);
+            closeSettingsModal();
+        }
 
-        function yukle() {
-            console.log("Veri yükleniyor... " + new Date().toLocaleTimeString());
-            if (isUpdating) return; // Prevent stacking requests
+        function applyFont(family, weight) {
+            document.documentElement.style.setProperty('--font-family', `'${family}'`);
+            document.body.setAttribute('data-thickness', weight);
+        }
 
-            // Reset Countdown
-            refreshSeconds = 15;
-            const timerEl = document.getElementById('refresh-timer');
-            if (timerEl) timerEl.innerText = "15";
+        function applyFontSize(cardFs, rowFs) {
+            document.documentElement.style.setProperty('--card-fs-base', cardFs + 'px');
+            document.documentElement.style.setProperty('--row-fs-base', rowFs + 'px');
+        }
 
-            isUpdating = true;
+        function changeThemeVariables(themeType) {
+            const root = document.documentElement;
+            root.style.setProperty('--text-main', '#f8fafc');
+            root.style.setProperty('--text-dim', '#94a3b8');
+            
+            // Restore default bright colors for dark backgrounds
+            root.style.setProperty('--mekanik', '#00ffff');
+            root.style.setProperty('--elektrik', '#ffff00');
+            root.style.setProperty('--planli', '#ffa500');
+            root.style.setProperty('--is', '#22d3ee');
+            root.style.setProperty('--isg', '#ff0000');
+            root.style.setProperty('--diger', '#fffafa');
+            root.style.setProperty('--desc-color', '#4ade80');
+            
+            root.style.removeProperty('--card-bg');
+            root.style.removeProperty('--card-color-primary');
+            root.style.removeProperty('--card-color-text');
+            root.style.removeProperty('--card-color-muted');
+            root.style.removeProperty('--card-color-desc');
+            root.style.removeProperty('--card-border');
+            root.style.removeProperty('--row-bg');
+            root.style.removeProperty('--row-bg-hover');
+            root.style.removeProperty('--row-color-primary');
+            root.style.removeProperty('--row-color-desc');
 
-            if (typeof google !== 'undefined') {
-                google.script.run
-                    .withSuccessHandler((res) => {
-                        tumPaneliCiz(res);
-                        isUpdating = false;
-                    })
-                    .withFailureHandler((err) => {
-                        console.error("Data Fetch Error:", err);
-                        isUpdating = false;
-                        // Retry handled by next interval, no need for recursive setTimeout
-                    })
-                    .veriAl();
-            } else {
-                // ... mock data logic ...
-                isUpdating = false;
+            if (themeType === 'dark') {
+                root.style.setProperty('--bg-dark', '#020617');
+                root.style.setProperty('--bg-grid', '#0f172a');
+                root.style.setProperty('--header-black', '#000000');
+            } else if (themeType === 'blue') {
+                root.style.setProperty('--bg-dark', '#082f49');
+                root.style.setProperty('--bg-grid', '#0c4a6e');
+                root.style.setProperty('--header-black', '#042f2e');
+            } else if (themeType === 'gray') {
+                root.style.setProperty('--bg-dark', '#1e293b');
+                root.style.setProperty('--bg-grid', '#334155');
+                root.style.setProperty('--header-black', '#0f172a');
+            } else if (themeType === 'white') {
+                root.style.setProperty('--bg-dark', '#f1f5f9');
+                root.style.setProperty('--bg-grid', '#ffffff');
+                root.style.setProperty('--header-black', '#e2e8f0');
+                root.style.setProperty('--text-main', '#0f172a');
+                root.style.setProperty('--text-dim', '#475569');
+                
+                // Set exact requested colors for white theme as well
+                root.style.setProperty('--mekanik', '#00ffff');
+                root.style.setProperty('--elektrik', '#ffff00');
+                root.style.setProperty('--planli', '#ffa500');
+                root.style.setProperty('--is', '#22d3ee');
+                root.style.setProperty('--isg', '#ff0000');
+                root.style.setProperty('--diger', '#fffafa');
+                root.style.setProperty('--desc-color', '#15803d');
+                
+                // In white theme: backgrounds use the neon colors, text is black
+                root.style.setProperty('--card-bg', 'var(--c)');
+                root.style.setProperty('--card-color-primary', '#000000');
+                root.style.setProperty('--card-color-text', '#000000');
+                root.style.setProperty('--card-color-muted', '#111111');
+                root.style.setProperty('--card-color-desc', '#000000');
+                root.style.setProperty('--card-border', '#000000');
+                root.style.setProperty('--row-bg', 'var(--c)');
+                root.style.setProperty('--row-bg-hover', 'var(--c)');
+                root.style.setProperty('--row-color-primary', '#000000');
+                root.style.setProperty('--row-color-desc', '#111111');
             }
         }
 
-        // Init
+        function changeTheme(themeType) {
+            changeThemeVariables(themeType);
+            localStorage.setItem('hub-theme', themeType);
+        }
+
+        const savedScale = localStorage.getItem('hub-scale');
+        applyScale(savedScale || '0.75');
+        const savedFont = localStorage.getItem('hub-font') || 'Roboto';
+        const savedWeight = localStorage.getItem('hub-weight') || 'normal';
+        applyFont(savedFont, savedWeight);
+        const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
+        const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
+        applyFontSize(savedCardFs, savedRowFs);
+
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('hub-theme');
+        if (savedTheme) {
+            changeTheme(savedTheme);
+        }
+
+        let refreshCounter = 20;
+        function updateRefreshTimer() {
+            refreshCounter--;
+            if (refreshCounter <= 0) {
+                fetchData();
+                refreshCounter = 20;
+            }
+            document.getElementById('refresh-timer').innerText = refreshCounter;
+        }
+
         window.onload = () => {
-            // critical threshold logic removed
-
-            // Load Card Font Size
-            // Font logic removed from UI, but function exists. 
-            // If elements missing, setFontSize might fail if it relies on UI selection?
-            // setFontSize uses css variables, so it is safe.
-            // But getting value from select element needs check.
-            const savedFont = localStorage.getItem('userFontSize');
-            if (savedFont) {
-                const select = document.getElementById('font-size-select');
-                if (select) select.value = savedFont;
-                setFontSize(savedFont);
-            }
-
-            // Load List Font Size
-            // List Font Size
-            const savedListFont = localStorage.getItem('userListFontSize');
-            if (savedListFont) {
-                setListFontSize(savedListFont);
-                const listSelect = document.getElementById('list-font-size-select');
-                if (listSelect) listSelect.value = savedListFont;
-            } else {
-                setListFontSize(7); // Default to 7px for TV
-            }
-
-            // Reset body zoom just in case a previous version set it
-            if ('zoom' in document.body.style) document.body.style.zoom = "1";
-
-            // Load App Scale
-            const savedScale = localStorage.getItem('appScale');
-            if (savedScale) {
-                const scaleSelect = document.getElementById('app-scale-select');
-                if (scaleSelect) scaleSelect.value = savedScale;
-                setAppScale(savedScale);
-            } else {
-                setAppScale(0.85); // Default to 85% for TV content
-            }
-
-            yukle();
-
-            // Countdown & Auto-Refresh Logic (Unified)
-            setInterval(() => {
-                refreshSeconds--;
-                if (refreshSeconds <= 0) {
-                    yukle();
-                }
-                const timerEl = document.getElementById('refresh-timer');
-                if (timerEl) timerEl.innerText = refreshSeconds;
-            }, 1000);
-
-            // --- SYSTEM MONITOR (FPS & RAM) ---
-            const sysMon = document.getElementById('system-monitor');
-            let frameCount = 0;
-            let lastTime = performance.now();
-
-            function updateMonitor() {
-                const now = performance.now();
-                frameCount++;
-
-                if (now - lastTime >= 1000) {
-                    const fps = frameCount;
-                    frameCount = 0;
-                    lastTime = now;
-
-                    let ramUsage = "--";
-                    if (performance.memory) {
-                        // usedJSHeapSize is in bytes, convert to MB
-                        ramUsage = Math.round(performance.memory.usedJSHeapSize / 1048576) + "MB";
-                    }
-
-                    if (sysMon) sysMon.innerText = `FPS: ${fps} | RAM: ${ramUsage}`;
-                }
-                requestAnimationFrame(updateMonitor);
-            }
-            requestAnimationFrame(updateMonitor);
-
-            try {
-                if ('wakeLock' in navigator) {
-                    requestWakeLock();
-                }
-            } catch (e) { console.log("Wake Lock not supported"); }
+            fetchData();
+            setInterval(updateRefreshTimer, 1000);
         };
     </script>
 </body>
