@@ -36,6 +36,7 @@
             --desc-color: #0020C2;
             --card-fs-base: 14px;
             --row-fs-base: 10px;
+            --card-opacity: 1;
         }
 
         * {
@@ -166,7 +167,7 @@
         }
 
         .card {
-            background: var(--card-bg, var(--c));
+            background: rgba(var(--c-rgb, 255, 255, 255), var(--card-opacity, 1));
             border: 1px solid rgba(0,0,0, 0.3);
             padding: 8px;
             border-radius: 6px;
@@ -472,6 +473,12 @@
                 <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Satır Yazı Boyutu</div>
                 <input type="range" id="row-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('row-fs-val').innerText = this.value + 'px'">
                 <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="row-fs-val">10px</div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 15px;">
+                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Kart Şeffaflığı</div>
+                <input type="range" id="card-opacity-slider" min="0" max="1" step="0.05" style="width:100%" oninput="document.getElementById('card-opacity-val').innerText = Math.round(this.value * 100) + '%'">
+                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="card-opacity-val">100%</div>
             </div>
 
             <div style="text-align: left; margin-bottom: 20px;">
@@ -930,6 +937,10 @@
             document.getElementById('row-fs-slider').value = savedRowFs;
             document.getElementById('row-fs-val').innerText = savedRowFs + 'px';
 
+            const savedOpacity = localStorage.getItem('hub-card-opacity') || '1';
+            document.getElementById('card-opacity-slider').value = savedOpacity;
+            document.getElementById('card-opacity-val').innerText = Math.round(savedOpacity * 100) + '%';
+
             updateThemeUI(originalTheme);
         }
 
@@ -963,6 +974,7 @@
             
             const cardFs = document.getElementById('card-fs-slider').value;
             const rowFs = document.getElementById('row-fs-slider').value;
+            const cardOpacity = document.getElementById('card-opacity-slider').value;
             
             originalTheme = selectedTheme;
             localStorage.setItem('hub-theme', selectedTheme);
@@ -970,10 +982,11 @@
             localStorage.setItem('hub-weight', selectedWeight);
             localStorage.setItem('hub-card-fs', cardFs);
             localStorage.setItem('hub-row-fs', rowFs);
+            localStorage.setItem('hub-card-opacity', cardOpacity);
             
             applyScale(selectedScale);
             applyFont(selectedFont, selectedWeight);
-            applyFontSize(cardFs, rowFs);
+            applyFontSize(cardFs, rowFs, cardOpacity);
             closeSettingsModal();
         }
 
@@ -982,9 +995,12 @@
             document.body.setAttribute('data-thickness', weight);
         }
 
-        function applyFontSize(cardFs, rowFs) {
+        function applyFontSize(cardFs, rowFs, cardOpacity) {
             document.documentElement.style.setProperty('--card-fs-base', cardFs + 'px');
             document.documentElement.style.setProperty('--row-fs-base', rowFs + 'px');
+            if (cardOpacity !== undefined) {
+                document.documentElement.style.setProperty('--card-opacity', cardOpacity);
+            }
         }
 
         function changeThemeVariables(themeType) {
@@ -1041,7 +1057,7 @@
                 root.style.setProperty('--desc-color', '#15803d');
                 
                 // In white theme: backgrounds use the neon colors, text is black
-                root.style.setProperty('--card-bg', 'var(--c)');
+                // root.style.setProperty('--card-bg', 'var(--c)');
                 root.style.setProperty('--card-color-primary', '#000000');
                 root.style.setProperty('--card-color-text', '#000000');
                 root.style.setProperty('--card-color-muted', '#111111');
@@ -1066,7 +1082,8 @@
         applyFont(savedFont, savedWeight);
         const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
         const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
-        applyFontSize(savedCardFs, savedRowFs);
+        const savedOpacity = localStorage.getItem('hub-card-opacity') || '1';
+        applyFontSize(savedCardFs, savedRowFs, savedOpacity);
 
         // Apply saved theme on load
         const savedTheme = localStorage.getItem('hub-theme');
