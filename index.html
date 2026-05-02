@@ -11,51 +11,40 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>İş Takip ve Arıza Paneli</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto+Condensed:wght@400;700&display=swap');
         @import url('https://fonts.cdnfonts.com/css/digital-7-mono');
 
         :root {
-            --bg-dark: #1e293b;
-            /* Dark Slate Background */
-            --card-bg: #334155;
-            /* Slightly lighter card bg */
-            --header-bg: #0f172a;
-            /* Darker header */
-            --text-main: #f1f5f9;
+            --bg-dark: #020617;
+            /* Slate 950 - Deeper dark */
+            --card-bg: rgba(30, 41, 59, 0.4);
+            /* Slate 800 with transparency */
+            --header-bg: rgba(15, 23, 42, 0.8);
+            --text-main: #f8fafc;
             --text-secondary: #94a3b8;
-            --accent-green: #22c55e;
+            --accent-green: #10b981;
             --accent-red: #ef4444;
-            --accent-yellow: #eaff00;
+            --accent-yellow: #f59e0b;
             --accent-blue: #3b82f6;
 
-            /* New Status Colors */
-            --color-mekanik: #00bfff;
-            --color-elektrik: #ffff00;
-            --color-isg: #ff0000;
-            --color-tekrar: #ac21e6;
-            --color-bakim: #ef9b0f;
-            --color-sikayet: #ef9b0f;
-            --color-diger: #3b82f6;
-            --border-color: #475569;
+            /* Modern Glow Colors */
+            --color-mekanik: #00d2ff;
+            --color-elektrik: #fde047;
+            --color-isg: #ff4d4d;
+            --color-tekrar: #c084fc;
+            --color-bakim: #fb923c;
+            --color-sikayet: #fb923c;
+            --color-diger: #60a5fa;
+
+            --border-color: rgba(255, 255, 255, 0.1);
             --card-font-size: 13px;
-            /* Default Font Size */
-            --card-min-width: 280px;
-            /* Default Min Width */
-            --list-font-size: 13px;
-            /* Default List Font Size */
-        }
-
-
-        /* --- GLOBAL RESET FOR TV --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --glass-blur: 8px;
+            /* Reduced for TV Performance */
         }
 
         body {
-            font-family: 'Roboto Condensed', sans-serif;
-            background-color: var(--bg-dark);
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #020617);
             color: var(--text-main);
             margin: 0;
             padding: 0;
@@ -63,35 +52,71 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            /* High Res / Crisp Text Settings */
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
         }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        ul,
+        li {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ... header ... */
+
+        /* ... stats bar ... */
+
+        /* ... main content ... */
+
+        /* ... grid container ... */
+
+        /* ... card sizes ... */
 
         /* --- CARD STYLE (High Res - Optimized) --- */
         .job-card {
             background: var(--card-bg);
+            backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--border-color);
-            padding: 4px 6px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
             position: relative;
-            min-height: var(--card-min-height, 30px);
+            min-height: var(--card-min-height, 40px);
             font-size: var(--card-font-size);
             min-width: 200px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .job-card:hover {
-            border-color: var(--accent-blue);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             z-index: 10;
         }
+
+        /* ... header ... */
+
+        /* ... stats bar ... */
+
+        /* ... main content ... */
+
+        /* ... grid container ... */
+
+        /* ... card sizes ... */
 
         /* --- STATS BAR --- */
         .stats-bar {
             background-color: rgba(15, 23, 42, 0.95);
+            /* Less alpha calculation */
             display: flex;
             gap: 2px;
             padding: 0 20px;
@@ -101,6 +126,8 @@
             flex-shrink: 0;
             overflow-x: auto;
         }
+
+        /* ... scrollbar ... */
 
         .stat-item {
             background: var(--card-bg);
@@ -127,6 +154,7 @@
             color: var(--accent-blue);
         }
 
+        /* Operator Stats in Footer/Stats Bar */
         .operator-stats-container {
             display: flex;
             align-items: center;
@@ -157,8 +185,10 @@
             font-weight: 800;
         }
 
+        /* Shift Highlighting - Simplified */
         .operator-item.operator-active {
             border: 2px solid var(--accent-blue);
+            /* Removed box-shadow glow */
             background: rgba(59, 130, 246, 0.1);
             z-index: 5;
             position: relative;
@@ -166,9 +196,15 @@
 
         .operator-item.operator-inactive {
             opacity: 0.5;
+            /* Removed filter: grayscale */
         }
 
+        /* ... grid area ... */
+
+        /* ... card sizes ... */
+
         .job-card {
+            /* ... repeated block in original, cleaned up ... */
             background: var(--card-bg);
             border: 0.5px solid var(--border-color);
             padding: 2px 4px;
@@ -181,8 +217,11 @@
             line-height: 0.9;
         }
 
+        /* ... large card ... */
+
         .job-card:hover {
             transform: none;
+            /* Disable movement */
             border-color: #fff;
             z-index: 10;
         }
@@ -191,16 +230,25 @@
             border: 1px solid #ff0000 !important;
             color: #fff !important;
             background: rgba(255, 0, 0, 0.2) !important;
+            /* Removed heavy neon animation */
             font-weight: bold;
         }
 
         .neon-alert-text {
             color: #ff0000 !important;
             font-weight: 900;
+            /* Simplified animation removed */
+            /* animation: text-flash 1s infinite alternate; */
         }
+
+        /* @keyframes text-flash removed */
+
+        /* ... notifications ... */
+        /* Alarm Overlay CSS Removed */
 
         #yeni-is-bildirim.isg-alert {
             border: 2px solid #ff0000 !important;
+            /* Removed box-shadow and pulse */
         }
 
         .header-logo {
@@ -225,9 +273,11 @@
             letter-spacing: 1px;
             font-weight: 700;
             flex: 1;
+            /* Take available space */
             display: flex;
             justify-content: center;
             overflow: hidden;
+            /* Contain marquee */
             margin: 0 20px;
         }
 
@@ -235,18 +285,21 @@
             font-family: 'Digital-7 Mono', monospace;
             font-size: 32px;
             color: var(--accent-green);
-            background: #000;
-            padding: 2px 10px;
-            border-radius: 4px;
-            border: 1px solid var(--accent-green);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 4px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
 
+        /* --- STATS BAR --- */
         .stats-bar {
             background-color: rgba(15, 23, 42, 0.8);
             display: flex;
             gap: 2px;
             padding: 0 20px;
             height: 40px;
+            /* Reduced further */
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
@@ -267,10 +320,13 @@
         .stat-item {
             background: var(--card-bg);
             padding: 2px 8px;
+            /* Reduced padding */
             display: flex;
             align-items: center;
             gap: 4px;
+            /* Reduced gap */
             font-size: 11px;
+            /* Reduced font size */
             font-weight: 700;
             color: var(--text-secondary);
             border-right: 1px solid var(--border-color);
@@ -280,6 +336,7 @@
         .stat-item-value {
             color: var(--text-main);
             font-size: 14px;
+            /* Reduced Value */
             font-weight: 800;
         }
 
@@ -289,6 +346,7 @@
             color: var(--accent-blue);
         }
 
+        /* Operator Stats in Footer/Stats Bar */
         .operator-stats-container {
             display: flex;
             align-items: center;
@@ -302,24 +360,30 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            /* Reduced gap */
             background: var(--card-bg);
             padding: 2px 8px;
+            /* Reduced padding */
             border-radius: 0;
             border-left: 0.5px solid rgba(255, 255, 255, 0.1);
             border-top: 0.5px solid transparent;
             border-bottom: 0.5px solid transparent;
             border-right: 0.5px solid transparent;
+
             color: #cbd5e1;
             font-weight: 700;
             font-size: 11px;
+            /* Reduced font size */
         }
 
         .operator-score {
             font-size: 14px;
+            /* Reduced Score */
             color: #fbbf24;
             font-weight: 800;
         }
 
+        /* Shift Highlighting */
         .operator-item.operator-active {
             border: 2px solid var(--accent-blue);
             box-shadow: 0 0 10px var(--accent-blue), inset 0 0 5px var(--accent-blue);
@@ -332,6 +396,7 @@
             filter: grayscale(0.5);
         }
 
+        /* --- MAIN GRID AREA --- */
         .main-content {
             flex-grow: 1;
             padding: 15px;
@@ -346,6 +411,7 @@
             align-content: start;
         }
 
+        /* --- CARD SIZES (Content-Aware) --- */
         .size-s {
             width: auto;
             max-width: 380px;
@@ -361,6 +427,7 @@
             max-width: 100%;
         }
 
+        /* --- CARD STYLE --- */
         .job-card {
             background: var(--card-bg);
             border: 0.5px solid var(--border-color);
@@ -369,13 +436,17 @@
             display: inline-table;
             flex-direction: column;
             gap: 0;
+            /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); */
+            /* transition: transform 0.2s, box-shadow 0.2s; */
             position: relative;
             min-height: auto;
             font-size: var(--card-font-size);
+            /* Sizing Base */
             width: auto;
             line-height: 0.9;
         }
 
+        /* --- FEATURED / LARGE CARD TIGHTENING --- */
         .job-card.size-l,
         .featured-card {
             padding: 2px 4px !important;
@@ -419,6 +490,7 @@
             font-weight: 800;
             text-transform: uppercase;
             line-height: 1.1;
+            /* Color set inline */
         }
 
         .requester-name {
@@ -430,11 +502,12 @@
 
         .job-time {
             font-family: 'Digital-7 Mono', monospace;
-            font-size: 1.3em;
-            color: var(--text-secondary);
+            font-size: 1.1em;
+            color: var(--accent-yellow);
             background: rgba(0, 0, 0, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
             white-space: nowrap;
         }
 
@@ -449,14 +522,18 @@
             overflow: hidden;
         }
 
+        /* --- OLDER JOBS LIST STYLE --- */
         .list-container {
             margin-top: 20px;
+            /* Flex layout for containment */
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 0;
+            /* Area for scrolling */
             flex-grow: 1;
             overflow: hidden;
             position: relative;
+            /* Border or separation if needed */
             border-top: 1px solid var(--border-color);
             padding-top: 10px;
         }
@@ -464,9 +541,18 @@
         .scroll-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 0;
             overflow-y: auto;
+            will-change: transform;
+            /* Hardware Acceleration */
         }
+
+        /* Pause on hover for readability removed */
+        /* .list-container:hover .scroll-wrapper { animation-play-state: paused; } */
+
+        /* @keyframes scroll-vertical removed */
+
+        /* --- HORIZONTAL MARQUEE REMOVED --- */
 
         @keyframes scroll-pingpong {
             0% {
@@ -477,6 +563,7 @@
                 transform: translateY(calc(-100% + 300px));
             }
 
+            /* Just a guess, JS better handles this */
             100% {
                 transform: translateY(0);
             }
@@ -489,6 +576,7 @@
             text-transform: uppercase;
             font-weight: 700;
             display: none;
+            /* We will use group headers instead */
         }
 
         .group-block {
@@ -496,25 +584,30 @@
             flex-direction: column;
             gap: 0;
             border: none;
+            /* remove outer border */
             border-radius: 0;
+            /* Square */
             overflow: hidden;
             margin-bottom: 0px;
+            /* Zero spacing */
         }
 
         .group-header {
-            padding: 2px 6px;
-            font-size: 0.7em;
-            font-weight: 900;
+            padding: 2px 10px;
+            font-size: 9px;
+            font-weight: 800;
             line-height: 1.0;
             border-left: none;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.08);
             color: var(--group-color, #fff);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 0.5px solid var(--group-color, #475569);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 2px solid var(--group-color);
+            margin-top: 0;
         }
 
         .group-count {
@@ -526,20 +619,29 @@
 
         .old-job-row {
             background: var(--card-bg);
+            /* backdrop-filter: blur removed for performance */
             min-height: auto;
             height: min-content;
-            line-height: 1.0;
-            padding: 0 4px;
+            line-height: 0.9;
+            padding: 0px 8px;
+
             display: grid;
-            grid-template-columns: 110px 120px 50px 120px 100px 1fr 120px;
+            grid-template-columns: 110px 120px 50px 120px 110px 1fr 120px;
             align-items: center;
-            gap: 10px;
-            border-bottom: 0.5px solid var(--group-color, #475569);
+            gap: 4px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             font-size: var(--list-font-size);
-            transition: background 0.2s;
+            transition: background 0.1s;
             border-radius: 0;
         }
 
+        .old-job-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        /* Last row shouldn't have bottom border in a block usually, but strictly speaking for table look it's fine or we can remove it */
         .group-block .old-job-row:last-child {
             border-bottom: none;
         }
@@ -561,10 +663,12 @@
             background: #475569;
         }
 
+        /* Column Specifics */
         .row-date {
             color: var(--text-secondary);
             font-size: 0.8em;
             white-space: nowrap;
+            /* Grid handles width */
         }
 
         .row-worker {
@@ -622,6 +726,7 @@
             font-size: 1em;
         }
 
+        /* Status Colors */
         .status-mekanik {
             border-color: var(--color-mekanik) !important;
             color: var(--color-mekanik) !important;
@@ -636,8 +741,14 @@
             border: 1px solid #ff0000 !important;
             color: #fff !important;
             background: rgba(255, 0, 0, 0.1) !important;
+            /* box-shadow: 0 0 3px #ff0000; */
+            /* animation: neon-pulse 2s infinite alternate; */
+            /* Slower, more subtle pulse */
             font-weight: bold;
+            /* text-shadow: 0 0 3px #ff0000; */
         }
+
+        /* @keyframes neon-pulse removed */
 
         .neon-alert-text {
             color: #ff0000 !important;
@@ -677,6 +788,7 @@
             color: var(--color-diger) !important;
         }
 
+        /* --- NOTIFICATIONS & OVERLAYS (Preserved) --- */
         #kritik-alarm-overlay {
             position: fixed;
             top: 0;
@@ -686,6 +798,7 @@
             background: rgba(220, 0, 0, 0.95);
             display: none;
             z-index: 20002;
+            /* Increased z-index */
             justify-content: center;
             align-items: center;
             color: white;
@@ -713,16 +826,22 @@
         #yeni-is-bildirim {
             position: fixed;
             top: 50px;
+            /* Slightly higher */
             right: -800px;
+            /* Hide further right */
             width: 600px;
+            /* Wider */
             background: #0f172a;
             color: white;
             border-radius: 12px;
             padding: 0;
+            padding: 0;
             box-shadow: -10px 10px 40px rgba(0, 0, 0, 0.8);
             z-index: 20000;
+            /* Ensure very high z-index */
             transition: right 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             border: 4px solid var(--accent-red);
+            /* Thicker border */
             overflow: hidden;
         }
 
@@ -741,6 +860,7 @@
             padding: 15px;
             font-weight: 900;
             font-size: 24px;
+            /* Larger Header */
             text-align: center;
             letter-spacing: 1px;
         }
@@ -749,6 +869,7 @@
             padding: 25px;
             line-height: 1.4;
             font-size: 20px;
+            /* Default larger text */
         }
 
         #bildirim-countdown {
@@ -763,6 +884,7 @@
             border-radius: 50%;
         }
 
+        /* --- SCROLLBAR --- */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -776,17 +898,21 @@
             background: transparent;
         }
 
+        /* --- FOOTER --- */
         .footer-bar {
             background: var(--header-bg);
             border-top: 1px solid var(--border-color);
-            padding: 5px 20px;
+            padding: 2px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
+            font-size: 9px;
             color: var(--border-color);
             font-weight: 700;
             flex-shrink: 0;
+            height: 30px;
+            flex-wrap: nowrap !important;
+            /* Strict single row */
         }
 
         .neon-akg {
@@ -795,12 +921,15 @@
             margin-left: 5px;
         }
 
+        /* --- SETTINGS/CONTROLS (Hidden by default or minimal) --- */
         .controls-bar {
             background: var(--header-bg);
+            /* Match header/stats bg */
             display: flex;
             gap: 10px;
             align-items: center;
             justify-content: flex-end;
+            /* Align right */
             padding: 2px 20px;
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
@@ -827,6 +956,7 @@
         }
 
 
+        /* --- NEW LAYOUT: 2 ROWS --- */
         .operator-row {
             background: var(--card-bg);
             border-bottom: 1px solid var(--border-color);
@@ -836,25 +966,31 @@
             overflow-x: auto;
             white-space: nowrap;
             min-height: 30px;
+            /* Ensure it has a dark bg if card-bg is transparent, or use header-bg */
             background: #0f172a;
         }
 
         .main-stats-row {
-            background: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             padding: 2px 10px;
+            background: var(--header-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--border-color);
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 5px;
+            /* Reduced gap */
+            flex-wrap: nowrap !important;
+            /* STRICT: Single row only */
+            min-height: 24px;
+            white-space: nowrap;
         }
 
         .main-stats-left {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 5px;
+            /* Reduced gap */
+            flex-wrap: nowrap !important;
         }
 
         .today-title {
@@ -866,21 +1002,36 @@
         }
 
         .stat-item {
-            font-size: 11px;
-            padding: 2px 5px;
-            border-radius: 4px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
             background: rgba(255, 255, 255, 0.05);
-            font-weight: bold;
-            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item .stat-item-value {
+            color: #fff;
+            font-weight: 800;
+            font-size: 14px;
         }
 
         .controls-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
+            flex-wrap: nowrap !important;
         }
 
+        /* --- ANDROID / MOBILE OPTIMIZATIONS --- */
         @media screen and (max-width: 768px) {
+
+            /* Adjust header for smaller screens */
             .header-logo {
                 font-size: 18px;
             }
@@ -895,11 +1046,13 @@
                 padding: 2px 5px;
             }
 
+            /* Stats bar: Allow horizontal scroll, keep it compact */
             .stats-bar {
                 padding: 0 10px;
                 gap: 5px;
             }
 
+            /* Controls: Scale down or hide less important ones if needed */
             .controls {
                 gap: 5px;
             }
@@ -912,11 +1065,13 @@
                 padding: 2px 4px;
             }
 
+            /* Main Grid: Cards take full width on phone */
             .job-card {
                 min-width: 100%;
                 margin-bottom: 5px;
             }
 
+            /* Today Title Bar: Stack or scroll */
             .today-title-bar {
                 flex-wrap: wrap;
                 font-size: 11px;
@@ -929,89 +1084,22 @@
                 padding: 2px 4px;
             }
 
+            /* History List: Compact rows */
             .old-job-row {
                 padding: 8px;
                 gap: 8px;
                 flex-wrap: wrap;
+                /* Allow wrapping for details */
             }
 
             .row-desc {
                 width: 100%;
+                /* Description on its own line */
                 margin-top: 4px;
             }
-        }
 
-        /* --- REFRESH MODAL STYLES --- */
-        #refresh-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.98);
-            z-index: 100000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .modal-content-card {
-            background: #1e293b;
-            padding: 60px;
-            border-radius: 30px;
-            border: 5px solid var(--accent-blue);
-            max-width: 800px;
-            box-shadow: 0 0 100px rgba(59, 130, 246, 0.3);
-        }
-
-        .modal-content-card h1 {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            color: #fff;
-            font-weight: 900;
-        }
-
-        .modal-content-card p {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-            font-weight: 700;
-            line-height: 1.4;
-        }
-
-        .modal-refresh-btn {
-            background: var(--accent-blue);
-            color: #fff;
-            border: none;
-            padding: 25px 70px;
-            font-size: 2.5rem;
-            font-weight: 900;
-            border-radius: 100px;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-        }
-
-        .modal-refresh-btn:hover {
-            background: #2563eb;
-        }
-
-        .modal-refresh-btn:active {
-            transform: scale(0.95);
-        }
-
-        .btn-open-refresh {
-            background: #f59e0b !important;
-            color: #000 !important;
-            font-weight: 900 !important;
-            border: none !important;
-            padding: 4px 10px !important;
-            border-radius: 4px !important;
-            font-size: 10px !important;
-            cursor: pointer !important;
+            /* Hide non-critical columns on very small screens if needed */
+            /* .row-shift { display: none; } */
         }
     </style>
 </head>
@@ -1025,6 +1113,11 @@
         <div class="bildirim-body" id="bildirim-detay"></div>
     </div>
 
+    <!-- Header -->
+    <!-- Header Removed by User Request -->
+    <!-- Stats Bar Removed by User Request -->
+
+    <!-- ROW 2: Main UI (Title + Stats + Controls) -->
     <!-- ROW 2: Main UI (Title + Stats + Controls) -->
     <div class="main-stats-row">
         <!-- Left Side: Title + Main Stats -->
@@ -1049,41 +1142,83 @@
         <!-- Right Side: Controls -->
         <div class="controls-container">
             <div class="controls">
-                <button class="btn-open-refresh" onclick="openRefreshModal()">SİSTEMİ TAZELE</button>
-
                 <span style="font-size:8px; color:#64748b; font-weight:bold;">YAZI:</span>
                 <select id="font-size-select"
                     style="background:#000; color:#fff; border:1px solid #333; padding:1px; font-size:8px;"
                     onchange="setFontSize(this.value); saveFontSize(this.value);">
                     <option value="4">4px</option>
+                    <option value="4.5">4.5px</option>
+                    <option value="5">5px</option>
+                    <option value="5.5">5.5px</option>
+                    <option value="6">6px</option>
+                    <option value="6.5">6.5px</option>
+                    <option value="7">7px</option>
+                    <option value="7.5">7.5px</option>
+                    <option value="8">8px</option>
+                    <option value="8.5">8.5px</option>
+                    <option value="9">9px</option>
+                    <option value="9.5">9.5px</option>
+                    <option value="10">10px</option>
+                    <option value="10.5">10.5px</option>
+                    <option value="11">11px</option>
+                    <option value="11.5">11.5px</option>
+                    <option value="12">12px</option>
+                    <option value="13" selected>13px</option>
+                    <option value="14">14px</option>
+                    <option value="15">15px</option>
+                    <option value="16">16px</option>
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
+                    <option value="24">24px</option>
+                    <option value="28">28px</option>
+                    <option value="32">32px</option>
+                    <option value="36">36px</option>
+                    <option value="40">40px</option>
+                    <option value="48">48px</option>
+                    <option value="60">60px</option>
+                </select>
+
+                <span style="font-size:9px; color:#94a3b8; font-weight:bold; margin-left:5px;">SATIR:</span>
+                <select id="list-font-size-select"
+                    style="background:#0f172a; color:#fff; border:1px solid #334155; padding:1px 2px; font-size:9px; border-radius:4px;"
+                    onchange="setListFontSize(this.value); saveListFontSize(this.value);">
+                    <option value="4">4px</option>
                     <option value="5">5px</option>
                     <option value="6">6px</option>
-                    <option value="7">7px</option>
+                    <option value="6">6px</option>
+                    <option value="7" selected>7px</option>
                     <option value="8">8px</option>
                     <option value="9">9px</option>
                     <option value="10">10px</option>
                     <option value="11">11px</option>
                     <option value="12">12px</option>
-                    <option value="13" selected>13px</option>
+                    <option value="13">13px</option>
                     <option value="14">14px</option>
                     <option value="16">16px</option>
                     <option value="18">18px</option>
                     <option value="20">20px</option>
                     <option value="24">24px</option>
                 </select>
-
-                <span style="font-size:8px; color:#64748b; font-weight:bold; margin-left:5px;">SATIR:</span>
-                <select id="list-font-size-select"
-                    style="background:#000; color:#fff; border:1px solid #333; padding:1px; font-size:8px;"
-                    onchange="setListFontSize(this.value); saveListFontSize(this.value);">
-                    <option value="10">10px</option>
-                    <option value="11">11px</option>
-                    <option value="12">12px</option>
-                    <option value="13" selected>13px</option>
-                    <option value="14">14px</option>
-                    <option value="16">16px</option>
+                <span style="font-size:9px; color:#94a3b8; font-weight:bold; margin-left:5px;">ÖLÇEK:</span>
+                <select id="app-scale-select"
+                    style="background:#0f172a; color:#fff; border:1px solid #334155; padding:1px 2px; font-size:9px; border-radius:4px;"
+                    onchange="setAppScale(this.value); saveAppScale(this.value);">
+                    <option value="1">100%</option>
+                    <option value="0.95">95%</option>
+                    <option value="0.9">90%</option>
+                    <option value="0.85">85%</option>
+                    <option value="0.8" selected>80%</option>
+                    <option value="0.75">75%</option>
+                    <option value="0.7">70%</option>
+                    <option value="0.65">65%</option>
+                    <option value="0.6">60%</option>
+                    <option value="0.55">55%</option>
+                    <option value="0.5">50%</option>
                 </select>
                 <button class="ctrl-btn" onclick="toggleFullScreen()" title="Tam Ekran">⛶</button>
+                <!-- Refresh Button Removed -->
+                <!-- Rapor Button Removed -->
+                <!-- Critical Threshold Input Removed -->
                 <span id="system-monitor"
                     style="font-size:9px; color:#4ade80; font-weight:bold; margin-left:5px; border:1px solid #334155; padding:0 4px; background:#0f172a;">
                     FPS: -- | RAM: --
@@ -1092,14 +1227,20 @@
         </div>
     </div>
 
+
+
+
     <!-- Main Grid -->
     <div class="main-content">
+        <!-- Old Header Removed -->
         <div id="yeni-grid-container"></div>
+
         <div id="gecmis-liste-container" class="list-container"></div>
     </div>
 
     <!-- Footer -->
     <div class="footer-bar">
+        <!-- Left: Timer + Operators -->
         <div style="display:flex; align-items:center; flex-grow:1; overflow:hidden;">
             <span
                 style="font-family:'Digital-7 Mono', monospace; color:var(--accent-yellow); font-size: 1.2em; margin-right:15px; white-space:nowrap;">
@@ -1112,75 +1253,98 @@
             BAKIM</span>
     </div>
 
-    <!-- REFRESH MODAL -->
-    <div id="refresh-modal">
-        <div class="modal-content-card">
-            <h1>SİSTEM TAZELEME</h1>
-            <p>Sistemin stabil kalması için lütfen sayfayı yenileyin.</p>
-            <button class="modal-refresh-btn" onclick="performManualRefresh()">SİSTEMİ TAZELE</button>
-        </div>
-    </div>
-
     <script>
         let sonKayitSayisi = -1;
         let bildirimTimer;
+        // alarmInterval removed
+
+        // ... existing wakeLock logic ...
+
+        // Rapor function removed by user request
+
+
+        // ... existing functions ...
         let wakeLock = null;
 
-        // --- STABILITY & MANUAL REFRESH CONSTANTS ---
-        const REFRESH_INTERVAL = 3 * 60 * 60 * 1000; // 3 Hours
-        const REFRESH_KEY = 'gelen_ariza_last_refresh';
-
-        function openRefreshModal() {
-            document.getElementById('refresh-modal').style.display = 'flex';
-        }
-
-        function performManualRefresh() {
-            localStorage.setItem(REFRESH_KEY, Date.now());
-            if (typeof google !== 'undefined') {
-                google.script.run.withSuccessHandler(function (url) {
-                    window.top.location.href = url;
-                }).getScriptUrl();
-            } else {
-                window.location.reload();
-            }
-        }
-
-        function checkManualRefresh() {
-            const last = localStorage.getItem(REFRESH_KEY);
-            if (!last || (Date.now() - parseInt(last) > REFRESH_INTERVAL)) {
-                openRefreshModal();
-            }
-        }
-
+        // --- WAKE LOCK (Keep Screen On) ---
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
                     console.log('Wake Lock is active');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock was released');
+                    });
                 }
-            } catch (err) { console.error(`${err.name}, ${err.message}`); }
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
         }
 
+        // Re-request wake lock when page becomes visible again
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 await requestWakeLock();
             }
         });
 
+        // --- PERIODIC FULL RELOAD (Memory Stability) ---
+        // Reload every 3 hours to clear memory
+        const RELOAD_INTERVAL = 3 * 60 * 60 * 1000;
+        setTimeout(() => {
+            console.log("Memory safety: Performing scheduled reload...");
+            window.location.reload();
+        }, RELOAD_INTERVAL);
+
+        // --- FONT SIZE LOGIC ---
         function setFontSize(val) {
             document.documentElement.style.setProperty('--card-font-size', val + 'px');
+            // Kartların aşırı geniş olmasını engelliyoruz.
+            // Base 220px, çarpanı düşürdük (18).
             const newMinWidth = Math.max(220, val * 18);
             document.documentElement.style.setProperty('--card-min-width', newMinWidth + 'px');
             document.documentElement.style.setProperty('--card-min-height', Math.max(40, val * 4) + 'px');
         }
 
-        function saveFontSize(val) { localStorage.setItem('userFontSize', val); }
+        function saveFontSize(val) {
+            localStorage.setItem('userFontSize', val);
+        }
 
         function setListFontSize(val) {
             document.documentElement.style.setProperty('--list-font-size', val + 'px');
         }
 
-        function saveListFontSize(val) { localStorage.setItem('userListFontSize', val); }
+        function saveListFontSize(val) {
+            localStorage.setItem('userListFontSize', val);
+        }
+
+        // --- APP SCALING (ZOOM) ---
+        function setAppScale(val) {
+            const content = document.querySelector('.main-content');
+            if (!content) return;
+
+            // Using zoom for contents only, header/footer stays fixed
+            if ('zoom' in content.style) {
+                content.style.zoom = val;
+            } else {
+                content.style.transform = `scale(${val})`;
+                content.style.transformOrigin = 'top left';
+                content.style.width = (100 / val) + '%';
+            }
+        }
+
+        function saveAppScale(val) {
+            localStorage.setItem('appScale', val);
+        }
+
+        // --- CLOCK ---
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock-display').innerText = now.toLocaleTimeString('tr-TR');
+        }, 1000);
+
+        // --- ALARM LOGIC (Preserved) ---
+        // --- ALARM LOGIC REMOVED ---
 
         let bildirimCountdownInterval;
 
@@ -1189,6 +1353,7 @@
             if (!panel) return;
             const detay = document.getElementById('bildirim-detay');
 
+            // Tur Kontrolü
             const tur = (sonIs[3] || "").toString().toUpperCase();
             if (tur.includes('GÜVENLİ') || tur.includes('İSG')) {
                 panel.classList.add('isg-alert');
@@ -1196,12 +1361,14 @@
                 panel.classList.remove('isg-alert');
             }
 
+            // Güvenli erişim
             const tarih = sonIs[0] || '-';
             const talepEden = sonIs[1] || '-';
             const turLabel = tur || '-';
             const aciklama = sonIs[4] || '-';
 
-            let remainingTime = 60;
+            // Countdown Logic
+            let remainingTime = 60; // seconds
 
             detay.innerHTML = `
                 <div id="bildirim-countdown">${remainingTime}</div>
@@ -1212,16 +1379,23 @@
             `;
 
             panel.classList.add('active');
+
+            // Clear existing timers
             clearTimeout(bildirimTimer);
             clearInterval(bildirimCountdownInterval);
 
+            // Start Countdown
             bildirimCountdownInterval = setInterval(() => {
                 remainingTime--;
                 const countdownEl = document.getElementById('bildirim-countdown');
                 if (countdownEl) countdownEl.innerText = remainingTime;
-                if (remainingTime <= 0) clearInterval(bildirimCountdownInterval);
+
+                if (remainingTime <= 0) {
+                    clearInterval(bildirimCountdownInterval);
+                }
             }, 1000);
 
+            // Close after 60 seconds
             bildirimTimer = setTimeout(() => {
                 panel.classList.remove('active');
                 clearInterval(bildirimCountdownInterval);
@@ -1233,16 +1407,26 @@
             else document.exitFullscreen();
         }
 
+        // --- DATA RENDERING ---
         let lastDataString = "";
 
         function tumPaneliCiz(res) {
             if (!res || !res.tablo2) return;
+
+            // Performance: Check if data actually changed
             const currentDataString = JSON.stringify(res.tablo2) + (res.operatorler ? JSON.stringify(res.operatorler) : "");
-            if (currentDataString === lastDataString) return;
+
+            // ANDROID TV OPTIMIZATION: Prevent unnecessary DOM updates
+            if (currentDataString === lastDataString) {
+                // console.log("Data unchanged, skipping render.");
+                return;
+            }
             lastDataString = currentDataString;
 
+            // Render Operator Stats to Footer
             const operatorContainer = document.getElementById('footer-ops');
             if (operatorContainer && res.operatorler && Array.isArray(res.operatorler)) {
+                // Determine Current Shift Column (A:0, B:1, C:2)
                 const trNormalize = (str, isComparison = false) => {
                     if (!str) return "";
                     let s = str.toString().trim()
@@ -1257,19 +1441,41 @@
                     return s;
                 };
 
+
+
+
+                // --- NEW OPERATOR & SHIFT LOGIC ---
+                // 1. Parse Operators (Row 1: Names, Row 2: Scores)
                 const opNames = res.operatorler && res.operatorler.length > 0 ? res.operatorler[0] : [];
                 const opScores = res.operatorler && res.operatorler.length > 1 ? res.operatorler[1] : [];
+
+                // 2. Determine Current Shift (08-16, 16-00, 00-08)
                 const hour = new Date().getHours();
+                // Shift Mapping based on columns I, J, K (Indices 0, 1, 2 in vardiyalar)
+                // Assuming I=08:00-16:00, J=16:00-00:00, K=00:00-08:00
+                // We verify headers to be sure
+
                 let activeColIndex = -1;
 
                 if (res.vardiyalar && res.vardiyalar.length > 0) {
-                    if (hour >= 8 && hour < 16) activeColIndex = 0;
-                    else if (hour >= 16 && hour < 24) activeColIndex = 1;
-                    else activeColIndex = 2;
+                    const headers = res.vardiyalar[0]; // Row 1 headers (e.g., 08:00 // 16:00)
+
+                    // Logic to find column based on hour
+                    // 08-16 -> Match "08" or "16" in first part
+                    // 16-00 -> Match "16" or "00"
+                    // 00-08 -> Match "00" or "08"
+
+                    // Simple index fallback if headers are standard:
+                    if (hour >= 8 && hour < 16) activeColIndex = 0;      // 08-16
+                    else if (hour >= 16 && hour < 24) activeColIndex = 1; // 16-24
+                    else activeColIndex = 2;                              // 24-08
                 }
 
+                // 3. Render All Shifts (Grouped)
                 let html = "";
                 const colors = ['#0ea5e9', '#22c55e', '#eab308', '#f97316', '#ef4444', '#a855f7', '#ec4899', '#6366f1'];
+
+                // Define Shift Groups (Indices match columns I, J, K)
                 const shiftGroups = [
                     { id: 0, label: "08:16", colIndex: 0 },
                     { id: 1, label: "16:00", colIndex: 1 },
@@ -1277,7 +1483,9 @@
                 ];
 
                 let globalColorIndex = 0;
+
                 shiftGroups.forEach(group => {
+                    // Extract operators for this group
                     const groupOps = [];
                     if (res.vardiyalar && res.vardiyalar.length > 1) {
                         for (let r = 1; r < res.vardiyalar.length; r++) {
@@ -1290,51 +1498,137 @@
                             }
                         }
                     }
-                    if (groupOps.length === 0) return;
+
+                    if (groupOps.length === 0) return; // Skip empty groups
+
                     const isCurrentShift = (group.colIndex === activeColIndex);
                     const opacity = isCurrentShift ? "1" : "0.5";
                     const grayscale = isCurrentShift ? "0" : "1";
 
-                    html += `<div style="display:flex; align-items:center; height:100%; border-right:1px solid #444; margin-right:1px; opacity:${opacity}; filter:grayscale(${grayscale});">
-                        <span style="font-size:10px; font-weight:bold; color:#ccc; padding:0 5px; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);">${group.label}</span>
-                    </div>`;
+                    // Group Separator/Header
+                    html += `
+                        <div style="
+                            display:flex; 
+                            align-items:center; 
+                            height:100%; 
+                            border-right:1px solid #444; 
+                            margin-right:1px;
+                            opacity:${opacity};
+                            filter:grayscale(${grayscale});
+                        ">
+                            <span style="
+                                font-size:10px; 
+                                font-weight:bold; 
+                                color:#ccc; 
+                                padding:0 5px; 
+                                writing-mode: vertical-rl; 
+                                text-orientation: mixed;
+                                transform: rotate(180deg);
+                            ">${group.label}</span>
+                        </div>
+                    `;
 
+                    // Render Ops in this group
                     groupOps.forEach(opName => {
+                        // Find Score (Partial Match in opNames list from A1:H1)
                         let matchingScore = "?";
                         if (opNames) {
                             const foundIndex = opNames.findIndex(n => {
                                 const norm = trNormalize(n, true);
                                 return norm === opName || norm.includes(opName) || opName.includes(norm);
                             });
-                            if (foundIndex !== -1 && opScores) matchingScore = opScores[foundIndex] || "0";
+                            if (foundIndex !== -1 && opScores) {
+                                matchingScore = opScores[foundIndex] || "0";
+                            }
                         }
+
                         let displayScore = matchingScore !== "?" ? matchingScore + "dk" : "";
-                        let bgStyle = isCurrentShift ? `color:${colors[globalColorIndex++ % colors.length]}; font-weight:bold;` : `color:#666; font-weight:normal; border-right:1px solid #333;`;
-                        html += `<div style="${bgStyle} padding:0 6px; display:flex; align-items:center; margin-right:1px; height:100%; white-space:nowrap; opacity:${opacity}; filter:grayscale(${grayscale});">
-                            <span style="font-size:10px;">${opName}</span> <span style="font-size:10px; margin-left:3px;">${displayScore}</span>
-                        </div>`;
+
+                        // Styling
+                        // Styling
+                        let bgStyle = "";
+                        let nameStyle = "";
+                        let scoreStyle = "";
+
+                        if (isCurrentShift) {
+                            const color = colors[globalColorIndex % colors.length];
+                            globalColorIndex++;
+                            // NEW STYLE: Transparent BG, Colorful Text
+                            bgStyle = `background:transparent; color:${color}; font-weight:bold; z-index:1;`;
+                            nameStyle = "font-size:10px;"; // Smaller name
+                            scoreStyle = "font-size:11px; margin-left:3px;"; // Score 1pt larger
+                        } else {
+                            bgStyle = `background:transparent; color:#666; font-weight:normal; border-right:1px solid #333;`;
+                            nameStyle = "font-size:10px;";
+                            scoreStyle = "font-size:10px; margin-left:3px; opacity:0.7;";
+                        }
+
+                        // Format Name nicely (Title Case mostly)
+                        // Since we have normalized UPPERCASE, we just display it.
+
+                        html += `
+                            <div style="
+                                ${bgStyle}
+                                padding:4px 12px; 
+                                display:flex; 
+                                align-items:center; 
+                                margin-right:8px; 
+                                border-radius:10px;
+                                height:calc(100% - 8px);
+                                white-space:nowrap;
+                                opacity:${opacity};
+                                border: 1px solid ${isCurrentShift ? 'rgba(255,255,255,0.1)' : 'transparent'};
+                            ">
+                                <span style="${nameStyle}">${opName}</span> 
+                                <span style="${scoreStyle}">${displayScore}</span>
+                            </div>
+                        `;
                     });
                 });
+
                 operatorContainer.innerHTML = html;
             }
 
+            // Restore Header Title
+            const headerTitle = document.querySelector('.header-center-title');
+            if (headerTitle) {
+                headerTitle.innerText = "INDUSTRIAL MAINTENANCE TRACKER";
+            }
+
+            // Stats Calculation
             let stats = { toplam: 0, mekanik: 0, elektrik: 0, isg: 0, tekrar: 0, bakim: 0, sikayet: 0, diger: 0 };
+
+            // Tablo2 Data Handling
             const dataRows = res.tablo2.slice(1);
             stats.toplam = dataRows.length;
 
+            // Stats Update Logic Removed (Elements deleted from DOM)
+            // Alarm Logic Removed
+
+
+            // Check for new item notification
+            // Check for new item notification
             if (sonKayitSayisi !== -1 && stats.toplam > sonKayitSayisi) {
-                if (dataRows.length > 0) bildirimGoster(dataRows[dataRows.length - 1]);
+                if (dataRows.length > 0) {
+                    bildirimGoster(dataRows[dataRows.length - 1]);
+                }
             }
             sonKayitSayisi = stats.toplam;
 
             const gridContainer = document.getElementById('yeni-grid-container');
             const listContainer = document.getElementById('gecmis-liste-container');
+            const bugunBaslik = document.getElementById('bugun-baslik');
+
             if (!gridContainer || !listContainer) return;
 
+            // Clear containers explicitly before rebuilding
             gridContainer.innerHTML = "";
             listContainer.innerHTML = "";
 
             let gridHtml = "";
+            let listHtml = "";
+
+            // Grouping Buckets
             const groups = {
                 'mekanik': { label: 'MEKANİK ARIZA', color: 'var(--color-mekanik)', items: [] },
                 'elektrik': { label: 'ELEKTRİK ARIZA', color: 'var(--color-elektrik)', items: [] },
@@ -1345,133 +1639,355 @@
                 'diger': { label: 'DİĞER İŞLER', color: 'var(--color-diger)', items: [] }
             };
 
+            // Today Date
             const today = new Date();
-            const todayStr = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            const todayStr = `${dd}.${mm}.${yyyy}`;
+
+            let hasTodayItems = false;
             let hasOlderItems = false;
-            const reversedData = [...dataRows].reverse();
+
+            // Latest First & Limit to 150 items for Performance
+            const reversedData = [...dataRows].reverse().slice(0, 150);
 
             reversedData.forEach((row, index) => {
-                const rDateFull = row[0] || "";
-                const rDate = rDateFull.substring(0, 16);
-                const rReq = row[1] || "";
-                const rShift = row[2] || "";
-                const rType = (row[3] || "").toString().toUpperCase();
-                const rDesc = row[4] || "";
-                const rMach = row[5] || "";
-                const rWorker = row[6] || "";
+                const isFirst = index === 0;
+                const featuredClass = isFirst ? 'featured-card' : '';
 
-                let targetGroup = 'diger';
+                const rDateFull = row[0] || "";
+                const rDate = rDateFull.substring(0, 16); // Include HH:MM
+                const rReq = row[1] || ""; // (B) İŞ İSTEK AÇAN
+                const rShift = row[2] || ""; // (C) VARDIYA
+                const rType = (row[3] || "").toString().toUpperCase(); // (D) İŞ TÜRÜ
+                const rDesc = row[4] || ""; // (E) AÇIKLAMA
+                const rMach = row[5] || ""; // (F) İŞ İSTEK MAKİNE
+                const rWorker = row[6] || ""; // (G) GÖREVLİ
+
+                // Determine Style Class & Stats
                 let borderClass = 'status-diger';
+                let targetGroup = 'diger';
+
                 if (rType.includes('MEKANİK')) { borderClass = 'status-mekanik'; stats.mekanik++; targetGroup = 'mekanik'; }
                 else if (rType.includes('ELEKTRİK')) { borderClass = 'status-elektrik'; stats.elektrik++; targetGroup = 'elektrik'; }
                 else if (rType.includes('GÜVENLİ') || rType.includes('İSG')) { borderClass = 'status-isg'; stats.isg++; targetGroup = 'isg'; }
-                else if (rType.includes('TEKRAR')) { borderClass = 'status-tekrar'; stats.tekrar++; targetGroup = 'tekrar'; }
+                else if (rType.includes('TEKRAR') || rType.includes('REPEATED')) { borderClass = 'status-tekrar'; stats.tekrar++; targetGroup = 'tekrar'; }
                 else if (rType.includes('PLANLI') || rType.includes('BAKIM')) { borderClass = 'status-bakim'; stats.bakim++; targetGroup = 'bakim'; }
+                else if (rType.includes('ŞİKAYET') || rType.includes('ÖNERİ')) { borderClass = 'status-sikayet'; stats.sikayet++; targetGroup = 'sikayet'; }
                 else { stats.diger++; targetGroup = 'diger'; }
 
-                if (rDate.substring(0, 10) === todayStr) {
+                if (rDate.substring(0, 10) === todayStr) { // Compare only date part
+                    hasTodayItems = true;
+
+                    // Get Group Color
                     const grpColor = groups[targetGroup].color;
+
+                    // Format Operator Name (First Initial + Dot + Last Name)
                     let formattedReq = rReq;
-                    if (rReq && rReq.trim().includes(" ")) {
-                        const p = rReq.trim().split(/\s+/);
-                        formattedReq = p[0].charAt(0) + '.' + p[p.length - 1];
+                    if (rReq && rReq.trim().length > 0) {
+                        const parts = rReq.trim().split(/\s+/);
+                        if (parts.length > 1) {
+                            // Example: "ATAKAN AYHAN" -> "A.AYHAN"
+                            formattedReq = parts[0].charAt(0) + '.' + parts[parts.length - 1];
+                        }
                     }
+
+
+                    // --- DYNAMIC FONT & CARD SIZE LOGIC ---
+                    // Karakter sayısına göre Kart Boyutu (S, M, L) ve Font ayarı
+
                     const len = rDesc.length;
-                    let sizeClass = len > 150 ? "size-l" : (len > 60 ? "size-m" : "size-s");
-                    gridHtml += `<div class="job-card ${borderClass} ${sizeClass} ${index === 0 ? 'featured-card' : ''}">
-                        <div class="card-header-line">
-                            <div class="job-group-header" style="color:${grpColor}">${rType}</div>
-                            <div class="job-time">${rDate.substring(11, 16)}</div>
+                    let sizeClass = "size-s"; // Default small
+                    let dynamicStyle = "";
+                    let clampStyle = "-webkit-line-clamp: 4; line-clamp: 4;"; // Default 4 lines
+
+                    if (len > 150) {
+                        sizeClass = "size-l";
+                        clampStyle = "-webkit-line-clamp: 8; line-clamp: 8;";
+                    } else if (len > 60) {
+                        sizeClass = "size-m";
+                        clampStyle = "-webkit-line-clamp: 6; line-clamp: 6;";
+                    }
+
+                    // Çok uzun yazılarda fontu hafif küçült (Sığdırmak için)
+                    if (len > 250) dynamicStyle = "font-size: 0.9em;";
+
+                    // ----------------------------------
+
+                    gridHtml += `
+                        <div class="job-card ${borderClass} ${sizeClass} ${featuredClass}">
+                            <div class="card-header-line">
+                                <div class="job-group-header" style="color:${grpColor}">${rType}</div>
+                                <div class="job-time">${rDate.substring(11, 16)}</div>
+                            </div>
+                            <div class="requester-name">${formattedReq || '-'}</div>
+                            
+                            <!-- Machine & Shift Details -->
+                            ${(rMach || rShift) ? `
+                            <div style="display:flex; justify-content:space-between; font-size:0.85em; color:var(--text-secondary); margin-top:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                                <span style="color:${grpColor}">${rMach}</span>
+                                <span>${rShift ? ' / ' + rShift : ''}</span>
+                            </div>` : ''}
+                            
+                            ${rWorker ? `<div style="font-size:0.9em; color:var(--accent-yellow); font-weight:bold; margin-top:4px;">Görevli: ${rWorker}</div>` : ''}
+                            
+                            <div class="job-desc" title="${rDesc}" style="margin-top:8px; ${dynamicStyle} ${clampStyle}">${rDesc}</div>
                         </div>
-                        <div class="requester-name">${formattedReq || '-'}</div>
-                        ${(rMach || rShift) ? `<div style="display:flex; justify-content:space-between; font-size:0.85em; color:var(--text-secondary); margin-top:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                            <span style="color:${grpColor}">${rMach}</span><span>${rShift ? ' / ' + rShift : ''}</span>
-                        </div>` : ''}
-                        ${rWorker ? `<div style="font-size:0.9em; color:var(--accent-yellow); font-weight:bold; margin-top:4px;">Görevli: ${rWorker}</div>` : ''}
-                        <div class="job-desc" style="margin-top:8px;">${rDesc}</div>
-                    </div>`;
+                    `;
+
                 } else {
                     hasOlderItems = true;
-                    groups[targetGroup].items.push({ date: rDate, req: rReq, shift: rShift, type: rType, desc: rDesc, mach: rMach, worker: rWorker, cls: borderClass });
+                    // Add to Group Bucket with ALL info
+                    groups[targetGroup].items.push({
+                        date: rDate,
+                        req: rReq,
+                        shift: rShift,
+                        type: rType,
+                        desc: rDesc,
+                        mach: rMach,
+                        worker: rWorker,
+                        cls: borderClass
+                    });
                 }
             });
 
             gridContainer.innerHTML = gridHtml;
+
+            // Build List HTML with Groups
             if (hasOlderItems) {
                 let innerList = "";
-                ['isg', 'mekanik', 'elektrik', 'tekrar', 'bakim', 'sikayet', 'diger'].forEach(key => {
+                const groupOrder = ['isg', 'mekanik', 'elektrik', 'tekrar', 'bakim', 'sikayet', 'diger'];
+
+                groupOrder.forEach(key => {
                     const grp = groups[key];
                     if (grp.items.length > 0) {
-                        innerList += `<div class="group-block" style="--group-color:${grp.color}"><div class="group-header">${grp.label} <span class="group-count">${grp.items.length}</span></div>`;
+                        innerList += `
+                            <div class="group-block" style="--group-color:${grp.color}">
+                                <div class="group-header">
+                                    ${grp.label} <span class="group-count">${grp.items.length}</span>
+                                </div>
+                                <!-- Column Headers Removed -->
+                        `;
                         grp.items.forEach(item => {
-                            innerList += `<div class="old-job-row ${item.cls}">
-                                <div class="row-date">${item.date}</div><div class="row-requester">${item.req || '-'}</div><div class="row-shift">${item.shift || '-'}</div><div class="row-machine-name">${item.mach || '-'}</div><div class="row-type">${item.type}</div><div class="row-desc">${item.desc}</div><div class="row-worker">${item.worker || '-'}</div>
-                            </div>`;
+                            // Strict Grid Columns: Date | Req | Shift | Machine | Type | Desc | Worker
+
+                            // 1. Date
+                            // 2. Requester (Default: -)
+                            const cellReq = item.req ? `<div class="row-requester" title="${item.req}">${item.req}</div>` : `<div class="row-requester">-</div>`;
+                            // 3. Shift (Default: -)
+                            const cellShift = item.shift ? `<div class="row-shift" title="${item.shift}">${item.shift}</div>` : `<div class="row-shift">-</div>`;
+                            // 4. Machine (Default: -)
+                            const cellMach = item.mach ? `<div class="row-machine-name" title="${item.mach}">${item.mach}</div>` : `<div class="row-machine-name">-</div>`;
+                            // 5. Type (Always present)
+                            // 6. Desc (Always present)
+                            // 7. Worker (Default: -)
+                            const cellWorker = item.worker ? `<div class="row-worker" title="${item.worker}">${item.worker}</div>` : `<div class="row-worker">-</div>`;
+
+                            innerList += `
+                                <div class="old-job-row ${item.cls}">
+                                    <div class="row-date">${item.date}</div>
+                                    ${cellReq}
+                                    ${cellShift}
+                                    ${cellMach}
+                                    <div class="row-type">${item.type}</div>
+                                    <div class="row-desc" title="${item.desc}">${item.desc}</div>
+                                    ${cellWorker}
+                                </div>
+                            `;
                         });
-                        innerList += `</div>`;
+                        innerList += `</div>`; // Close group-block
                     }
                 });
+
+                // Create Scroll Wrapper
+                // Use two copies for seamless loop if needed, or just one for ping-pong
                 listContainer.innerHTML = `<div class="scroll-wrapper" id="scroll-content">${innerList}</div>`;
                 listContainer.style.display = 'flex';
+
+                // --- ANIMATION LOGIC (Optimized) ---
+                // Wait for render to calculate height
                 setTimeout(() => {
-                    const w = document.getElementById('scroll-content');
-                    if (w) {
-                        const dist = w.scrollHeight - listContainer.clientHeight;
-                        if (dist > 0) {
-                            if (!document.getElementById('opt-scroll')) {
-                                let s = document.createElement('style'); s.id = 'opt-scroll'; s.textContent = '@keyframes optS { 0%,100%{transform:translateY(0);} 50%{transform:translateY(var(--sd));} }'; document.head.appendChild(s);
+                    const wrapper = document.getElementById('scroll-content');
+                    if (wrapper) {
+                        const containerHeight = listContainer.clientHeight;
+                        const contentHeight = wrapper.scrollHeight;
+
+                        if (contentHeight > containerHeight) {
+                            const distance = contentHeight - containerHeight;
+                            const duration = distance / 20; // Speed: 20px/sec roughly
+
+                            // Optimized: Use CSS Variables instead of creating new keyframes
+                            // We need a reusable keyframe in CSS that uses a variable
+                            // Check if global style exists, if not add it ONCE
+                            if (!document.getElementById('optimized-scroll-style')) {
+                                const style = document.createElement('style');
+                                style.id = 'optimized-scroll-style';
+                                style.textContent = `
+                                    @keyframes optimizedScroll {
+                                        0% { transform: translateY(0); }
+                                        50% { transform: translateY(var(--scroll-dist)); }
+                                        100% { transform: translateY(0); }
+                                    }
+                                `;
+                                document.head.appendChild(style);
                             }
-                            w.style.setProperty('--sd', `-${dist}px`);
-                            w.style.animation = `optS ${dist / 10}s ease-in-out infinite`;
+
+                            // Update the variable on the wrapper
+                            wrapper.style.setProperty('--scroll-dist', `-${distance}px`);
+
+                            // Reset animation to force restart if needed, or just let it run
+                            // For smooth updates, we might need to be careful.
+                            // If duration changes significantly, we update it.
+                            wrapper.style.animation = `optimizedScroll ${duration * 2}s ease-in-out infinite`;
+
+                        } else {
+                            wrapper.style.animation = 'none';
                         }
                     }
                 }, 100);
+
+            } else {
+                listContainer.style.display = 'none';
             }
+
+            // Update Stats Display (Same as before)
             document.getElementById('stat-toplam').innerText = stats.toplam;
             document.getElementById('stat-mekanik').innerText = stats.mekanik;
             document.getElementById('stat-elektrik').innerText = stats.elektrik;
-            document.getElementById('stat-isg').innerText = stats.isg;
+
+            // ... (rest of stats logic) ...
+            const isgStat = document.getElementById('stat-isg');
+            isgStat.innerText = stats.isg;
+            if (stats.isg > 0) {
+                // isgStat.parentElement.classList.add('neon-alert-text'); // Class removed
+                isgStat.parentElement.style.color = '#ff0000';
+            } else {
+                // isgStat.parentElement.classList.remove('neon-alert-text');
+                isgStat.parentElement.style.color = '#22c55e';
+            }
+
             document.getElementById('stat-tekrar').innerText = stats.tekrar;
             document.getElementById('stat-bakim').innerText = stats.bakim;
             document.getElementById('stat-diger').innerText = stats.diger;
+
         }
 
         let isUpdating = false;
         let refreshSeconds = 15;
 
         function yukle() {
-            if (isUpdating) return;
+            console.log("Veri yükleniyor... " + new Date().toLocaleTimeString());
+            if (isUpdating) return; // Prevent stacking requests
+
+            // Reset Countdown
             refreshSeconds = 15;
+            const timerEl = document.getElementById('refresh-timer');
+            if (timerEl) timerEl.innerText = "15";
+
             isUpdating = true;
+
             if (typeof google !== 'undefined') {
-                google.script.run.withSuccessHandler((res) => { tumPaneliCiz(res); isUpdating = false; }).withFailureHandler(() => { isUpdating = false; }).veriAl();
-            } else { isUpdating = false; }
+                google.script.run
+                    .withSuccessHandler((res) => {
+                        tumPaneliCiz(res);
+                        isUpdating = false;
+                    })
+                    .withFailureHandler((err) => {
+                        console.error("Data Fetch Error:", err);
+                        isUpdating = false;
+                        // Retry handled by next interval, no need for recursive setTimeout
+                    })
+                    .veriAl();
+            } else {
+                // ... mock data logic ...
+                isUpdating = false;
+            }
         }
 
+        // Init
         window.onload = () => {
-            const sf = localStorage.getItem('userFontSize'); if (sf) { setFontSize(sf); const s = document.getElementById('font-size-select'); if (s) s.value = sf; }
-            const slf = localStorage.getItem('userListFontSize'); if (slf) { setListFontSize(slf); const s = document.getElementById('list-font-size-select'); if (s) s.value = slf; }
+            // critical threshold logic removed
+
+            // Load Card Font Size
+            // Font logic removed from UI, but function exists. 
+            // If elements missing, setFontSize might fail if it relies on UI selection?
+            // setFontSize uses css variables, so it is safe.
+            // But getting value from select element needs check.
+            const savedFont = localStorage.getItem('userFontSize');
+            if (savedFont) {
+                const select = document.getElementById('font-size-select');
+                if (select) select.value = savedFont;
+                setFontSize(savedFont);
+            }
+
+            // Load List Font Size
+            // List Font Size
+            const savedListFont = localStorage.getItem('userListFontSize');
+            if (savedListFont) {
+                setListFontSize(savedListFont);
+                const listSelect = document.getElementById('list-font-size-select');
+                if (listSelect) listSelect.value = savedListFont;
+            } else {
+                setListFontSize(7); // Default to 7px for TV
+            }
+
+            // Reset body zoom just in case a previous version set it
+            if ('zoom' in document.body.style) document.body.style.zoom = "1";
+
+            // Load App Scale
+            const savedScale = localStorage.getItem('appScale');
+            if (savedScale) {
+                const scaleSelect = document.getElementById('app-scale-select');
+                if (scaleSelect) scaleSelect.value = savedScale;
+                setAppScale(savedScale);
+            } else {
+                setAppScale(0.85); // Default to 85% for TV content
+            }
+
             yukle();
-            setInterval(yukle, 15000);
+
+            // Countdown & Auto-Refresh Logic (Unified)
             setInterval(() => {
-                refreshSeconds--; if (refreshSeconds < 0) refreshSeconds = 15;
-                const t = document.getElementById('refresh-timer'); if (t) t.innerText = refreshSeconds;
-                checkManualRefresh();
+                refreshSeconds--;
+                if (refreshSeconds <= 0) {
+                    yukle();
+                }
+                const timerEl = document.getElementById('refresh-timer');
+                if (timerEl) timerEl.innerText = refreshSeconds;
             }, 1000);
 
+            // --- SYSTEM MONITOR (FPS & RAM) ---
             const sysMon = document.getElementById('system-monitor');
-            let f = 0, lt = performance.now();
-            function mon() {
-                f++; let n = performance.now();
-                if (n - lt >= 1000) {
-                    let fps = f, ram = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + "MB" : "--";
-                    if (sysMon) sysMon.innerText = `FPS: ${fps} | RAM: ${ram}`;
-                    f = 0; lt = n;
+            let frameCount = 0;
+            let lastTime = performance.now();
+
+            function updateMonitor() {
+                const now = performance.now();
+                frameCount++;
+
+                if (now - lastTime >= 1000) {
+                    const fps = frameCount;
+                    frameCount = 0;
+                    lastTime = now;
+
+                    let ramUsage = "--";
+                    if (performance.memory) {
+                        // usedJSHeapSize is in bytes, convert to MB
+                        ramUsage = Math.round(performance.memory.usedJSHeapSize / 1048576) + "MB";
+                    }
+
+                    if (sysMon) sysMon.innerText = `FPS: ${fps} | RAM: ${ramUsage}`;
                 }
-                requestAnimationFrame(mon);
+                requestAnimationFrame(updateMonitor);
             }
-            mon();
-            try { if ('wakeLock' in navigator) requestWakeLock(); } catch (e) { }
+            requestAnimationFrame(updateMonitor);
+
+            try {
+                if ('wakeLock' in navigator) {
+                    requestWakeLock();
+                }
+            } catch (e) { console.log("Wake Lock not supported"); }
         };
     </script>
 </body>
