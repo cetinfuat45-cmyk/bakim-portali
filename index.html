@@ -237,7 +237,7 @@
 
         .list-row {
             display: grid;
-            grid-template-columns: 11em 10em 12em 13em 1fr 11em;
+            grid-template-columns: 12em 11em 10em 13em 1fr 11em;
             gap: 8px;
             padding: 1px 6px;
             border-bottom: 1px solid var(--row-border, rgba(0,0,0,0.3));
@@ -684,9 +684,9 @@
                             // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
                             const rowHtml = `
                                 <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
+                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
                                     <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:700">${datePart} ${timePart}</div>
                                     <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${acan}</div>
-                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
                                     <div class="r-type ${info.c}">${info.label}</div>
                                     <div class="r-val" style="color:var(--desc-override, var(--desc-color)); font-weight:900; font-size: 1.25em; text-decoration: underline; text-shadow: none;">${desc}</div>
                                     <div class="r-val" style="text-align:right; color:var(--row-color-primary, #000); font-weight:900; font-size:1.1em;">${tech}</div>
